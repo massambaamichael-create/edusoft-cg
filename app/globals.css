@@ -221,5 +221,81 @@ body:has(input[placeholder="Rechercher par nom, email ou matricule..."]) main bu
   box-shadow:0 10px 26px rgba(99,102,241,.24) !important;
 }
 
+/* =========================================================
+   EMPLOI DU TEMPS — CONTRASTE & INTÉGRATION PREMIUM
+   Cible uniquement la page qui utilise la structure .bg-white.text-slate-900.
+========================================================= */
+body:has(.bg-white.text-slate-900) {
+  background:
+    radial-gradient(circle at 82% 0%, rgba(99,102,241,.11), transparent 28rem),
+    radial-gradient(circle at 8% 100%, rgba(14,165,233,.055), transparent 30rem),
+    #070b18 !important;
+}
+body:has(.bg-white.text-slate-900) .bg-white.text-slate-900 {
+  background: transparent !important;
+  color: #f8fafc !important;
+}
+body:has(.bg-white.text-slate-900) .bg-white.text-slate-900 > div[class*="pl-\[270px\]"] {
+  background:
+    radial-gradient(circle at 90% 6%, rgba(99,102,241,.08), transparent 24rem),
+    #070b18 !important;
+}
+body:has(.bg-white.text-slate-900) header.sticky {
+  background: rgba(7,11,24,.82) !important;
+  border-color: rgba(129,140,248,.13) !important;
+  box-shadow: 0 12px 38px rgba(0,0,0,.22);
+}
+body:has(.bg-white.text-slate-900) header.sticky h1,
+body:has(.bg-white.text-slate-900) main h1,
+body:has(.bg-white.text-slate-900) main h2,
+body:has(.bg-white.text-slate-900) main h3 {
+  color: #f8fafc !important;
+}
+body:has(.bg-white.text-slate-900) .text-slate-950 { color: #f8fafc !important; }
+body:has(.bg-white.text-slate-900) .text-slate-900 { color: #e8eefc !important; }
+body:has(.bg-white.text-slate-900) .text-slate-800 { color: #dbe5f5 !important; }
+body:has(.bg-white.text-slate-900) .text-slate-700 { color: #cbd5e1 !important; }
+body:has(.bg-white.text-slate-900) .text-slate-600 { color: #aebbd0 !important; }
+body:has(.bg-white.text-slate-900) .text-slate-500 { color: #8fa0ba !important; }
+body:has(.bg-white.text-slate-900) .text-slate-400 { color: #74839d !important; }
+body:has(.bg-white.text-slate-900) .text-slate-300 { color: #64748b !important; }
+body:has(.bg-white.text-slate-900) [class*="border-slate-"] { border-color: rgba(148,163,184,.14) !important; }
+body:has(.bg-white.text-slate-900) [class*="bg-slate-50"] { background: #0d1528 !important; }
+body:has(.bg-white.text-slate-900) [class*="bg-slate-100"] { background: #111a30 !important; }
+body:has(.bg-white.text-slate-900) [class*="bg-white"] { background-color: #10172b !important; }
+body:has(.bg-white.text-slate-900) main [class*="rounded-xl"],
+body:has(.bg-white.text-slate-900) main [class*="rounded-2xl"] {
+  border-color: rgba(129,140,248,.13) !important;
+  box-shadow: 0 16px 44px rgba(0,0,0,.20) !important;
+}
+body:has(.bg-white.text-slate-900) main button {
+  color: #e8eefc;
+}
+body:has(.bg-white.text-slate-900) main button.bg-indigo-600,
+body:has(.bg-white.text-slate-900) main button.bg-\[\#6366F1\] {
+  color: #fff !important;
+  background: linear-gradient(135deg,#725cff,#4f46e5) !important;
+  border-color: transparent !important;
+  box-shadow: 0 10px 26px rgba(99,102,241,.25) !important;
+}
+body:has(.bg-white.text-slate-900) input,
+body:has(.bg-white.text-slate-900) select,
+body:has(.bg-white.text-slate-900) textarea {
+  background: #0b1120 !important;
+  color: #f8fafc !important;
+  border-color: rgba(129,140,248,.18) !important;
+}
+body:has(.bg-white.text-slate-900) input::placeholder,
+body:has(.bg-white.text-slate-900) textarea::placeholder { color: #687792 !important; }
+body:has(.bg-white.text-slate-900) table thead { background: #0d1528 !important; }
+body:has(.bg-white.text-slate-900) table tbody tr { border-color: rgba(148,163,184,.10) !important; }
+body:has(.bg-white.text-slate-900) table tbody tr:hover { background: rgba(99,102,241,.05) !important; }
+body:has(.bg-white.text-slate-900) [class*="fixed"][class*="inset-0"] { background: rgba(2,6,23,.72) !important; }
+body:has(.bg-white.text-slate-900) [class*="fixed"][class*="inset-0"] > div {
+  background: linear-gradient(145deg,#111a32,#0a1021) !important;
+  border-color: rgba(129,140,248,.18) !important;
+  box-shadow: 0 30px 100px rgba(0,0,0,.55) !important;
+}
+
 @media (max-width:1024px) { body { overflow-x:hidden; } }
 @media (max-width:768px) { .pl-\[270px\] { padding-left:0 !important; } .ml-64 { margin-left:0 !important; } }
