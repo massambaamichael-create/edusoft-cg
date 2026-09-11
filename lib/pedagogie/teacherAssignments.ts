@@ -10,6 +10,9 @@ export type TeacherAssignment = {
   is_primary_teacher: boolean;
 };
 
+const TEACHER_ASSIGNMENT_SELECT =
+  "id, school_id, teacher_id, class_subject_id, academic_year_id, status, is_primary_teacher";
+
 export async function loadTeacherAssignmentsForClass(
   classSubjectIds: string[],
   academicYearId: string
@@ -18,11 +21,23 @@ export async function loadTeacherAssignmentsForClass(
 
   const { data, error } = await supabase
     .from("teacher_assignments")
-    .select(
-      "id, school_id, teacher_id, class_subject_id, academic_year_id, status, is_primary_teacher"
-    )
+    .select(TEACHER_ASSIGNMENT_SELECT)
     .eq("academic_year_id", academicYearId)
     .in("class_subject_id", classSubjectIds);
+
+  if (error) throw error;
+  return (data ?? []) as TeacherAssignment[];
+}
+
+export async function loadTeacherAssignmentsForAcademicYear(
+  academicYearId: string,
+  schoolId: string
+): Promise<TeacherAssignment[]> {
+  const { data, error } = await supabase
+    .from("teacher_assignments")
+    .select(TEACHER_ASSIGNMENT_SELECT)
+    .eq("academic_year_id", academicYearId)
+    .eq("school_id", schoolId);
 
   if (error) throw error;
   return (data ?? []) as TeacherAssignment[];
@@ -34,21 +49,24 @@ export async function saveTeacherAssignment({
   schoolId,
   academicYearId,
   classSubjectId,
+  isPrimaryTeacher = false,
 }: {
   assignment?: TeacherAssignment | null;
   teacherId: string;
   schoolId: string;
   academicYearId: string;
   classSubjectId: string;
+  isPrimaryTeacher?: boolean;
 }): Promise<TeacherAssignment> {
   if (assignment) {
     const { data, error } = await supabase
       .from("teacher_assignments")
-      .update({ teacher_id: teacherId })
+      .update({
+        teacher_id: teacherId,
+        is_primary_teacher: isPrimaryTeacher,
+      })
       .eq("id", assignment.id)
-      .select(
-        "id, school_id, teacher_id, class_subject_id, academic_year_id, status, is_primary_teacher"
-      )
+      .select(TEACHER_ASSIGNMENT_SELECT)
       .single();
 
     if (error) throw error;
@@ -63,11 +81,9 @@ export async function saveTeacherAssignment({
       academic_year_id: academicYearId,
       school_id: schoolId,
       status: "active",
-      is_primary_teacher: false,
+      is_primary_teacher: isPrimaryTeacher,
     })
-    .select(
-      "id, school_id, teacher_id, class_subject_id, academic_year_id, status, is_primary_teacher"
-    )
+    .select(TEACHER_ASSIGNMENT_SELECT)
     .single();
 
   if (error) throw error;
