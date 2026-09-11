@@ -56,7 +56,6 @@ body {
 .border-gray-300 { border-color: rgba(148,163,184,.24) !important; }
 .border-indigo-100 { border-color: rgba(129,140,248,.22) !important; }
 
-/* Surfaces become consistent across existing pages. */
 .rounded-2xl.border,
 .rounded-xl.border,
 .rounded-lg.border {
@@ -69,15 +68,10 @@ body {
   box-shadow: 0 14px 38px rgba(0,0,0,.18) !important;
 }
 
-/* Inputs / selectors */
-input, select, textarea {
-  color-scheme: dark;
-}
+input, select, textarea { color-scheme: dark; }
 
 input::placeholder,
-textarea::placeholder {
-  color: #64748b;
-}
+textarea::placeholder { color: #64748b; }
 
 input:focus,
 select:focus,
@@ -87,7 +81,6 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(99,102,241,.12);
 }
 
-/* Existing form abstractions used by pedagogical pages. */
 .form-input,
 .form-select {
   width: 100%;
@@ -107,50 +100,158 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(99,102,241,.12);
 }
 
-/* Tables */
 thead.bg-gray-50,
-thead.bg-gray-100 {
-  background: #0d1528 !important;
-}
+thead.bg-gray-100 { background: #0d1528 !important; }
 
-tbody tr {
-  border-color: rgba(148,163,184,.10) !important;
-}
+tbody tr { border-color: rgba(148,163,184,.10) !important; }
+tbody tr:hover { background: rgba(99,102,241,.045); }
 
-tbody tr:hover {
-  background: rgba(99,102,241,.045);
-}
-
-/* Header surfaces used throughout the app. */
 header.sticky {
   background: rgba(8,13,28,.88) !important;
   border-color: rgba(148,163,184,.12) !important;
   backdrop-filter: blur(18px);
 }
 
-/* Make existing action buttons feel like one product system. */
 button {
   transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease, border-color .16s ease;
 }
 
-button:not(:disabled):hover {
-  transform: translateY(-1px);
-}
+button:not(:disabled):hover { transform: translateY(-1px); }
 
 button.bg-\[\#6366F1\]:not(:disabled),
 button.bg-indigo-600:not(:disabled) {
   box-shadow: 0 10px 24px rgba(99,102,241,.20);
 }
 
-/* Scrollbars */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #263252 transparent;
-}
-
+* { scrollbar-width: thin; scrollbar-color: #263252 transparent; }
 *::-webkit-scrollbar { width: 7px; height: 7px; }
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb { background: #263252; border-radius: 999px; }
+
+/* =========================================================
+   CLASSES — DESIGN SYSTEM V2
+   Page-scoped through the existing search placeholder so this
+   does not alter business logic or other modules.
+========================================================= */
+
+body:has(input[placeholder="Rechercher une classe..."]) [class~="pl-[270px]"] {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 88% 5%, rgba(99,102,241,.11), transparent 25rem),
+    radial-gradient(circle at 45% 100%, rgba(14,165,233,.05), transparent 28rem),
+    #070b18 !important;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) header.sticky {
+  min-height: 82px;
+  border-bottom: 1px solid rgba(129,140,248,.13) !important;
+  background: rgba(7,11,24,.78) !important;
+  box-shadow: 0 12px 36px rgba(0,0,0,.18);
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main.p-5 {
+  max-width: 1680px;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main > div:first-child h2 {
+  font-size: clamp(1.7rem, 2vw, 2.35rem) !important;
+  letter-spacing: -.035em;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main > div:first-child > div:first-child p:first-child {
+  color: #a78bfa !important;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-size: .68rem !important;
+  font-weight: 800;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main section > [class*="rounded-2xl"],
+body:has(input[placeholder="Rechercher une classe..."]) main aside > [class*="rounded-2xl"] {
+  background: linear-gradient(145deg, rgba(16,23,43,.98), rgba(10,17,34,.96)) !important;
+  border: 1px solid rgba(129,140,248,.14) !important;
+  box-shadow: 0 18px 50px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.025) !important;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main section > [class*="rounded-2xl"]:hover,
+body:has(input[placeholder="Rechercher une classe..."]) main aside > [class*="rounded-2xl"]:hover {
+  border-color: rgba(129,140,248,.25) !important;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main section.mb-6 {
+  gap: .75rem !important;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main section.mb-6 > div {
+  position: relative;
+  overflow: hidden;
+  min-height: 118px;
+  border-color: rgba(129,140,248,.14) !important;
+  background:
+    radial-gradient(circle at 100% 0, rgba(99,102,241,.12), transparent 9rem),
+    linear-gradient(145deg, #10172b, #0b1120) !important;
+  box-shadow: 0 14px 38px rgba(0,0,0,.20) !important;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main section.mb-6 > div::after {
+  content: "";
+  position: absolute;
+  right: -35px;
+  top: -35px;
+  width: 105px;
+  height: 105px;
+  border-radius: 999px;
+  border: 1px solid rgba(167,139,250,.10);
+  box-shadow: 0 0 0 18px rgba(99,102,241,.025), 0 0 0 36px rgba(99,102,241,.015);
+  pointer-events: none;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) input[placeholder="Rechercher une classe..."] {
+  min-height: 46px;
+  background: rgba(6,11,24,.72) !important;
+  border-color: rgba(129,140,248,.16) !important;
+  color: #f8fafc !important;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) input[placeholder="Rechercher une classe..."]:focus {
+  border-color: rgba(129,140,248,.60) !important;
+  box-shadow: 0 0 0 4px rgba(99,102,241,.10), 0 12px 30px rgba(0,0,0,.18) !important;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main section.mb-6 button {
+  min-height: 38px;
+  border: 1px solid rgba(148,163,184,.09);
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main section.mb-6 button.bg-\[\#6366F1\] {
+  background: linear-gradient(135deg, #6d5dfc, #4f46e5) !important;
+  box-shadow: 0 8px 22px rgba(99,102,241,.25);
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main section.mb-6 + div > section > div,
+body:has(input[placeholder="Rechercher une classe..."]) main section.mb-6 + div aside > div {
+  border-color: rgba(129,140,248,.13) !important;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main aside h3 {
+  letter-spacing: -.01em;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main aside [class*="bg-[#F8FAFC]"] {
+  background: linear-gradient(145deg, #0d1528, #090f20) !important;
+  border-color: rgba(129,140,248,.12) !important;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) main button.bg-\[\#6366F1\]:not(:disabled) {
+  background: linear-gradient(135deg, #725cff, #4f46e5) !important;
+  box-shadow: 0 10px 28px rgba(99,102,241,.28) !important;
+}
+
+body:has(input[placeholder="Rechercher une classe..."]) [class*="fixed"][class*="inset-0"] > div {
+  background: linear-gradient(145deg, #111a32, #0a1021) !important;
+  border: 1px solid rgba(129,140,248,.18) !important;
+  box-shadow: 0 30px 100px rgba(0,0,0,.55) !important;
+}
 
 @media (max-width: 1024px) {
   body { overflow-x: hidden; }
