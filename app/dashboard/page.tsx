@@ -3,25 +3,78 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Search,
+  Activity,
+  ArrowRight,
   Bell,
-  Users,
-  GraduationCap,
-  School,
-  CalendarCheck,
-  UserPlus,
-  UserRoundPlus,
-  Plus,
-  FileText,
-  ArrowUpRight,
-  AlertCircle,
+  BookOpen,
+  CalendarDays,
   CheckCircle2,
   Clock3,
+  GraduationCap,
+  LayoutDashboard,
+  MessageSquare,
+  Plus,
+  School,
+  Search,
+  Settings,
   Sparkles,
+  UserPlus,
+  Users,
+  X,
 } from "lucide-react";
 
 import Sidebar from "@/components/Sidebar";
 import { supabase } from "@/lib/supabase";
+
+type QuickActionProps = {
+  label: string;
+  icon: typeof Plus;
+  className: string;
+  onClick?: () => void;
+};
+
+const quickActions: QuickActionProps[] = [
+  {
+    label: "Inscrire un élève",
+    icon: UserPlus,
+    className: "bg-[#6C2BD9] hover:bg-[#7c3aed]",
+  },
+  {
+    label: "Réinscrire un élève",
+    icon: GraduationCap,
+    className: "bg-cyan-600 hover:bg-cyan-500",
+  },
+  {
+    label: "Ajouter un enseignant",
+    icon: UserPlus,
+    className: "bg-emerald-600 hover:bg-emerald-500",
+  },
+  {
+    label: "Enregistrer un paiement",
+    icon: Plus,
+    className: "bg-orange-500 hover:bg-orange-400",
+  },
+  {
+    label: "Générer un bulletin",
+    icon: BookOpen,
+    className: "bg-green-600 hover:bg-green-500",
+  },
+  {
+    label: "Envoyer une annonce",
+    icon: MessageSquare,
+    className: "bg-pink-600 hover:bg-pink-500",
+  },
+  {
+    label: "Importer Excel",
+    icon: LayoutDashboard,
+    className: "bg-teal-600 hover:bg-teal-500",
+  },
+  {
+    label: "Ajouter une classe",
+    icon: School,
+    className: "bg-blue-600 hover:bg-blue-500",
+  },
+];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -29,91 +82,29 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState("Directeur");
   const [studentCount, setStudentCount] = useState(0);
-const [teacherCount, setTeacherCount] = useState(0);
-const [classCount, setClassCount] = useState(0);
-const [attendanceRate, setAttendanceRate] = useState(0);
-const [schoolId, setSchoolId] = useState<string | null>(null);
-const [showTeacherModal, setShowTeacherModal] = useState(false);
+  const [teacherCount, setTeacherCount] = useState(0);
+  const [classCount, setClassCount] = useState(0);
+  const [attendanceRate, setAttendanceRate] = useState(0);
+  const [schoolId, setSchoolId] = useState<string | null>(null);
+  const [showTeacherModal, setShowTeacherModal] = useState(false);
+  const [teacherFirstName, setTeacherFirstName] = useState("");
+  const [teacherLastName, setTeacherLastName] = useState("");
+  const [teacherEmail, setTeacherEmail] = useState("");
+  const [teacherPhone, setTeacherPhone] = useState("");
+  const [teacherEmployeeNumber, setTeacherEmployeeNumber] = useState("");
+  const [teacherSaving, setTeacherSaving] = useState(false);
+  const [todayLabel, setTodayLabel] = useState("");
 
-const [teacherFirstName, setTeacherFirstName] = useState("");
-const [teacherLastName, setTeacherLastName] = useState("");
-const [teacherEmail, setTeacherEmail] = useState("");
-const [teacherPhone, setTeacherPhone] = useState("");
-const [teacherEmployeeNumber, setTeacherEmployeeNumber] = useState("");
-const handleCreateTeacher = async () => {
-  if (!teacherFirstName.trim()) {
-    alert("Veuillez saisir le prénom de l'enseignant.");
-    return;
-  }
-
-  if (!teacherLastName.trim()) {
-    alert("Veuillez saisir le nom de l'enseignant.");
-    return;
-  }
-
-  if (!teacherEmail.trim()) {
-    alert("Veuillez saisir l'adresse email de l'enseignant.");
-    return;
-  }
-
-  if (!teacherPhone.trim()) {
-    alert("Veuillez saisir le numéro de téléphone de l'enseignant.");
-    return;
-  }
-
-  if (!teacherEmployeeNumber.trim()) {
-    alert("Veuillez saisir le numéro matricule de l'enseignant.");
-    return;
-  }
-
-  if (!schoolId) {
-    alert("Impossible de déterminer l'école du directeur.");
-    return;
-  }
-
-  try {
-    const response = await fetch("/api/teachers", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        first_name: teacherFirstName.trim(),
-        last_name: teacherLastName.trim(),
-        email: teacherEmail.trim(),
-        phone: teacherPhone.trim(),
-        school_id: schoolId,
-        employee_number: teacherEmployeeNumber.trim(),
-      }),
-    });
-
-    const result = await response.json();
-
-    if (!response.ok || !result.success) {
-      console.error("ERREUR CRÉATION ENSEIGNANT :", result);
-
-      alert(
-        result.error ??
-          "Une erreur est survenue lors de la création de l'enseignant."
-      );
-
-      return;
-    }
-
-    console.log("ENSEIGNANT CRÉÉ :", result);
-
-    alert(
-      `Enseignant créé avec succès.\n\nUn email contenant ses identifiants de connexion a été envoyé à ${teacherEmail.trim()}.`
-    );
-  } catch (error) {
-    console.error("ERREUR REQUÊTE ENSEIGNANT :", error);
-
-    alert(
-      "Impossible de contacter le serveur. Vérifiez votre connexion et réessayez."
-    );
-  }
-};
   useEffect(() => {
+    setTodayLabel(
+      new Intl.DateTimeFormat("fr-FR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(new Date())
+    );
+
     const checkAuth = async () => {
       const {
         data: { session },
@@ -123,784 +114,364 @@ const handleCreateTeacher = async () => {
         router.replace("/");
         return;
       }
+
       const { data: userProfile, error: profileError } = await supabase
-  .from("users")
-  .select("school_id, first_name, last_name")
-  .eq("auth_user_id", session.user.id)
-  .single();
+        .from("users")
+        .select("school_id, first_name, last_name")
+        .eq("auth_user_id", session.user.id)
+        .single();
 
-if (profileError || !userProfile) {
-  console.error("ERREUR PROFIL UTILISATEUR :", profileError);
-  setLoading(false);
-  return;
-}
-
-setSchoolId(userProfile.school_id);
-
-console.log("SCHOOL ID DU DIRECTEUR :", userProfile.school_id);
-
-      const { count, error } = await supabase
-        .from("students")
-        .select("*", { count: "exact", head: true });
-
-      if (!error) {
-        setStudentCount(count ?? 0);
+      if (profileError || !userProfile) {
+        console.error("ERREUR PROFIL UTILISATEUR :", profileError);
+        setLoading(false);
+        return;
       }
-const { count: teachersCount, error: teachersError } = await supabase
-  .from("teachers")
-  .select("*", { count: "exact", head: true });
 
-if (!teachersError) {
-  setTeacherCount(teachersCount ?? 0);
-}
-const { count: classesCount, error: classesError } = await supabase
-  .from("classes")
-  .select("*", { count: "exact", head: true });
+      setSchoolId(userProfile.school_id);
+      const fullName = [userProfile.first_name, userProfile.last_name]
+        .filter(Boolean)
+        .join(" ");
+      if (fullName) setUserName(fullName);
 
-if (!classesError) {
-  setClassCount(classesCount ?? 0);
-}
-const today = new Date().toISOString().split("T")[0];
+      const [{ count }, { count: teachersCount }, { count: classesCount }] =
+        await Promise.all([
+          supabase.from("students").select("*", { count: "exact", head: true }),
+          supabase.from("teachers").select("*", { count: "exact", head: true }),
+          supabase.from("classes").select("*", { count: "exact", head: true }),
+        ]);
 
-const { data: attendanceData, error: attendanceError } = await supabase
-  .from("student_attendance")
-  .select("status")
-  .eq("attendance_date", today);
+      setStudentCount(count ?? 0);
+      setTeacherCount(teachersCount ?? 0);
+      setClassCount(classesCount ?? 0);
 
-if (!attendanceError && attendanceData && attendanceData.length > 0) {
-  const presentCount = attendanceData.filter(
-    (item) => item.status?.toLowerCase() === "present"
-  ).length;
+      const today = new Date().toISOString().split("T")[0];
+      const { data: attendanceData, error: attendanceError } = await supabase
+        .from("student_attendance")
+        .select("status")
+        .eq("attendance_date", today);
 
-  const rate = Math.round(
-    (presentCount / attendanceData.length) * 100
-  );
+      if (!attendanceError && attendanceData?.length) {
+        const presentCount = attendanceData.filter(
+          (item) => item.status?.toLowerCase() === "present"
+        ).length;
+        setAttendanceRate(
+          Math.round((presentCount / attendanceData.length) * 100)
+        );
+      }
 
-  setAttendanceRate(rate);
-}
-      setUserName("Directeur");
       setLoading(false);
     };
 
     checkAuth();
   }, [router]);
 
+  const handleCreateTeacher = async () => {
+    if (!teacherFirstName.trim() || !teacherLastName.trim()) {
+      alert("Veuillez saisir le prénom et le nom de l'enseignant.");
+      return;
+    }
+    if (!teacherEmail.trim() || !teacherPhone.trim()) {
+      alert("Veuillez saisir l'email et le téléphone de l'enseignant.");
+      return;
+    }
+    if (!teacherEmployeeNumber.trim()) {
+      alert("Veuillez saisir le numéro matricule de l'enseignant.");
+      return;
+    }
+    if (!schoolId) {
+      alert("Impossible de déterminer l'école du directeur.");
+      return;
+    }
+
+    setTeacherSaving(true);
+    try {
+      const response = await fetch("/api/teachers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          first_name: teacherFirstName.trim(),
+          last_name: teacherLastName.trim(),
+          email: teacherEmail.trim(),
+          phone: teacherPhone.trim(),
+          school_id: schoolId,
+          employee_number: teacherEmployeeNumber.trim(),
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        alert(result.error ?? "Une erreur est survenue lors de la création de l'enseignant.");
+        return;
+      }
+
+      alert(
+        `Enseignant créé avec succès.\n\nUn email contenant ses identifiants de connexion a été envoyé à ${teacherEmail.trim()}.`
+      );
+      setShowTeacherModal(false);
+      setTeacherFirstName("");
+      setTeacherLastName("");
+      setTeacherEmail("");
+      setTeacherPhone("");
+      setTeacherEmployeeNumber("");
+      setTeacherCount((current) => current + 1);
+    } catch (error) {
+      console.error("ERREUR REQUÊTE ENSEIGNANT :", error);
+      alert("Impossible de contacter le serveur. Vérifiez votre connexion et réessayez.");
+    } finally {
+      setTeacherSaving(false);
+    }
+  };
+
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#F7F8FC] flex items-center justify-center">
+      <main className="min-h-screen bg-[#080B16] flex items-center justify-center text-white">
         <div className="text-center">
-          <div className="w-12 h-12 mx-auto rounded-2xl bg-[#6C2BD9] flex items-center justify-center text-white">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#6C2BD9] shadow-[0_0_35px_rgba(108,43,217,0.35)]">
             <GraduationCap size={25} />
           </div>
-
-          <p className="mt-4 text-sm text-gray-500">
-            Chargement d'EduSoft CG...
-          </p>
+          <p className="mt-4 text-sm text-white/50">Chargement d'EduSoft CG...</p>
         </div>
       </main>
     );
   }
 
+  const kpis = [
+    { label: "Élèves", value: studentCount, note: "Effectif actuel", icon: Users, accent: "text-violet-400", bg: "bg-violet-500/10" },
+    { label: "Enseignants", value: teacherCount, note: "Personnel enseignant", icon: GraduationCap, accent: "text-cyan-400", bg: "bg-cyan-500/10" },
+    { label: "Classes", value: classCount, note: "Classes enregistrées", icon: School, accent: "text-orange-400", bg: "bg-orange-500/10" },
+    { label: "Présence élèves", value: `${attendanceRate}%`, note: "Aujourd'hui", icon: Activity, accent: "text-emerald-400", bg: "bg-emerald-500/10" },
+    { label: "Année scolaire", value: "Active", note: "Contexte courant", icon: CalendarDays, accent: "text-pink-400", bg: "bg-pink-500/10" },
+    { label: "Direction", value: "Global", note: "Vue établissement", icon: LayoutDashboard, accent: "text-blue-400", bg: "bg-blue-500/10" },
+  ];
+
   return (
-    <main className="min-h-screen bg-[#F7F8FC] flex">
+    <main className="min-h-screen bg-[#080B16] text-white">
+      <Sidebar userProfile={{ first_name: userName }} userRole="Directeur Général" />
 
-      {/* SIDEBAR */}
-      <Sidebar
-  userProfile={{
-    first_name: userName,
-  }}
-  userRole="Directeur"
-/>
-
-      {/* ZONE PRINCIPALE */}
-      <section className="ml-[270px] min-w-0 flex-1">
-
-        {/* HEADER */}
-        <header className="h-[82px] bg-white border-b border-gray-100 px-8 flex items-center justify-between">
-
+      <section className="ml-[270px] min-w-0">
+        <header className="sticky top-0 z-40 flex min-h-[82px] items-center justify-between border-b border-white/[0.07] bg-[#080B16]/95 px-6 backdrop-blur-xl lg:px-8">
           <div>
-            <p className="text-sm text-gray-400">
-              Dimanche 9 août 2026
-            </p>
-
-            <h1 className="mt-1 text-xl font-bold text-gray-900">
-              Bonjour, {userName} 👋
-            </h1>
+            <p className="text-xs capitalize text-white/35">{todayLabel}</p>
+            <h1 className="mt-1 text-xl font-bold tracking-tight">Bonjour, M. Directeur 👋</h1>
+            <p className="mt-1 hidden text-xs text-white/35 sm:block">Bienvenue sur EduSoft CG - Smart School Management System</p>
           </div>
 
-          <div className="flex items-center gap-4">
-
-            {/* RECHERCHE */}
-            <div className="hidden lg:flex items-center w-[280px] h-10 bg-[#F7F8FC] rounded-xl px-3 gap-2">
-              <Search size={17} className="text-gray-400" />
-
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="hidden h-10 w-[250px] items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.035] px-3 lg:flex">
+              <Search size={16} className="text-white/30" />
               <input
-                type="text"
                 placeholder="Rechercher un élève..."
-                className="w-full bg-transparent outline-none text-sm text-gray-700 placeholder:text-gray-400"
+                className="w-full bg-transparent text-sm outline-none placeholder:text-white/25"
               />
             </div>
-
-            {/* NOTIFICATIONS */}
-            <button
-              type="button"
-              className="relative w-10 h-10 rounded-xl bg-[#F7F8FC] flex items-center justify-center text-gray-500 hover:text-[#6C2BD9] transition"
-            >
-              <Bell size={19} strokeWidth={1.9} />
-
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#6C2BD9]" />
+            <button className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.035] text-white/60 hover:text-white">
+              <Bell size={18} />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-violet-500" />
             </button>
-
-            {/* PROFIL */}
-            <div className="w-10 h-10 rounded-full bg-[#E9DDFB] text-[#6C2BD9] flex items-center justify-center font-bold">
-              D
-            </div>
-
+            <button className="hidden h-10 w-10 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.035] text-white/60 hover:text-white sm:flex">
+              <MessageSquare size={17} />
+            </button>
+            <button className="hidden h-10 w-10 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.035] text-white/60 hover:text-white sm:flex">
+              <CalendarDays size={17} />
+            </button>
+            <button className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 font-bold shadow-[0_0_25px_rgba(108,43,217,0.25)]">
+              {userName.charAt(0).toUpperCase()}
+            </button>
           </div>
-
         </header>
 
-        {/* CONTENU */}
-        <div className="p-8">
-
-          {/* TITRE */}
-          <div className="mb-8">
-
-            <h2 className="text-2xl font-bold text-gray-900">
-              Vue d'ensemble
-            </h2>
-
-            <p className="mt-1 text-sm text-gray-500">
-              Gérez votre établissement depuis votre espace de direction.
-            </p>
-
+        <div className="p-5 lg:p-8">
+          <div className="mb-7 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+            <div>
+              <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-violet-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-violet-400" /> Direction générale
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight lg:text-3xl">Vue d'ensemble</h2>
+              <p className="mt-1 text-sm text-white/40">La situation de votre établissement en un coup d'œil.</p>
+            </div>
+            <div className="flex items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.035] px-3 py-2 text-xs text-white/50">
+              <CalendarDays size={15} /> Année scolaire active
+            </div>
           </div>
 
-          {/* KPI */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-
-            {/* ÉLÈVES */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-
-              <div className="flex items-center justify-between">
-
-                <div className="w-11 h-11 rounded-xl bg-purple-50 text-[#6C2BD9] flex items-center justify-center">
-                  <Users size={21} />
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+            {kpis.map((kpi) => {
+              const Icon = kpi.icon;
+              return (
+                <div key={kpi.label} className="rounded-2xl border border-white/[0.07] bg-[#0D1220] p-4 shadow-[0_10px_40px_rgba(0,0,0,0.16)] transition hover:border-white/[0.12]">
+                  <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${kpi.bg} ${kpi.accent}`}>
+                    <Icon size={17} />
+                  </div>
+                  <p className="mt-4 text-xs text-white/40">{kpi.label}</p>
+                  <p className="mt-1 text-2xl font-bold tracking-tight">{kpi.value}</p>
+                  <p className="mt-1 truncate text-[11px] text-white/25">{kpi.note}</p>
                 </div>
-
-                <span className="text-xs text-gray-400">
-                  Total
-                </span>
-
-              </div>
-
-              <p className="mt-5 text-sm text-gray-500">
-                Élèves
-              </p>
-
-              <p className="mt-1 text-3xl font-bold text-gray-900">
-                {studentCount}
-              </p>
-              <p className="mt-2 text-xs text-gray-400">
-                Aucun élève enregistré
-              </p>
-
-            </div>
-
-            {/* ENSEIGNANTS */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-
-              <div className="flex items-center justify-between">
-
-                <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <GraduationCap size={21} />
-                </div>
-
-                <span className="text-xs text-gray-400">
-                  Total
-                </span>
-
-              </div>
-
-              <p className="mt-5 text-sm text-gray-500">
-                Enseignants
-              </p>
-
-              <p className="mt-1 text-3xl font-bold text-gray-900">
-                {teacherCount}
-              </p>
-
-              <p className="mt-2 text-xs text-gray-400">
-                Aucun enseignant enregistré
-              </p>
-
-            </div>
-
-            {/* CLASSES */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-
-              <div className="flex items-center justify-between">
-
-                <div className="w-11 h-11 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center">
-                  <School size={21} />
-                </div>
-
-                <span className="text-xs text-gray-400">
-                  Total
-                </span>
-
-              </div>
-
-              <p className="mt-5 text-sm text-gray-500">
-                Classes
-              </p>
-
-              <p className="mt-1 text-3xl font-bold text-gray-900">
-                {classCount}
-              </p>
-
-              <p className="mt-2 text-xs text-gray-400">
-                Aucune classe créée
-              </p>
-
-            </div>
-
-            {/* PRÉSENCE */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-
-              <div className="flex items-center justify-between">
-
-                <div className="w-11 h-11 rounded-xl bg-green-50 text-green-600 flex items-center justify-center">
-                  <CalendarCheck size={21} />
-                </div>
-
-                <span className="text-xs text-gray-400">
-                  Aujourd'hui
-                </span>
-
-              </div>
-
-              <p className="mt-5 text-sm text-gray-500">
-                Présence
-              </p>
-
-              <p className="mt-1 text-3xl font-bold text-gray-900">
-                {attendanceRate}%
-              </p>
-
-              <p className="mt-2 text-xs text-gray-400">
-                Aucune présence enregistrée
-              </p>
-
-            </div>
-
+              );
+            })}
           </div>
 
-          {/* GRAPHIQUES + PRIORITÉS */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mt-5">
-
-            {/* GRAPHIQUE */}
-            <div className="xl:col-span-2 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-
-              <div className="flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-bold text-gray-900">
-                    Évolution des effectifs
-                  </h3>
-
-                  <p className="mt-1 text-sm text-gray-400">
-                    Suivi des élèves au cours de l'année scolaire
-                  </p>
-                </div>
-
-                <select className="text-sm border border-gray-200 rounded-lg px-3 py-2 outline-none text-gray-600">
-                  <option>Cette année</option>
-                </select>
-
-              </div>
-
-              {/* État vide du graphique */}
-              <div className="h-[260px] mt-6 rounded-xl bg-[#F7F8FC] flex flex-col items-center justify-center">
-
-                <div className="w-12 h-12 rounded-xl bg-white text-[#6C2BD9] flex items-center justify-center shadow-sm">
-                  <ArrowUpRight size={22} />
-                </div>
-
-                <p className="mt-4 text-sm font-medium text-gray-600">
-                  Pas encore de données
-                </p>
-
-                <p className="mt-1 text-xs text-gray-400">
-                  Le graphique apparaîtra lorsque les élèves seront enregistrés.
-                </p>
-
-              </div>
-
-            </div>
-
-            {/* PRIORITÉS */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-
-              <div className="flex items-center justify-between">
-
-                <div>
-                  <h3 className="font-bold text-gray-900">
-                    Priorités du jour
-                  </h3>
-
-                  <p className="mt-1 text-sm text-gray-400">
-                    À traiter aujourd'hui
-                  </p>
-                </div>
-
-                <Clock3 size={19} className="text-gray-400" />
-
-              </div>
-
-              <div className="mt-6 space-y-3">
-
-                <div className="p-4 rounded-xl bg-[#F7F8FC] flex gap-3">
-
-                  <AlertCircle
-                    size={19}
-                    className="text-orange-500 shrink-0 mt-0.5"
-                  />
-
+          <div className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-12">
+            <div className="space-y-5 xl:col-span-8">
+              <section className="rounded-2xl border border-white/[0.07] bg-[#0D1220] p-5 lg:p-6">
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-700">
-                      Aucune priorité
-                    </p>
-
-                    <p className="text-xs text-gray-400 mt-1">
-                      Les alertes apparaîtront ici.
-                    </p>
+                    <h3 className="font-semibold">Priorités du jour</h3>
+                    <p className="mt-1 text-xs text-white/35">Les actions qui méritent votre attention.</p>
                   </div>
-
+                  <Clock3 size={18} className="text-white/30" />
                 </div>
+                <div className="mt-5 grid gap-2 sm:grid-cols-2">
+                  {[
+                    "Valider les éléments pédagogiques en attente",
+                    "Vérifier les paiements en attente",
+                    "Contrôler les absences du jour",
+                    "Consulter les alertes établissement",
+                  ].map((item, index) => (
+                    <button key={item} className="flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.025] p-3 text-left hover:bg-white/[0.05]">
+                      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${index === 0 ? "bg-violet-500/15 text-violet-300" : "bg-white/[0.05] text-white/40"}`}>{index + 1}</span>
+                      <span className="text-sm text-white/70">{item}</span>
+                      <ArrowRight size={14} className="ml-auto shrink-0 text-white/20" />
+                    </button>
+                  ))}
+                </div>
+              </section>
 
-                <div className="p-4 rounded-xl bg-[#F7F8FC] flex gap-3">
-
-                  <CheckCircle2
-                    size={19}
-                    className="text-green-500 shrink-0 mt-0.5"
-                  />
-
+              <section className="rounded-2xl border border-white/[0.07] bg-[#0D1220] p-5 lg:p-6">
+                <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-700">
-                      Tout est à jour
-                    </p>
-
-                    <p className="text-xs text-gray-400 mt-1">
-                      Rien à traiter pour le moment.
-                    </p>
+                    <h3 className="font-semibold">Actions rapides</h3>
+                    <p className="mt-1 text-xs text-white/35">Accédez directement aux opérations fréquentes.</p>
                   </div>
-
+                  <Plus size={18} className="text-white/30" />
                 </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* ACTIONS RAPIDES + RECHERCHE */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mt-5">
-
-            {/* ACTIONS RAPIDES */}
-            <div className="xl:col-span-2 bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-
-              <div className="mb-6">
-
-                <h3 className="font-bold text-gray-900">
-                  Actions rapides
-                </h3>
-
-                <p className="mt-1 text-sm text-gray-400">
-                  Les fonctions les plus utilisées.
-                </p>
-
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-
-                <button className="p-5 rounded-xl bg-[#F7F8FC] hover:bg-purple-50 transition text-left group">
-
-                  <UserPlus
-                    size={22}
-                    className="text-[#6C2BD9] group-hover:scale-110 transition"
-                  />
-
-                  <p className="mt-4 text-sm font-semibold text-gray-900">
-                    Ajouter un élève
-                  </p>
-
-                  <p className="mt-1 text-xs text-gray-400">
-                    Nouveau dossier
-                  </p>
-
-                </button>
-
-                <button
-  type="button"
-  onClick={() => setShowTeacherModal(true)}
-  className="p-5 rounded-xl bg-[#F7F8FC]
-  hover:bg-purple-50 transition text-left group"
->
-  <UserRoundPlus
-    size={22}
-    className="text-[#6C2BD9] group-hover:scale-110 transition"
-  />
-
-  <p className="mt-4 text-sm font-semibold text-gray-900">
-    Enseignant
-  </p>
-
-  <p className="mt-1 text-xs text-gray-400">
-    Ajouter
-  </p>
-</button>
-
-                <button className="p-5 rounded-xl bg-[#F7F8FC] hover:bg-purple-50 transition text-left group">
-
-                  <Plus
-                    size={22}
-                    className="text-[#6C2BD9] group-hover:scale-110 transition"
-                  />
-
-                  <p className="mt-4 text-sm font-semibold text-gray-900">
-                    Créer une classe
-                  </p>
-
-                  <p className="mt-1 text-xs text-gray-400">
-                    Nouvelle classe
-                  </p>
-
-                </button>
-
-                <button className="p-5 rounded-xl bg-[#F7F8FC] hover:bg-purple-50 transition text-left group">
-
-                  <FileText
-                    size={22}
-                    className="text-[#6C2BD9] group-hover:scale-110 transition"
-                  />
-
-                  <p className="mt-4 text-sm font-semibold text-gray-900">
-                    Documents
-                  </p>
-
-                  <p className="mt-1 text-xs text-gray-400">
-                    Générer
-                  </p>
-
-                </button>
-
-              </div>
-
-            </div>
-
-            {/* RECHERCHE RAPIDE */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-
-              <div className="flex items-center gap-3">
-
-                <div className="w-10 h-10 rounded-xl bg-purple-50 text-[#6C2BD9] flex items-center justify-center">
-                  <Search size={19} />
+                <div className="mt-5 grid grid-cols-2 gap-2 md:grid-cols-4">
+                  {quickActions.map((action) => {
+                    const Icon = action.icon;
+                    const onClick = action.label === "Ajouter un enseignant"
+                      ? () => setShowTeacherModal(true)
+                      : action.label === "Ajouter une classe"
+                        ? () => router.push("/pedagogie/classes")
+                        : undefined;
+                    return (
+                      <button key={action.label} onClick={onClick} className={`min-h-[82px] rounded-xl px-3 py-3 text-left text-xs font-semibold text-white shadow-lg transition hover:-translate-y-0.5 ${action.className}`}>
+                        <Icon size={18} />
+                        <span className="mt-3 block">{action.label}</span>
+                      </button>
+                    );
+                  })}
                 </div>
+              </section>
 
-                <div>
-                  <h3 className="font-bold text-gray-900">
-                    Recherche rapide
-                  </h3>
-
-                  <p className="text-xs text-gray-400 mt-1">
-                    Retrouvez un élève
-                  </p>
-                </div>
-
-              </div>
-
-              <div className="mt-5">
-
-                <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 h-11">
-
-                  <Search size={17} className="text-gray-400" />
-
-                  <input
-                    type="text"
-                    placeholder="Nom ou matricule..."
-                    className="w-full outline-none text-sm"
-                  />
-
-                </div>
-
-              </div>
-
-              <div className="mt-5 p-4 rounded-xl bg-[#F7F8FC] text-center">
-
-                <p className="text-sm text-gray-500">
-                  Aucun résultat
-                </p>
-
-                <p className="text-xs text-gray-400 mt-1">
-                  Les élèves apparaîtront ici.
-                </p>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* IA + FINANCES */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mt-5">
-
-            {/* IA */}
-            <div className="xl:col-span-2 rounded-2xl p-6 shadow-sm bg-gradient-to-br from-[#6C2BD9] to-[#4B1FA8] text-white">
-
-              <div className="flex items-start justify-between">
-
-                <div>
-
-                  <div className="flex items-center gap-2">
-
-                    <Sparkles size={19} />
-
-                    <span className="text-sm font-semibold">
-                      Assistant EduSoft
-                    </span>
-
+              <section className="rounded-2xl border border-white/[0.07] bg-[#0D1220] p-5 lg:p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold">Activités récentes</h3>
+                    <p className="mt-1 text-xs text-white/35">Les dernières opérations visibles dans votre espace.</p>
                   </div>
-
-                  <h3 className="mt-4 text-xl font-bold">
-                    Votre assistant administratif
-                  </h3>
-
-                  <p className="mt-2 text-sm text-purple-100 max-w-xl">
-                    L'assistant IA pourra analyser les données de votre
-                    établissement, répondre à vos questions et vous aider
-                    dans vos tâches administratives.
-                  </p>
-
+                  <button className="text-xs font-semibold text-violet-400 hover:text-violet-300">Voir tout</button>
                 </div>
-
-                <Sparkles
-                  size={42}
-                  className="text-purple-200/40"
-                />
-
-              </div>
-
-              <button
-                type="button"
-                className="mt-6 px-5 py-2.5 rounded-xl bg-white text-[#6C2BD9] text-sm font-semibold hover:bg-purple-50 transition"
-              >
-                Ouvrir l'assistant
-              </button>
-
+                <div className="mt-5 space-y-1">
+                  {[
+                    ["Effectif élèves", `${studentCount} élèves actuellement enregistrés`],
+                    ["Équipe pédagogique", `${teacherCount} enseignants enregistrés`],
+                    ["Structure", `${classCount} classes enregistrées`],
+                    ["Présence", `${attendanceRate}% de présence calculée aujourd'hui`],
+                  ].map(([title, detail]) => (
+                    <div key={title} className="flex items-center gap-3 rounded-xl p-3 hover:bg-white/[0.025]">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.05] text-emerald-400"><CheckCircle2 size={16} /></div>
+                      <div className="min-w-0 flex-1"><p className="text-sm font-medium">{title}</p><p className="truncate text-xs text-white/30">{detail}</p></div>
+                    </div>
+                  ))}
+                </div>
+              </section>
             </div>
 
-            {/* FINANCES */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-
-              <h3 className="font-bold text-gray-900">
-                État financier
-              </h3>
-
-              <p className="mt-1 text-sm text-gray-400">
-                Situation actuelle
-              </p>
-
-              <div className="mt-6 space-y-4">
-
+            <div className="space-y-5 xl:col-span-4">
+              <section className="rounded-2xl border border-white/[0.07] bg-[#0D1220] p-5 lg:p-6">
                 <div className="flex items-center justify-between">
-
-                  <span className="text-sm text-gray-500">
-                    Recettes
-                  </span>
-
-                  <span className="font-semibold text-gray-900">
-                    0 FCFA
-                  </span>
-
+                  <div><h3 className="font-semibold">Calendrier du jour</h3><p className="mt-1 text-xs text-white/35">Votre agenda de direction.</p></div>
+                  <CalendarDays size={18} className="text-white/30" />
                 </div>
-
-                <div className="flex items-center justify-between">
-
-                  <span className="text-sm text-gray-500">
-                    Impayés
-                  </span>
-
-                  <span className="font-semibold text-gray-900">
-                    0 FCFA
-                  </span>
-
+                <div className="mt-5 space-y-3">
+                  {["08:00  Conseil pédagogique", "10:30  Réunion des enseignants", "14:00  Examens blancs", "16:00  Rencontre parents"].map((event) => (
+                    <div key={event} className="flex gap-3 rounded-xl border border-white/[0.05] bg-white/[0.025] p-3">
+                      <span className="h-2 w-2 translate-y-1.5 rounded-full bg-violet-400" />
+                      <p className="text-sm text-white/65">{event}</p>
+                    </div>
+                  ))}
                 </div>
+              </section>
 
-                <div className="flex items-center justify-between">
-
-                  <span className="text-sm text-gray-500">
-                    Dépenses
-                  </span>
-
-                  <span className="font-semibold text-gray-900">
-                    0 FCFA
-                  </span>
-
+              <section className="rounded-2xl border border-white/[0.07] bg-[#0D1220] p-5 lg:p-6">
+                <div className="flex items-center justify-between"><div><h3 className="font-semibold">Présence aujourd'hui</h3><p className="mt-1 text-xs text-white/35">Indicateurs disponibles.</p></div><Activity size={18} className="text-emerald-400" /></div>
+                <div className="mt-6 flex justify-around">
+                  <div className="text-center"><div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border-4 border-emerald-500/30 text-lg font-bold">{attendanceRate}%</div><p className="mt-2 text-xs text-white/40">Élèves</p></div>
+                  <div className="text-center"><div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border-4 border-cyan-500/30 text-lg font-bold">—</div><p className="mt-2 text-xs text-white/40">Enseignants</p></div>
+                  <div className="text-center"><div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border-4 border-violet-500/30 text-lg font-bold">—</div><p className="mt-2 text-xs text-white/40">Personnel</p></div>
                 </div>
+              </section>
 
-                <div className="pt-4 border-t border-gray-100 flex items-center justify-between">
-
-                  <span className="text-sm font-semibold text-gray-700">
-                    Solde
-                  </span>
-
-                  <span className="text-lg font-bold text-[#6C2BD9]">
-                    0 FCFA
-                  </span>
-
+              <section className="relative overflow-hidden rounded-2xl border border-violet-400/15 bg-gradient-to-br from-[#17102D] via-[#100D20] to-[#0D1220] p-5 lg:p-6">
+                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-violet-600/15 blur-3xl" />
+                <div className="relative">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/15 text-violet-300"><Sparkles size={19} /></div>
+                  <h3 className="mt-4 font-semibold">IA EduSoft</h3>
+                  <p className="mt-2 text-sm leading-6 text-white/45">Assistant intelligent pour analyser votre établissement et vous aider à identifier les prochaines actions.</p>
+                  <button className="mt-5 flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold hover:bg-violet-500">Ouvrir l'assistant <ArrowRight size={14} /></button>
                 </div>
+              </section>
 
-              </div>
-
+              <section className="rounded-2xl border border-white/[0.07] bg-[#0D1220] p-5 lg:p-6">
+                <div className="flex items-center justify-between"><div><h3 className="font-semibold">État financier</h3><p className="mt-1 text-xs text-white/35">Module financier.</p></div><Settings size={17} className="text-white/25" /></div>
+                <div className="mt-5 rounded-xl border border-dashed border-white/[0.08] bg-white/[0.02] p-4"><p className="text-sm text-white/55">Les données financières seront affichées ici lorsque le module Finances sera disponible.</p></div>
+              </section>
             </div>
-
           </div>
 
+          <div className="mt-5 flex flex-wrap gap-2 rounded-2xl border border-white/[0.07] bg-[#0D1220] p-3">
+            <span className="px-2 py-2 text-xs font-semibold text-white/35">Raccourcis</span>
+            {[
+              ["Importer Excel", ""],
+              ["Exporter PDF", ""],
+              ["Créer une classe", "/pedagogie/classes"],
+              ["Créer une matière", "/pedagogie/matieres"],
+              ["Créer un examen", ""],
+              ["Créer un utilisateur", ""],
+            ].map(([label, href]) => (
+              <button key={label} onClick={() => href && router.push(href)} className="rounded-lg bg-white/[0.035] px-3 py-2 text-xs text-white/50 transition hover:bg-white/[0.07] hover:text-white">{label}</button>
+            ))}
+          </div>
         </div>
-
       </section>
 
       {showTeacherModal && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-
-    <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl">
-      {/* HEADER */}
-      <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
-
-        <div>
-          <h3 className="text-lg font-bold text-gray-900">
-            Ajouter un enseignant
-          </h3>
-
-          <p className="mt-1 text-sm text-gray-400">
-            Créez le profil d'un nouvel enseignant.
-          </p>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-white/[0.08] bg-[#111827] p-6 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <div><h2 className="text-lg font-bold">Ajouter un enseignant</h2><p className="mt-1 text-xs text-white/35">Création via le processus existant EduSoft CG.</p></div>
+              <button onClick={() => setShowTeacherModal(false)} className="rounded-lg p-2 text-white/40 hover:bg-white/[0.05] hover:text-white"><X size={18} /></button>
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {[
+                ["Prénom", teacherFirstName, setTeacherFirstName, "Jean"],
+                ["Nom", teacherLastName, setTeacherLastName, "Dupont"],
+                ["Email", teacherEmail, setTeacherEmail, "enseignant@ecole.cg"],
+                ["Téléphone", teacherPhone, setTeacherPhone, "+242 ..."],
+                ["Numéro matricule", teacherEmployeeNumber, setTeacherEmployeeNumber, "ENS-001"],
+              ].map(([label, value, setter, placeholder], index) => (
+                <label key={label as string} className={index === 4 ? "sm:col-span-2" : ""}>
+                  <span className="mb-1.5 block text-xs font-medium text-white/55">{label as string}</span>
+                  <input value={value as string} onChange={(event) => (setter as (value: string) => void)(event.target.value)} placeholder={placeholder as string} className="h-11 w-full rounded-xl border border-white/[0.08] bg-white/[0.035] px-3 text-sm outline-none placeholder:text-white/20 focus:border-violet-500/60" />
+                </label>
+              ))}
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <button onClick={() => setShowTeacherModal(false)} className="rounded-xl border border-white/[0.08] px-4 py-2.5 text-sm text-white/55 hover:text-white">Annuler</button>
+              <button disabled={teacherSaving} onClick={handleCreateTeacher} className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50">{teacherSaving ? "Création..." : "Créer l'enseignant"}</button>
+            </div>
+          </div>
         </div>
-
-        <button
-          type="button"
-          onClick={() => setShowTeacherModal(false)}
-          className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 hover:bg-gray-100 hover:text-gray-700"
-        >
-          ✕
-        </button>
-
-      </div>
-
-      {/* CONTENU */}
-      <div className="p-6">
-
-        <div className="rounded-xl bg-purple-50 p-4">
-          <p className="text-sm font-medium text-[#6C2BD9]">
-            École sélectionnée
-          </p>
-
-          <p className="mt-1 text-xs text-purple-600">
-            {schoolId}
-          </p>
-        </div>
-
-        <div>
-  <label className="block text-sm font-medium text-gray-700">
-    Prénom
-  </label>
-
-  <input
-    type="text"
-    placeholder="Ex. Jean"
-    value={teacherFirstName}
-    onChange={(e) => setTeacherFirstName(e.target.value)}
-    className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-[#6C2BD9] focus:ring-2 focus:ring-purple-100"
-  />
-</div>
-<div className="mt-4">
-  <label className="block text-sm font-medium text-gray-700">
-    Nom
-  </label>
-
-  <input
-  type="text"
-  placeholder="Ex. Dupont"
-  value={teacherLastName}
-  onChange={(e) => setTeacherLastName(e.target.value)}
-  className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-[#6C2BD9] focus:ring-2 focus:ring-purple-100"
-/>
-</div>
-<div className="mt-4">
-  <label className="block text-sm font-medium text-gray-700">
-    Email
-  </label>
-
-  <input
-  type="email"
-  placeholder="Ex. jean.dupont@email.com"
-  value={teacherEmail}
-  onChange={(e) => setTeacherEmail(e.target.value)}
-  className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-[#6C2BD9] focus:ring-2 focus:ring-purple-100"
-/>
-</div>
-<div className="mt-4">
-  <label className="block text-sm font-medium text-gray-700">
-    Téléphone
-  </label>
-
-  <input
-  type="tel"
-  placeholder="Ex. +242 06 123 45 67"
-  value={teacherPhone}
-  onChange={(e) => setTeacherPhone(e.target.value)}
-  className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-[#6C2BD9] focus:ring-2 focus:ring-purple-100"
-/>
-</div>
-<div className="mt-4">
-  <label className="block text-sm font-medium text-gray-700">
-    Numéro matricule
-  </label>
-
-  <input
-  type="text"
-  placeholder="Ex. ENS-2026-001"
-  value={teacherEmployeeNumber}
-  onChange={(e) => setTeacherEmployeeNumber(e.target.value)}
-  className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-[#6C2BD9] focus:ring-2 focus:ring-purple-100"
-/>
-</div>
-<div className="mt-6 flex items-center justify-end gap-3 border-t border-gray-100 pt-5">
-  <button
-    type="button"
-    onClick={() => setShowTeacherModal(false)}
-    className="rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50"
-  >
-    Annuler
-  </button>
-
-  <button
-    type="button"
-    onClick={handleCreateTeacher}
-    className="rounded-xl bg-[#6C2BD9] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#5B21B6]"
-  >
-    Créer l'enseignant
-  </button>
-</div>
-
-      </div>
-
-    </div>
-
-  </div>
-)}
-
+      )}
     </main>
   );
 }
