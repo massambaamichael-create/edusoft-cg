@@ -33,6 +33,7 @@ export async function saveTeacherAssignment({
   teacherId,
   schoolId,
   academicYearId,
+  classSubjectId,
 }: {
   assignment?: TeacherAssignment | null;
   teacherId: string;
@@ -58,7 +59,7 @@ export async function saveTeacherAssignment({
     .from("teacher_assignments")
     .insert({
       teacher_id: teacherId,
-      class_subject_id: arguments[0] as never,
+      class_subject_id: classSubjectId,
       academic_year_id: academicYearId,
       school_id: schoolId,
       status: "active",
