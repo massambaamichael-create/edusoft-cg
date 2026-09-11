@@ -183,17 +183,29 @@ export default function DashboardPage() {
       return;
     }
 
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      alert("Votre session a expiré. Veuillez vous reconnecter.");
+      router.replace("/");
+      return;
+    }
+
     setTeacherSaving(true);
     try {
       const response = await fetch("/api/teachers", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({
           first_name: teacherFirstName.trim(),
           last_name: teacherLastName.trim(),
           email: teacherEmail.trim(),
           phone: teacherPhone.trim(),
-          school_id: schoolId,
           employee_number: teacherEmployeeNumber.trim(),
         }),
       });
