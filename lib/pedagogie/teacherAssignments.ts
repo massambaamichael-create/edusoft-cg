@@ -66,6 +66,9 @@ export async function saveTeacherAssignment({
         is_primary_teacher: isPrimaryTeacher,
       })
       .eq("id", assignment.id)
+      .eq("school_id", schoolId)
+      .eq("academic_year_id", academicYearId)
+      .eq("class_subject_id", classSubjectId)
       .select(TEACHER_ASSIGNMENT_SELECT)
       .single();
 
