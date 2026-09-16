@@ -1,6 +1,10 @@
-import { createClient } from "@supabase/supabase-js";
+/**
+ * Browser Supabase client (cookie-based via @supabase/ssr).
+ * Use this in Client Components.
+ *
+ * For Server Components / Route Handlers, prefer:
+ *   import { createClient } from "@/lib/supabase/server"
+ */
+import { createClient as createBrowserClient } from "@/lib/supabase/client";
 
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-);
+export const supabase = createBrowserClient();
