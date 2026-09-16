@@ -30,25 +30,31 @@ export async function updateSession(request: NextRequest) {
   );
 
   // IMPORTANT: do not add logic between createServerClient and getUser().
-  // A simple mistake can make sessions very hard to debug.
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-
+  const isApiRoute = pathname.startsWith("/api/");
   const isPublicRoute =
     pathname === "/" ||
     pathname.startsWith("/api/test-email");
 
-  // Not logged in → protected routes redirect to login
+  // Not logged in
   if (!user && !isPublicRoute) {
+    if (isApiRoute) {
+      return NextResponse.json(
+        { success: false, error: "Non authentifié." },
+        { status: 401 }
+      );
+    }
+
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
   }
 
-  // Logged in → login page redirects to dashboard
+  // Logged in → leave login page
   if (user && pathname === "/") {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
