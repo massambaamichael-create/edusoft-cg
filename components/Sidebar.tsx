@@ -7,6 +7,7 @@ import {
   FileSpreadsheet,
   GraduationCap,
   LayoutDashboard,
+  LogOut,
   Mail,
   Settings,
   ShieldCheck,
@@ -16,6 +17,7 @@ import {
 
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 type SidebarUser = {
   first_name?: string | null;
@@ -58,25 +60,25 @@ const NAVIGATION = [
     ],
   },
   {
-  label: "Enseignants",
-  href: "/enseignants",
-  icon: UsersRound,
-  expandable: true,
-  children: [
-    {
-      label: "Tous les enseignants",
-      href: "/enseignants",
-    },
-    {
-      label: "Affectations",
-      href: "/enseignants/affectations",
-    },
-    {
-      label: "Matières enseignées",
-      href: "/enseignants/matieres",
-    },
-  ],
-},
+    label: "Enseignants",
+    href: "/enseignants",
+    icon: UsersRound,
+    expandable: true,
+    children: [
+      {
+        label: "Tous les enseignants",
+        href: "/enseignants",
+      },
+      {
+        label: "Affectations",
+        href: "/enseignants/affectations",
+      },
+      {
+        label: "Matières enseignées",
+        href: "/enseignants/matieres",
+      },
+    ],
+  },
   {
     label: "RH",
     href: "/rh",
@@ -127,24 +129,41 @@ export default function Sidebar({
   const router = useRouter();
 
   const [pedagogieOpen, setPedagogieOpen] = useState(
-  pathname.startsWith("/pedagogie")
-);
+    pathname.startsWith("/pedagogie")
+  );
 
-const [enseignantsOpen, setEnseignantsOpen] = useState(
-  pathname.startsWith("/enseignants")
-);
+  const [enseignantsOpen, setEnseignantsOpen] = useState(
+    pathname.startsWith("/enseignants")
+  );
+
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const fullName =
-    [
-      userProfile?.first_name,
-      userProfile?.last_name,
-    ]
+    [userProfile?.first_name, userProfile?.last_name]
       .filter(Boolean)
       .join(" ") || "Utilisateur";
 
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Erreur de déconnexion :", error);
+        alert("Impossible de se déconnecter. Réessaie.");
+        return;
+      }
+      router.replace("/");
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+      alert("Une erreur est survenue lors de la déconnexion.");
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 w-[270px]
-bg-[#1A2451] text-white">
+    <aside className="fixed inset-y-0 left-0 z-50 w-[270px] bg-[#1A2451] text-white">
       <div className="flex h-full flex-col">
 
         {/* LOGO */}
@@ -175,11 +194,8 @@ bg-[#1A2451] text-white">
             {NAVIGATION.map((item) => {
               const Icon = item.icon;
 
-              const isPedagogie =
-  item.label === "Pédagogie";
-
-const isEnseignants =
-  item.label === "Enseignants";
+              const isPedagogie = item.label === "Pédagogie";
+              const isEnseignants = item.label === "Enseignants";
 
               const isActive =
                 item.href &&
@@ -192,14 +208,14 @@ const isEnseignants =
                   <button
                     type="button"
                     onClick={() => {
-  if (isPedagogie) {
-    setPedagogieOpen((previous) => !previous);
-  } else if (isEnseignants) {
-    setEnseignantsOpen((previous) => !previous);
-  } else if (item.href) {
-    router.push(item.href);
-  }
-}}
+                      if (isPedagogie) {
+                        setPedagogieOpen((previous) => !previous);
+                      } else if (isEnseignants) {
+                        setEnseignantsOpen((previous) => !previous);
+                      } else if (item.href) {
+                        router.push(item.href);
+                      }
+                    }}
                     className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition
                     ${
                       isActive || (isPedagogie && pathname.startsWith("/pedagogie"))
@@ -214,20 +230,20 @@ const isEnseignants =
                     </span>
 
                     {item.expandable && (
-  <ChevronDown
-    className={`h-4 w-4 transition-transform ${
-      (isPedagogie && pedagogieOpen) ||
-      (isEnseignants && enseignantsOpen)
-        ? "rotate-180"
-        : ""
-    }`}
-  />
-)}
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${
+                          (isPedagogie && pedagogieOpen) ||
+                          (isEnseignants && enseignantsOpen)
+                            ? "rotate-180"
+                            : ""
+                        }`}
+                      />
+                    )}
                   </button>
 
                   {((isPedagogie && pedagogieOpen) ||
-  (isEnseignants && enseignantsOpen)) &&
-  item.children && (
+                    (isEnseignants && enseignantsOpen)) &&
+                    item.children && (
                       <div className="ml-6 mt-1 space-y-1 border-l border-white/10 pl-3">
 
                         {item.children.map((child) => {
@@ -260,8 +276,8 @@ const isEnseignants =
           </div>
         </nav>
 
-        {/* PROFIL */}
-        <div className="border-t border-white/10 p-4">
+        {/* PROFIL + DÉCONNEXION */}
+        <div className="border-t border-white/10 p-4 space-y-3">
           <div className="flex items-center gap-3 rounded-xl bg-white/5 p-3">
 
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#6366F1]">
@@ -281,6 +297,16 @@ const isEnseignants =
             </div>
 
           </div>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-red-300 hover:bg-red-500/10 hover:text-red-200 transition disabled:opacity-50"
+          >
+            <LogOut className="h-[18px] w-[18px]" />
+            <span>{loggingOut ? "Déconnexion..." : "Se déconnecter"}</span>
+          </button>
         </div>
 
       </div>
