@@ -994,9 +994,8 @@ export default function MatieresPage() {
           )}
 
           {successMessage && (
-            <div className="fixed right-6 top-6 z-[100] flex max-w-md items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 shadow-lg">
-              <Check className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{successMessage}</span>
+            <div className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+              {successMessage}
             </div>
           )}
 
@@ -1758,7 +1757,7 @@ export default function MatieresPage() {
                     <option value="all">Toutes les séries</option>
                     {getSeriesForCycle(curriculumCycle).map((item) => (
                       <option key={item.id} value={item.id}>
-                        {item.code} — {item.name}
+                        {item.name}
                       </option>
                     ))}
                   </select>
@@ -1796,3 +1795,152 @@ export default function MatieresPage() {
                     Enregistrement...
                   </>
                 ) : (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Enregistrer
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modal === "class" && selectedClass && selectedSubject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">
+                  Configurer la matière
+                </h2>
+                <p className="mt-1 text-xs text-gray-400">
+                  {selectedClass.name} · {selectedSubject.name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-5 px-6 py-6">
+              <div className="rounded-xl bg-indigo-50 px-4 py-3">
+                <p className="text-xs leading-5 text-indigo-700">
+                  Cette matière est disponible ici parce qu'elle correspond au
+                  contexte pédagogique de la classe. Cette étape configure
+                  uniquement son utilisation dans cette classe pour l'année
+                  scolaire.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Coefficient
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={classCoefficient}
+                    onChange={(event) =>
+                      setClassCoefficient(
+                        Math.max(1, Number(event.target.value))
+                      )
+                    }
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-indigo-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Heures / semaine
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={hoursPerWeek}
+                    onChange={(event) =>
+                      setHoursPerWeek(Math.max(0, Number(event.target.value)))
+                    }
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-indigo-400"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  Moyenne maximale
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  step="0.5"
+                  value={maxSubjectAverage}
+                  onChange={(event) =>
+                    setMaxSubjectAverage(
+                      Math.max(1, Number(event.target.value))
+                    )
+                  }
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-indigo-400"
+                />
+              </div>
+
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 px-4 py-3">
+                <input
+                  type="checkbox"
+                  checked={countsTowardAverage}
+                  onChange={(event) =>
+                    setCountsTowardAverage(event.target.checked)
+                  }
+                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span>
+                  <span className="block text-sm font-semibold text-gray-700">
+                    Compte dans la moyenne générale
+                  </span>
+                  <span className="mt-0.5 block text-xs text-gray-400">
+                    Utiliser cette matière dans le calcul de la moyenne générale.
+                  </span>
+                </span>
+              </label>
+            </div>
+
+            <div className="flex justify-end gap-3 border-t border-gray-100 px-6 py-4">
+              <button
+                type="button"
+                onClick={closeModal}
+                disabled={saving}
+                className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveClassSubject}
+                disabled={saving}
+                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {saving ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Enregistrement...
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Enregistrer
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
