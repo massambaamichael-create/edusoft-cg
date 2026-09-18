@@ -34,7 +34,6 @@ type Level = {
 type Series = {
   id: string;
   cycle_id: string;
-  code: string;
   name: string;
   category: string | null;
 };
@@ -184,8 +183,8 @@ export default function MatieresPage() {
 
         supabase
           .from("series")
-          .select("id, cycle_id, code, name, category")
-          .order("code"),
+          .select("id, cycle_id, name, category")
+          .order("name"),
 
         supabase
           .from("classes")
@@ -259,9 +258,7 @@ export default function MatieresPage() {
     levels.find((level) => level.id === levelId)?.name || "";
 
   const getSeriesName = (seriesId: string | null) =>
-    series.find((item) => item.id === seriesId)?.name ||
-    series.find((item) => item.id === seriesId)?.code ||
-    "";
+    series.find((item) => item.id === seriesId)?.name || "";
 
   const isLycee = (cycleId: string | null) => {
     const name = getCycleName(cycleId).toLowerCase();
@@ -1161,7 +1158,7 @@ export default function MatieresPage() {
                     .filter((item) => item.cycle_id === selectedCycle)
                     .map((item) => (
                       <option key={item.id} value={item.id}>
-                        {item.code} — {item.name}
+                        {item.name}
                       </option>
                     ))}
                 </select>
