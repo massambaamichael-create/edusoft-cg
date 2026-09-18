@@ -3,21 +3,20 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
+  Check,
   ChevronDown,
+  Layers3,
   Pencil,
   Plus,
   RefreshCw,
   Search,
+  Settings2,
   Trash2,
   X,
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
 import Sidebar from "@/components/Sidebar";
-
-/* =========================================================
-   TYPES
-========================================================= */
 
 type Cycle = {
   id: string;
@@ -32,11 +31,20 @@ type Level = {
   name: string;
 };
 
+type Series = {
+  id: string;
+  cycle_id: string;
+  code: string;
+  name: string;
+  category: string | null;
+};
+
 type SchoolClass = {
   id: string;
   school_id: string | null;
   cycle_id: string | null;
   level_id: string | null;
+  series_id: string | null;
   name: string;
   academic_year_id: string | null;
 };
@@ -45,8 +53,22 @@ type Subject = {
   id: string;
   school_id: string | null;
   name: string;
+  code: string | null;
+  description: string | null;
   coefficient: number | null;
+  is_active: boolean;
   created_at: string | null;
+};
+
+type SubjectCurriculum = {
+  id: string;
+  school_id: string;
+  subject_id: string;
+  cycle_id: string;
+  level_id: string | null;
+  series_id: string | null;
+  is_active: boolean;
+  created_at: string;
 };
 
 type ClassSubject = {
@@ -54,50 +76,64 @@ type ClassSubject = {
   class_id: string;
   subject_id: string;
   academic_year_id: string;
-  coefficient: number;
-  created_at: string;
+  coefficient: number | null;
+  hours_per_week: number | null;
+  is_active: boolean;
+  counts_toward_general_average: boolean;
+  max_subject_average: number | null;
 };
 
-/* =========================================================
-   PAGE
-========================================================= */
+type ModalType = "subject" | "curriculum" | "class" | null;
 
 export default function MatieresPage() {
+  const [schoolId, setSchoolId] = useState<string | null>(null);
+
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [levels, setLevels] = useState<Level[]>([]);
+  const [series, setSeries] = useState<Series[]>([]);
   const [classes, setClasses] = useState<SchoolClass[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [curriculums, setCurriculums] = useState<SubjectCurriculum[]>([]);
   const [classSubjects, setClassSubjects] = useState<ClassSubject[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-
-  const [schoolId, setSchoolId] = useState<string | null>(null);
-
   const [search, setSearch] = useState("");
   const [selectedCycle, setSelectedCycle] = useState("all");
+  const [selectedLevel, setSelectedLevel] = useState("all");
+  const [selectedSeries, setSelectedSeries] = useState("all");
+  const [activeSection, setActiveSection] = useState<"catalogue" | "classes">(
+    "catalogue"
+  );
 
-  const [expandedClasses, setExpandedClasses] = useState<
-    Record<string, boolean>
-  >({});
-
-  const [showModal, setShowModal] = useState(false);
-
-  const [selectedClass, setSelectedClass] =
-    useState<SchoolClass | null>(null);
-
-  const [editingSubject, setEditingSubject] =
-    useState<Subject | null>(null);
+  const [modal, setModal] = useState<ModalType>(null);
+  const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+  const [selectedClass, setSelectedClass] = useState<SchoolClass | null>(null);
+  const [editingCurriculum, setEditingCurriculum] =
+    useState<SubjectCurriculum | null>(null);
 
   const [subjectName, setSubjectName] = useState("");
-  const [coefficient, setCoefficient] = useState(1);
+  const [subjectCode, setSubjectCode] = useState("");
+  const [subjectDescription, setSubjectDescription] = useState("");
+  const [subjectCoefficient, setSubjectCoefficient] = useState(1);
+
+  const [curriculumCycle, setCurriculumCycle] = useState("");
+  const [curriculumLevel, setCurriculumLevel] = useState("all");
+  const [curriculumSeries, setCurriculumSeries] = useState("all");
+
+  const [classCoefficient, setClassCoefficient] = useState(1);
+  const [hoursPerWeek, setHoursPerWeek] = useState(0);
+  const [countsTowardAverage, setCountsTowardAverage] = useState(true);
+  const [maxSubjectAverage, setMaxSubjectAverage] = useState(20);
 
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  /* =========================================================
-     CHARGEMENT
-  ========================================================= */
+  const clearMessages = () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -109,13 +145,8 @@ export default function MatieresPage() {
         error: authError,
       } = await supabase.auth.getUser();
 
-      if (authError) {
-        throw authError;
-      }
-
-      if (!user) {
-        throw new Error("Utilisateur non connecté.");
-      }
+      if (authError) throw authError;
+      if (!user) throw new Error("Utilisateur non connecté.");
 
       const { data: profile, error: profileError } = await supabase
         .from("users")
@@ -123,14 +154,9 @@ export default function MatieresPage() {
         .eq("auth_user_id", user.id)
         .single();
 
-      if (profileError) {
-        throw profileError;
-      }
-
+      if (profileError) throw profileError;
       if (!profile?.school_id) {
-        throw new Error(
-          "Aucune école n'est associée à votre profil."
-        );
+        throw new Error("Aucune école n'est associée à votre profil.");
       }
 
       setSchoolId(profile.school_id);
@@ -138,8 +164,10 @@ export default function MatieresPage() {
       const [
         cyclesResult,
         levelsResult,
+        seriesResult,
         classesResult,
         subjectsResult,
+        curriculumsResult,
         classSubjectsResult,
       ] = await Promise.all([
         supabase
@@ -155,9 +183,14 @@ export default function MatieresPage() {
           .order("display_order"),
 
         supabase
+          .from("series")
+          .select("id, cycle_id, code, name, category")
+          .order("code"),
+
+        supabase
           .from("classes")
           .select(
-            "id, school_id, cycle_id, level_id, name, academic_year_id"
+            "id, school_id, cycle_id, level_id, series_id, name, academic_year_id"
           )
           .eq("school_id", profile.school_id)
           .order("name"),
@@ -165,38 +198,46 @@ export default function MatieresPage() {
         supabase
           .from("subjects")
           .select(
-            "id, school_id, name, coefficient, created_at"
+            "id, school_id, name, code, description, coefficient, is_active, created_at"
           )
           .eq("school_id", profile.school_id)
           .order("name"),
 
         supabase
+          .from("subject_curriculums")
+          .select(
+            "id, school_id, subject_id, cycle_id, level_id, series_id, is_active, created_at"
+          )
+          .eq("school_id", profile.school_id),
+
+        supabase
           .from("class_subjects")
           .select(
-            "id, class_id, subject_id, academic_year_id, coefficient, created_at"
+            "id, class_id, subject_id, academic_year_id, coefficient, hours_per_week, is_active, counts_toward_general_average, max_subject_average"
           ),
       ]);
 
       if (cyclesResult.error) throw cyclesResult.error;
       if (levelsResult.error) throw levelsResult.error;
+      if (seriesResult.error) throw seriesResult.error;
       if (classesResult.error) throw classesResult.error;
       if (subjectsResult.error) throw subjectsResult.error;
-      if (classSubjectsResult.error)
-        throw classSubjectsResult.error;
+      if (curriculumsResult.error) throw curriculumsResult.error;
+      if (classSubjectsResult.error) throw classSubjectsResult.error;
 
       setCycles((cyclesResult.data || []) as Cycle[]);
       setLevels((levelsResult.data || []) as Level[]);
+      setSeries((seriesResult.data || []) as Series[]);
       setClasses((classesResult.data || []) as SchoolClass[]);
       setSubjects((subjectsResult.data || []) as Subject[]);
+      setCurriculums(
+        (curriculumsResult.data || []) as SubjectCurriculum[]
+      );
       setClassSubjects(
         (classSubjectsResult.data || []) as ClassSubject[]
       );
     } catch (error) {
-      console.error(
-        "ERREUR CHARGEMENT MATIÈRES :",
-        error
-      );
-
+      console.error("ERREUR CHARGEMENT MATIÈRES :", error);
       setErrorMessage(
         error instanceof Error
           ? error.message
@@ -211,132 +252,238 @@ export default function MatieresPage() {
     loadData();
   }, []);
 
-  /* =========================================================
-     HELPERS
-  ========================================================= */
+  const getCycleName = (cycleId: string | null) =>
+    cycles.find((cycle) => cycle.id === cycleId)?.name || "Cycle inconnu";
 
-  const getCycleName = (cycleId: string | null) => {
-    if (!cycleId) return "Cycle inconnu";
+  const getLevelName = (levelId: string | null) =>
+    levels.find((level) => level.id === levelId)?.name || "";
 
-    return (
-      cycles.find((cycle) => cycle.id === cycleId)?.name ||
-      "Cycle inconnu"
-    );
+  const getSeriesName = (seriesId: string | null) =>
+    series.find((item) => item.id === seriesId)?.name ||
+    series.find((item) => item.id === seriesId)?.code ||
+    "";
+
+  const isLycee = (cycleId: string | null) => {
+    const name = getCycleName(cycleId).toLowerCase();
+    return name.includes("lycée") || name.includes("lycee");
   };
 
-  const getLevelName = (levelId: string | null) => {
-    if (!levelId) return "";
+  const getLevelsForCycle = (cycleId: string) =>
+    levels.filter((level) => level.cycle_id === cycleId);
 
-    return (
-      levels.find((level) => level.id === levelId)?.name ||
-      ""
-    );
+  const getSeriesForCycle = (cycleId: string) =>
+    series.filter((item) => item.cycle_id === cycleId);
+
+  const filteredLevels = useMemo(() => {
+    if (selectedCycle === "all") return levels;
+    return levels.filter((level) => level.cycle_id === selectedCycle);
+  }, [levels, selectedCycle]);
+
+  const filteredSeries = useMemo(() => {
+    if (selectedCycle === "all") return series;
+    return series.filter((item) => item.cycle_id === selectedCycle);
+  }, [series, selectedCycle]);
+
+  const curriculumAppliesToClass = (
+    curriculum: SubjectCurriculum,
+    schoolClass: SchoolClass
+  ) => {
+    if (!curriculum.is_active) return false;
+    if (curriculum.cycle_id !== schoolClass.cycle_id) return false;
+
+    const levelMatches =
+      curriculum.level_id === null ||
+      curriculum.level_id === schoolClass.level_id;
+
+    const seriesMatches =
+      curriculum.series_id === null ||
+      curriculum.series_id === schoolClass.series_id;
+
+    return levelMatches && seriesMatches;
   };
 
-  const getSubjectForClass = (classId: string) => {
-    return classSubjects
-      .filter((item) => item.class_id === classId)
-      .map((item) => ({
-        assignment: item,
+  const getCurriculumsForSubject = (subjectId: string) =>
+    curriculums.filter(
+      (item) => item.subject_id === subjectId && item.is_active
+    );
+
+  const getApplicableSubjectsForClass = (schoolClass: SchoolClass) =>
+    subjects.filter(
+      (subject) =>
+        subject.is_active &&
+        curriculums.some(
+          (curriculum) =>
+            curriculum.subject_id === subject.id &&
+            curriculumAppliesToClass(curriculum, schoolClass)
+        )
+    );
+
+  const getAssignedSubjectsForClass = (classId: string) => {
+    const assignments = classSubjects.filter(
+      (item) => item.class_id === classId && item.is_active
+    );
+
+    return assignments
+      .map((assignment) => ({
+        assignment,
         subject: subjects.find(
-          (subject) => subject.id === item.subject_id
+          (subject) => subject.id === assignment.subject_id
         ),
       }))
-      .filter((item) => item.subject);
+      .filter(
+        (
+          item
+        ): item is {
+          assignment: ClassSubject;
+          subject: Subject;
+        } => Boolean(item.subject)
+      );
   };
 
-  /* =========================================================
-     CLASSES FILTRÉES
-  ========================================================= */
+  const filteredSubjects = useMemo(() => {
+    const term = search.trim().toLowerCase();
+
+    return subjects.filter((subject) => {
+      if (!subject.is_active) return false;
+
+      const contexts = getCurriculumsForSubject(subject.id);
+
+      const cycleMatches =
+        selectedCycle === "all" ||
+        contexts.some((context) => context.cycle_id === selectedCycle);
+
+      const levelMatches =
+        selectedLevel === "all" ||
+        contexts.some(
+          (context) =>
+            context.cycle_id === selectedCycle &&
+            (context.level_id === null || context.level_id === selectedLevel)
+        );
+
+      const seriesMatches =
+        selectedSeries === "all" ||
+        contexts.some(
+          (context) =>
+            context.cycle_id === selectedCycle &&
+            (context.series_id === null ||
+              context.series_id === selectedSeries)
+        );
+
+      const textMatches =
+        !term ||
+        subject.name.toLowerCase().includes(term) ||
+        (subject.code || "").toLowerCase().includes(term);
+
+      return cycleMatches && levelMatches && seriesMatches && textMatches;
+    });
+  }, [
+    subjects,
+    curriculums,
+    search,
+    selectedCycle,
+    selectedLevel,
+    selectedSeries,
+  ]);
 
   const filteredClasses = useMemo(() => {
     const term = search.trim().toLowerCase();
 
     return classes.filter((schoolClass) => {
-      const matchesSearch =
+      const textMatches =
         !term ||
         schoolClass.name.toLowerCase().includes(term) ||
-        getCycleName(schoolClass.cycle_id)
-          .toLowerCase()
-          .includes(term) ||
-        getLevelName(schoolClass.level_id)
-          .toLowerCase()
-          .includes(term);
+        getCycleName(schoolClass.cycle_id).toLowerCase().includes(term) ||
+        getLevelName(schoolClass.level_id).toLowerCase().includes(term) ||
+        getSeriesName(schoolClass.series_id).toLowerCase().includes(term);
 
-      const matchesCycle =
+      const cycleMatches =
         selectedCycle === "all" ||
         schoolClass.cycle_id === selectedCycle;
 
-      return matchesSearch && matchesCycle;
+      const levelMatches =
+        selectedLevel === "all" ||
+        schoolClass.level_id === selectedLevel;
+
+      const seriesMatches =
+        selectedSeries === "all" ||
+        schoolClass.series_id === selectedSeries;
+
+      return textMatches && cycleMatches && levelMatches && seriesMatches;
     });
   }, [
     classes,
     cycles,
     levels,
+    series,
     search,
     selectedCycle,
-    classSubjects,
-    subjects,
+    selectedLevel,
+    selectedSeries,
   ]);
 
-  /* =========================================================
-     OUVRIR / FERMER UNE CLASSE
-  ========================================================= */
-
-  const toggleClass = (classId: string) => {
-    setExpandedClasses((previous) => ({
-      ...previous,
-      [classId]: !previous[classId],
-    }));
+  const resetFilters = () => {
+    setSearch("");
+    setSelectedCycle("all");
+    setSelectedLevel("all");
+    setSelectedSeries("all");
   };
 
-  /* =========================================================
-     MODAL
-  ========================================================= */
-
-  const openCreateModal = (schoolClass: SchoolClass) => {
-    setSelectedClass(schoolClass);
-    setEditingSubject(null);
-    setSubjectName("");
-    setCoefficient(1);
-    setErrorMessage("");
-    setSuccessMessage("");
-    setShowModal(true);
+  const openSubjectModal = (subject?: Subject) => {
+    clearMessages();
+    setEditingSubject(subject || null);
+    setSubjectName(subject?.name || "");
+    setSubjectCode(subject?.code || "");
+    setSubjectDescription(subject?.description || "");
+    setSubjectCoefficient(subject?.coefficient || 1);
+    setModal("subject");
   };
 
-  const openEditModal = (
-    schoolClass: SchoolClass,
-    subject: Subject
+  const openCurriculumModal = (
+    subject: Subject,
+    curriculum?: SubjectCurriculum
   ) => {
+    clearMessages();
+    setSelectedSubject(subject);
+    setEditingCurriculum(curriculum || null);
+    setCurriculumCycle(
+      curriculum?.cycle_id ||
+        (cycles[0]?.id ?? "")
+    );
+    setCurriculumLevel(curriculum?.level_id || "all");
+    setCurriculumSeries(curriculum?.series_id || "all");
+    setModal("curriculum");
+  };
+
+  const openClassModal = (schoolClass: SchoolClass, subject: Subject) => {
+    clearMessages();
+    const existing = classSubjects.find(
+      (item) =>
+        item.class_id === schoolClass.id &&
+        item.subject_id === subject.id &&
+        item.academic_year_id === schoolClass.academic_year_id
+    );
+
     setSelectedClass(schoolClass);
-    setEditingSubject(subject);
-    setSubjectName(subject.name);
-    setCoefficient(subject.coefficient || 1);
-    setErrorMessage("");
-    setSuccessMessage("");
-    setShowModal(true);
+    setSelectedSubject(subject);
+    setClassCoefficient(existing?.coefficient || subject.coefficient || 1);
+    setHoursPerWeek(existing?.hours_per_week || 0);
+    setCountsTowardAverage(existing?.counts_toward_general_average ?? true);
+    setMaxSubjectAverage(existing?.max_subject_average || 20);
+    setModal("class");
   };
 
   const closeModal = () => {
     if (saving) return;
-
-    setShowModal(false);
-    setSelectedClass(null);
+    setModal(null);
     setEditingSubject(null);
-    setSubjectName("");
-    setCoefficient(1);
-    setErrorMessage("");
-    setSuccessMessage("");
+    setSelectedSubject(null);
+    setSelectedClass(null);
+    setEditingCurriculum(null);
+    clearMessages();
   };
 
-  /* =========================================================
-     CRÉER / MODIFIER UNE MATIÈRE
-  ========================================================= */
-
   const handleSaveSubject = async () => {
-    if (!selectedClass || !schoolId) {
-      return;
-    }
+    if (!schoolId) return;
 
     const cleanName = subjectName.trim();
 
@@ -345,176 +492,82 @@ export default function MatieresPage() {
       return;
     }
 
-    if (!coefficient || coefficient < 1) {
-      setErrorMessage(
-        "Le coefficient doit être supérieur ou égal à 1."
-      );
+    if (!subjectCoefficient || subjectCoefficient < 1) {
+      setErrorMessage("Le coefficient doit être supérieur ou égal à 1.");
       return;
     }
 
     setSaving(true);
-    setErrorMessage("");
-    setSuccessMessage("");
+    clearMessages();
 
     try {
-      /*
-       * Une matière est d'abord créée dans subjects.
-       * Elle est ensuite rattachée à la classe dans
-       * class_subjects.
-       */
+      const duplicate = subjects.find(
+        (subject) =>
+          subject.id !== editingSubject?.id &&
+          subject.name.trim().toLowerCase() === cleanName.toLowerCase()
+      );
+
+      if (duplicate) {
+        throw new Error(
+          "Une matière portant déjà ce nom existe dans le catalogue."
+        );
+      }
 
       if (editingSubject) {
-        const { data: updatedSubject, error: subjectError } =
-          await supabase
-            .from("subjects")
-            .update({
-              name: cleanName,
-              coefficient,
-            })
-            .eq("id", editingSubject.id)
-            .select(
-              "id, school_id, name, coefficient, created_at"
-            )
-            .single();
+        const { data, error } = await supabase
+          .from("subjects")
+          .update({
+            name: cleanName,
+            code: subjectCode.trim() || null,
+            description: subjectDescription.trim() || null,
+            coefficient: subjectCoefficient,
+          })
+          .eq("id", editingSubject.id)
+          .eq("school_id", schoolId)
+          .select(
+            "id, school_id, name, code, description, coefficient, is_active, created_at"
+          )
+          .single();
 
-        if (subjectError) throw subjectError;
-
-        const { data: updatedClassSubject, error: classError } =
-          await supabase
-            .from("class_subjects")
-            .update({
-              coefficient,
-            })
-            .eq("class_id", selectedClass.id)
-            .eq("subject_id", editingSubject.id)
-            .eq(
-              "academic_year_id",
-              selectedClass.academic_year_id
-            )
-            .select(
-              "id, class_id, subject_id, academic_year_id, coefficient, created_at"
-            )
-            .single();
-
-        if (classError) throw classError;
+        if (error) throw error;
 
         setSubjects((previous) =>
           previous.map((subject) =>
             subject.id === editingSubject.id
-              ? (updatedSubject as Subject)
+              ? (data as Subject)
               : subject
           )
         );
+        setSuccessMessage("La matière a été modifiée.");
+      } else {
+        const { data, error } = await supabase
+          .from("subjects")
+          .insert({
+            school_id: schoolId,
+            name: cleanName,
+            code: subjectCode.trim() || null,
+            description: subjectDescription.trim() || null,
+            coefficient: subjectCoefficient,
+            is_active: true,
+          })
+          .select(
+            "id, school_id, name, code, description, coefficient, is_active, created_at"
+          )
+          .single();
 
-        setClassSubjects((previous) =>
-          previous.map((item) =>
-            item.id === updatedClassSubject.id
-              ? (updatedClassSubject as ClassSubject)
-              : item
+        if (error) throw error;
+
+        setSubjects((previous) =>
+          [...previous, data as Subject].sort((a, b) =>
+            a.name.localeCompare(b.name)
           )
         );
-
         setSuccessMessage(
-          "La matière a été modifiée avec succès."
-        );
-      } else {
-        /*
-         * Vérifier si une matière portant exactement le même
-         * nom existe déjà dans l'école.
-         */
-        const existingSubject = subjects.find(
-          (subject) =>
-            subject.name.trim().toLowerCase() ===
-            cleanName.toLowerCase()
-        );
-
-        let subject: Subject;
-
-        if (existingSubject) {
-          subject = existingSubject;
-        } else {
-          const { data: createdSubject, error: subjectError } =
-            await supabase
-              .from("subjects")
-              .insert({
-                school_id: schoolId,
-                name: cleanName,
-                coefficient,
-              })
-              .select(
-                "id, school_id, name, coefficient, created_at"
-              )
-              .single();
-
-          if (subjectError) throw subjectError;
-
-          subject = createdSubject as Subject;
-
-          setSubjects((previous) => [
-            ...previous,
-            subject,
-          ]);
-        }
-
-        /*
-         * Une même matière peut être utilisée dans plusieurs
-         * classes. La liaison réelle classe ↔ matière est donc
-         * stockée dans class_subjects.
-         */
-
-        const alreadyAssigned = classSubjects.some(
-          (item) =>
-            item.class_id === selectedClass.id &&
-            item.subject_id === subject.id &&
-            item.academic_year_id ===
-              selectedClass.academic_year_id
-        );
-
-        if (alreadyAssigned) {
-          throw new Error(
-            "Cette matière est déjà affectée à cette classe."
-          );
-        }
-
-        const { data: createdClassSubject, error: classError } =
-          await supabase
-            .from("class_subjects")
-            .insert({
-              class_id: selectedClass.id,
-              subject_id: subject.id,
-              academic_year_id:
-                selectedClass.academic_year_id,
-              coefficient,
-            })
-            .select(
-              "id, class_id, subject_id, academic_year_id, coefficient, created_at"
-            )
-            .single();
-
-        if (classError) throw classError;
-
-        setClassSubjects((previous) => [
-          ...previous,
-          createdClassSubject as ClassSubject,
-        ]);
-
-        setSuccessMessage(
-          "La matière a été ajoutée à la classe."
+          "La matière a été créée dans le catalogue. Elle n'est encore rattachée à aucun contexte pédagogique."
         );
       }
-
-      setSubjectName("");
-      setCoefficient(1);
-
-      setTimeout(() => {
-        setSuccessMessage("");
-      }, 2500);
     } catch (error) {
-      console.error(
-        "ERREUR ENREGISTREMENT MATIÈRE :",
-        error
-      );
-
+      console.error("ERREUR MATIÈRE :", error);
       setErrorMessage(
         error instanceof Error
           ? error.message
@@ -525,62 +578,372 @@ export default function MatieresPage() {
     }
   };
 
-  /* =========================================================
-     SUPPRIMER LA MATIÈRE DE LA CLASSE
-  ========================================================= */
+  const handleSaveCurriculum = async () => {
+    if (!schoolId || !selectedSubject) return;
 
-  const handleDeleteSubject = async (
-    schoolClass: SchoolClass,
-    classSubject: ClassSubject,
+    if (!curriculumCycle) {
+      setErrorMessage("Veuillez sélectionner un cycle.");
+      return;
+    }
+
+    const selectedCycleName = getCycleName(curriculumCycle);
+    const cycleIsLycee = isLycee(curriculumCycle);
+
+    if (!cycleIsLycee && curriculumSeries !== "all") {
+      setErrorMessage("Une série ne peut être utilisée que pour un lycée.");
+      return;
+    }
+
+    const levelId = curriculumLevel === "all" ? null : curriculumLevel;
+    const seriesId =
+      cycleIsLycee && curriculumSeries !== "all"
+        ? curriculumSeries
+        : null;
+
+    if (seriesId) {
+      const selectedSeries = series.find((item) => item.id === seriesId);
+
+      if (!selectedSeries || selectedSeries.cycle_id !== curriculumCycle) {
+        setErrorMessage(
+          "La série sélectionnée n'appartient pas à ce cycle."
+        );
+        return;
+      }
+    }
+
+    if (levelId) {
+      const selectedLevel = levels.find((item) => item.id === levelId);
+
+      if (!selectedLevel || selectedLevel.cycle_id !== curriculumCycle) {
+        setErrorMessage(
+          "Le niveau sélectionné n'appartient pas à ce cycle."
+        );
+        return;
+      }
+    }
+
+    const duplicate = curriculums.find(
+      (item) =>
+        item.id !== editingCurriculum?.id &&
+        item.subject_id === selectedSubject.id &&
+        item.cycle_id === curriculumCycle &&
+        item.level_id === levelId &&
+        item.series_id === seriesId &&
+        item.is_active
+    );
+
+    if (duplicate) {
+      throw new Error(
+        "Ce contexte pédagogique est déjà configuré pour cette matière."
+      );
+    }
+
+    setSaving(true);
+    clearMessages();
+
+    try {
+      if (editingCurriculum) {
+        const { data, error } = await supabase
+          .from("subject_curriculums")
+          .update({
+            cycle_id: curriculumCycle,
+            level_id: levelId,
+            series_id: seriesId,
+            is_active: true,
+          })
+          .eq("id", editingCurriculum.id)
+          .eq("school_id", schoolId)
+          .select(
+            "id, school_id, subject_id, cycle_id, level_id, series_id, is_active, created_at"
+          )
+          .single();
+
+        if (error) throw error;
+
+        setCurriculums((previous) =>
+          previous.map((item) =>
+            item.id === editingCurriculum.id
+              ? (data as SubjectCurriculum)
+              : item
+          )
+        );
+
+        setSuccessMessage(
+          `Le contexte « ${selectedCycleName} » a été modifié.`
+        );
+      } else {
+        const { data, error } = await supabase
+          .from("subject_curriculums")
+          .insert({
+            school_id: schoolId,
+            subject_id: selectedSubject.id,
+            cycle_id: curriculumCycle,
+            level_id: levelId,
+            series_id: seriesId,
+            is_active: true,
+          })
+          .select(
+            "id, school_id, subject_id, cycle_id, level_id, series_id, is_active, created_at"
+          )
+          .single();
+
+        if (error) throw error;
+
+        setCurriculums((previous) => [
+          ...previous,
+          data as SubjectCurriculum,
+        ]);
+
+        setSuccessMessage(
+          "Le contexte pédagogique a été ajouté à la matière."
+        );
+      }
+    } catch (error) {
+      console.error("ERREUR CONTEXTE MATIÈRE :", error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Impossible d'enregistrer ce contexte."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteCurriculum = async (
+    curriculum: SubjectCurriculum,
     subject: Subject
   ) => {
+    const levelLabel = curriculum.level_id
+      ? getLevelName(curriculum.level_id)
+      : "Tous les niveaux";
+    const seriesLabel = curriculum.series_id
+      ? getSeriesName(curriculum.series_id)
+      : "Toutes les séries";
+
     const confirmed = window.confirm(
-      `Voulez-vous retirer "${subject.name}" de la classe ${schoolClass.name} ?`
+      `Retirer « ${subject.name} » du contexte ${getCycleName(
+        curriculum.cycle_id
+      )} · ${levelLabel} · ${seriesLabel} ?`
     );
 
     if (!confirmed) return;
 
-    setErrorMessage("");
-    setSuccessMessage("");
+    setSaving(true);
+    clearMessages();
+
+    try {
+      const { error } = await supabase
+        .from("subject_curriculums")
+        .delete()
+        .eq("id", curriculum.id)
+        .eq("school_id", schoolId);
+
+      if (error) throw error;
+
+      setCurriculums((previous) =>
+        previous.filter((item) => item.id !== curriculum.id)
+      );
+      setSuccessMessage("Le contexte pédagogique a été retiré.");
+    } catch (error) {
+      console.error("ERREUR SUPPRESSION CONTEXTE :", error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Impossible de retirer ce contexte."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleSubject = async (subject: Subject) => {
+    if (!schoolId) return;
+
+    const nextActive = !subject.is_active;
+    clearMessages();
+
+    try {
+      const { data, error } = await supabase
+        .from("subjects")
+        .update({ is_active: nextActive })
+        .eq("id", subject.id)
+        .eq("school_id", schoolId)
+        .select(
+          "id, school_id, name, code, description, coefficient, is_active, created_at"
+        )
+        .single();
+
+      if (error) throw error;
+
+      setSubjects((previous) =>
+        previous.map((item) =>
+          item.id === subject.id ? (data as Subject) : item
+        )
+      );
+
+      setSuccessMessage(
+        nextActive
+          ? `« ${subject.name} » est de nouveau active.`
+          : `« ${subject.name} » a été désactivée du catalogue.`
+      );
+    } catch (error) {
+      console.error("ERREUR STATUT MATIÈRE :", error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Impossible de modifier le statut de la matière."
+      );
+    }
+  };
+
+  const handleSaveClassSubject = async () => {
+    if (!schoolId || !selectedClass || !selectedSubject) return;
+
+    if (!selectedClass.academic_year_id) {
+      setErrorMessage(
+        "Cette classe n'est rattachée à aucune année scolaire active."
+      );
+      return;
+    }
+
+    if (!classCoefficient || classCoefficient < 1) {
+      setErrorMessage("Le coefficient doit être supérieur ou égal à 1.");
+      return;
+    }
+
+    if (hoursPerWeek < 0) {
+      setErrorMessage("Le nombre d'heures par semaine ne peut pas être négatif.");
+      return;
+    }
+
+    if (!maxSubjectAverage || maxSubjectAverage <= 0) {
+      setErrorMessage("La moyenne maximale doit être supérieure à 0.");
+      return;
+    }
+
+    const alreadyAssigned = classSubjects.find(
+      (item) =>
+        item.class_id === selectedClass.id &&
+        item.subject_id === selectedSubject.id &&
+        item.academic_year_id === selectedClass.academic_year_id
+    );
+
+    setSaving(true);
+    clearMessages();
+
+    try {
+      const payload = {
+        school_id: schoolId,
+        class_id: selectedClass.id,
+        subject_id: selectedSubject.id,
+        academic_year_id: selectedClass.academic_year_id,
+        coefficient: classCoefficient,
+        hours_per_week: hoursPerWeek,
+        is_active: true,
+        counts_toward_general_average: countsTowardAverage,
+        max_subject_average: maxSubjectAverage,
+      };
+
+      if (alreadyAssigned) {
+        const { data, error } = await supabase
+          .from("class_subjects")
+          .update(payload)
+          .eq("id", alreadyAssigned.id)
+          .select(
+            "id, class_id, subject_id, academic_year_id, coefficient, hours_per_week, is_active, counts_toward_general_average, max_subject_average"
+          )
+          .single();
+
+        if (error) throw error;
+
+        setClassSubjects((previous) =>
+          previous.map((item) =>
+            item.id === alreadyAssigned.id
+              ? (data as ClassSubject)
+              : item
+          )
+        );
+
+        setSuccessMessage("La configuration de la matière a été mise à jour.");
+      } else {
+        const { data, error } = await supabase
+          .from("class_subjects")
+          .insert(payload)
+          .select(
+            "id, class_id, subject_id, academic_year_id, coefficient, hours_per_week, is_active, counts_toward_general_average, max_subject_average"
+          )
+          .single();
+
+        if (error) throw error;
+
+        setClassSubjects((previous) => [
+          ...previous,
+          data as ClassSubject,
+        ]);
+
+        setSuccessMessage(
+          `« ${selectedSubject.name} » a été configurée dans ${selectedClass.name}.`
+        );
+      }
+    } catch (error) {
+      console.error("ERREUR CONFIGURATION CLASSE :", error);
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Impossible d'enregistrer la configuration de la classe."
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRemoveFromClass = async (
+    schoolClass: SchoolClass,
+    assignment: ClassSubject,
+    subject: Subject
+  ) => {
+    const confirmed = window.confirm(
+      `Retirer « ${subject.name} » de la classe ${schoolClass.name} pour cette année scolaire ?`
+    );
+
+    if (!confirmed) return;
+
+    setSaving(true);
+    clearMessages();
 
     try {
       const { error } = await supabase
         .from("class_subjects")
         .delete()
-        .eq("id", classSubject.id);
+        .eq("id", assignment.id)
+        .eq("class_id", schoolClass.id);
 
       if (error) throw error;
 
       setClassSubjects((previous) =>
-        previous.filter(
-          (item) => item.id !== classSubject.id
-        )
+        previous.filter((item) => item.id !== assignment.id)
       );
-
       setSuccessMessage(
-        `"${subject.name}" a été retirée de ${schoolClass.name}.`
+        `« ${subject.name} » a été retirée de ${schoolClass.name}.`
       );
-
-      setTimeout(() => {
-        setSuccessMessage("");
-      }, 2500);
     } catch (error) {
-      console.error(
-        "ERREUR SUPPRESSION MATIÈRE :",
-        error
-      );
-
+      console.error("ERREUR RETRAIT CLASSE :", error);
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "Impossible de supprimer cette matière."
+          : "Impossible de retirer la matière de la classe."
       );
+    } finally {
+      setSaving(false);
     }
   };
 
-  /* =========================================================
-     RENDU
-  ========================================================= */
+  const totalActiveSubjects = subjects.filter((item) => item.is_active).length;
+  const totalContexts = curriculums.filter((item) => item.is_active).length;
+  const totalAssignments = classSubjects.filter(
+    (item) => item.is_active
+  ).length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -588,40 +951,44 @@ export default function MatieresPage() {
 
       <main className="ml-64 min-h-screen">
         <div className="px-8 py-8">
-          {/* HEADER */}
-
-          <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-sm font-medium text-indigo-600">
+              <p className="text-sm font-semibold text-indigo-600">
                 Gestion pédagogique
               </p>
-
-              <h1 className="mt-1 text-3xl font-bold text-gray-900">
+              <h1 className="mt-1 text-3xl font-bold tracking-tight text-gray-900">
                 Matières
               </h1>
-
-              <p className="mt-2 text-sm text-gray-500">
-                Configurez les matières et leurs coefficients
-                pour chaque classe.
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-gray-500">
+                Gérez le catalogue des matières, leur applicabilité par cycle,
+                niveau et série, puis leur configuration concrète dans chaque
+                classe.
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={loadData}
-              disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
-            >
-              <RefreshCw
-                className={`h-4 w-4 ${
-                  loading ? "animate-spin" : ""
-                }`}
-              />
-              Actualiser
-            </button>
-          </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={loadData}
+                disabled={loading}
+                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
+                />
+                Actualiser
+              </button>
 
-          {/* MESSAGES */}
+              <button
+                type="button"
+                onClick={() => openSubjectModal()}
+                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+              >
+                <Plus className="h-4 w-4" />
+                Nouvelle matière
+              </button>
+            </div>
+          </div>
 
           {errorMessage && (
             <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -630,255 +997,561 @@ export default function MatieresPage() {
           )}
 
           {successMessage && (
-            <div className="mb-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            <div className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
               {successMessage}
             </div>
           )}
 
-          {/* FILTRES */}
-
-          <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-            <div className="flex flex-col gap-3 lg:flex-row">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(event) =>
-                    setSearch(event.target.value)
-                  }
-                  placeholder="Rechercher une classe..."
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-indigo-400 focus:bg-white"
-                />
+          <div className="mb-6 grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Catalogue
+                  </p>
+                  <p className="mt-2 text-2xl font-bold text-gray-900">
+                    {totalActiveSubjects}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    matières actives
+                  </p>
+                </div>
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                  <BookOpen className="h-5 w-5" />
+                </div>
               </div>
+            </div>
 
-              <div className="relative lg:w-64">
-                <select
-                  value={selectedCycle}
-                  onChange={(event) =>
-                    setSelectedCycle(event.target.value)
-                  }
-                  className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-10 text-sm outline-none transition focus:border-indigo-400"
-                >
-                  <option value="all">
-                    Tous les cycles
-                  </option>
+            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Contextes
+                  </p>
+                  <p className="mt-2 text-2xl font-bold text-gray-900">
+                    {totalContexts}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    règles d'applicabilité
+                  </p>
+                </div>
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                  <Layers3 className="h-5 w-5" />
+                </div>
+              </div>
+            </div>
 
-                  {cycles.map((cycle) => (
-                    <option
-                      key={cycle.id}
-                      value={cycle.id}
-                    >
-                      {cycle.name}
-                    </option>
-                  ))}
-                </select>
-
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    Classes
+                  </p>
+                  <p className="mt-2 text-2xl font-bold text-gray-900">
+                    {totalAssignments}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    configurations actives
+                  </p>
+                </div>
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                  <Settings2 className="h-5 w-5" />
+                </div>
               </div>
             </div>
           </div>
 
-          {/* CONTENU */}
+          <div className="mb-6 flex rounded-2xl border border-gray-100 bg-white p-1.5 shadow-sm">
+            <button
+              type="button"
+              onClick={() => setActiveSection("catalogue")}
+              className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                activeSection === "catalogue"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+              }`}
+            >
+              Catalogue & contextes pédagogiques
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveSection("classes")}
+              className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                activeSection === "classes"
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"
+              }`}
+            >
+              Configuration par classe
+            </button>
+          </div>
+
+          <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+            <div className="grid gap-3 xl:grid-cols-[1.4fr_1fr_1fr_1fr_auto]">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder={
+                    activeSection === "catalogue"
+                      ? "Rechercher une matière..."
+                      : "Rechercher une classe..."
+                  }
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-indigo-400 focus:bg-white"
+                />
+              </div>
+
+              <div className="relative">
+                <select
+                  value={selectedCycle}
+                  onChange={(event) => {
+                    setSelectedCycle(event.target.value);
+                    setSelectedLevel("all");
+                    setSelectedSeries("all");
+                  }}
+                  className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-10 text-sm outline-none transition focus:border-indigo-400 focus:bg-white"
+                >
+                  <option value="all">Tous les cycles</option>
+                  {cycles.map((cycle) => (
+                    <option key={cycle.id} value={cycle.id}>
+                      {cycle.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              </div>
+
+              <div className="relative">
+                <select
+                  value={selectedLevel}
+                  onChange={(event) => setSelectedLevel(event.target.value)}
+                  disabled={selectedCycle === "all"}
+                  className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-10 text-sm outline-none transition focus:border-indigo-400 focus:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="all">Tous les niveaux</option>
+                  {filteredLevels
+                    .filter((level) => level.cycle_id === selectedCycle)
+                    .map((level) => (
+                      <option key={level.id} value={level.id}>
+                        {level.name}
+                      </option>
+                    ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              </div>
+
+              <div className="relative">
+                <select
+                  value={selectedSeries}
+                  onChange={(event) => setSelectedSeries(event.target.value)}
+                  disabled={
+                    selectedCycle === "all" || !isLycee(selectedCycle)
+                  }
+                  className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-10 text-sm outline-none transition focus:border-indigo-400 focus:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <option value="all">
+                    {selectedCycle !== "all" && isLycee(selectedCycle)
+                      ? "Toutes les séries"
+                      : "Série — lycée uniquement"}
+                  </option>
+                  {filteredSeries
+                    .filter((item) => item.cycle_id === selectedCycle)
+                    .map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.code} — {item.name}
+                      </option>
+                    ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              </div>
+
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50"
+              >
+                Réinitialiser
+              </button>
+            </div>
+          </div>
 
           {loading ? (
-            <div className="rounded-2xl border border-gray-100 bg-white py-16 text-center shadow-sm">
+            <div className="rounded-2xl border border-gray-100 bg-white py-20 text-center shadow-sm">
               <RefreshCw className="mx-auto h-7 w-7 animate-spin text-indigo-500" />
-
               <p className="mt-3 text-sm text-gray-500">
                 Chargement des matières...
               </p>
             </div>
-          ) : filteredClasses.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-16 text-center">
-              <BookOpen className="mx-auto h-10 w-10 text-gray-300" />
-
-              <h2 className="mt-4 text-base font-bold text-gray-800">
-                Aucune classe trouvée
-              </h2>
-
-              <p className="mt-1 text-sm text-gray-500">
-                Créez d'abord vos classes dans la page
-                Classes.
-              </p>
-            </div>
-          ) : (
+          ) : activeSection === "catalogue" ? (
             <div className="space-y-4">
-              {filteredClasses.map((schoolClass) => {
-                const assignedSubjects =
-                  getSubjectForClass(schoolClass.id);
+              {filteredSubjects.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-16 text-center">
+                  <BookOpen className="mx-auto h-10 w-10 text-gray-300" />
+                  <h2 className="mt-4 text-base font-bold text-gray-800">
+                    Aucune matière trouvée
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Créez une matière dans le catalogue ou modifiez les filtres.
+                  </p>
+                </div>
+              ) : (
+                filteredSubjects.map((subject) => {
+                  const subjectContexts = getCurriculumsForSubject(subject.id);
 
-                const isExpanded =
-                  expandedClasses[schoolClass.id] ??
-                  true;
-
-                return (
-                  <div
-                    key={schoolClass.id}
-                    className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
-                  >
-                    {/* CLASSE */}
-
-                    <div className="flex flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          toggleClass(schoolClass.id)
-                        }
-                        className="flex min-w-0 items-center gap-4 text-left"
-                      >
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
-                          <BookOpen className="h-5 w-5" />
-                        </div>
-
-                        <div className="min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <h2 className="text-base font-bold text-gray-900">
-                              {schoolClass.name}
-                            </h2>
-
-                            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-gray-500">
-                              {getCycleName(
-                                schoolClass.cycle_id
-                              )}
-                            </span>
+                  return (
+                    <div
+                      key={subject.id}
+                      className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+                    >
+                      <div className="flex flex-col gap-4 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex min-w-0 items-center gap-4">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                            <BookOpen className="h-5 w-5" />
                           </div>
 
-                          <p className="mt-1 text-xs text-gray-400">
-                            {getLevelName(
-                              schoolClass.level_id
-                            ) || "Niveau non défini"}{" "}
-                            · {assignedSubjects.length}{" "}
-                            matière
-                            {assignedSubjects.length > 1
-                              ? "s"
-                              : ""}
-                          </p>
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h2 className="text-base font-bold text-gray-900">
+                                {subject.name}
+                              </h2>
+                              {subject.code && (
+                                <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-gray-500">
+                                  {subject.code}
+                                </span>
+                              )}
+                            </div>
+                            <p className="mt-1 text-xs text-gray-400">
+                              Coefficient par défaut :{" "}
+                              <strong className="text-gray-600">
+                                {subject.coefficient || 1}
+                              </strong>{" "}
+                              · {subjectContexts.length} contexte
+                              {subjectContexts.length > 1 ? "s" : ""}
+                            </p>
+                          </div>
                         </div>
 
-                        {isExpanded ? (
-                          <ChevronDown className="ml-auto h-5 w-5 shrink-0 text-gray-400" />
-                        ) : (
-                          <ChevronDown className="ml-auto h-5 w-5 shrink-0 -rotate-90 text-gray-400" />
-                        )}
-                      </button>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openSubjectModal(subject)}
+                            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                          >
+                            <Pencil className="h-4 w-4" />
+                            Modifier
+                          </button>
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          openCreateModal(schoolClass)
-                        }
-                        className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
-                      >
-                        <Plus className="h-4 w-4" />
-                        Ajouter une matière
-                      </button>
-                    </div>
+                          <button
+                            type="button"
+                            onClick={() => openCurriculumModal(subject)}
+                            className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                          >
+                            <Plus className="h-4 w-4" />
+                            Ajouter un contexte
+                          </button>
 
-                    {/* MATIÈRES */}
+                          <button
+                            type="button"
+                            onClick={() => handleToggleSubject(subject)}
+                            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm font-semibold text-gray-500 transition hover:bg-gray-50"
+                          >
+                            {subject.is_active ? "Désactiver" : "Activer"}
+                          </button>
+                        </div>
+                      </div>
 
-                    {isExpanded && (
-                      <div className="border-t border-gray-100 px-5 py-5">
-                        {assignedSubjects.length === 0 ? (
-                          <div className="rounded-xl border border-dashed border-gray-200 px-5 py-10 text-center">
-                            <BookOpen className="mx-auto h-6 w-6 text-gray-300" />
-
-                            <p className="mt-2 text-sm font-medium text-gray-500">
-                              Aucune matière configurée
+                      <div className="border-t border-gray-100 bg-gray-50/70 px-5 py-5">
+                        <div className="mb-3 flex items-center justify-between">
+                          <div>
+                            <p className="text-xs font-bold uppercase tracking-wider text-gray-400">
+                              Applicabilité pédagogique
                             </p>
-
                             <p className="mt-1 text-xs text-gray-400">
-                              Ajoutez les matières de cette
-                              classe.
+                              Définit où cette matière peut être proposée.
+                            </p>
+                          </div>
+                        </div>
+
+                        {subjectContexts.length === 0 ? (
+                          <div className="rounded-xl border border-dashed border-gray-200 bg-white px-5 py-8 text-center">
+                            <Layers3 className="mx-auto h-6 w-6 text-gray-300" />
+                            <p className="mt-2 text-sm font-medium text-gray-500">
+                              Aucun contexte configuré
+                            </p>
+                            <p className="mt-1 text-xs text-gray-400">
+                              La matière existe dans le catalogue, mais n'est
+                              encore applicable à aucune classe.
                             </p>
                           </div>
                         ) : (
                           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                            {assignedSubjects.map(
-                              ({
-                                assignment,
-                                subject,
-                              }) => {
-                                if (!subject) return null;
-
-                                return (
-                                  <div
-                                    key={assignment.id}
-                                    className="group rounded-xl border border-gray-100 bg-gray-50 p-4 transition hover:border-indigo-100 hover:bg-white hover:shadow-sm"
-                                  >
-                                    <div className="flex items-start justify-between gap-3">
-                                      <div className="flex min-w-0 items-center gap-3">
-                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-indigo-600 shadow-sm">
-                                          <BookOpen className="h-4 w-4" />
-                                        </div>
-
-                                        <div className="min-w-0">
-                                          <p className="truncate text-sm font-bold text-gray-800">
-                                            {subject.name}
-                                          </p>
-
-                                          <p className="mt-1 text-xs text-gray-400">
-                                            Coefficient{" "}
-                                            {
-                                              assignment.coefficient
-                                            }
-                                          </p>
-                                        </div>
-                                      </div>
-
-                                      <div className="flex shrink-0 items-center gap-1">
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            openEditModal(
-                                              schoolClass,
-                                              subject
-                                            )
-                                          }
-                                          className="rounded-lg p-2 text-gray-400 transition hover:bg-indigo-50 hover:text-indigo-600"
-                                          title="Modifier"
-                                        >
-                                          <Pencil className="h-4 w-4" />
-                                        </button>
-
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            handleDeleteSubject(
-                                              schoolClass,
-                                              assignment,
-                                              subject
-                                            )
-                                          }
-                                          className="rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
-                                          title="Retirer"
-                                        >
-                                          <Trash2 className="h-4 w-4" />
-                                        </button>
-                                      </div>
-                                    </div>
+                            {subjectContexts.map((context) => (
+                              <div
+                                key={context.id}
+                                className="rounded-xl border border-gray-100 bg-white p-4"
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-bold text-gray-800">
+                                      {getCycleName(context.cycle_id)}
+                                    </p>
+                                    <p className="mt-1 text-xs text-gray-500">
+                                      {context.level_id
+                                        ? getLevelName(context.level_id)
+                                        : "Tous les niveaux"}
+                                      {isLycee(context.cycle_id) && (
+                                        <>
+                                          {" · "}
+                                          {context.series_id
+                                            ? getSeriesName(context.series_id)
+                                            : "Toutes les séries"}
+                                        </>
+                                      )}
+                                    </p>
                                   </div>
-                                );
-                              }
-                            )}
+
+                                  <div className="flex shrink-0 items-center gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        openCurriculumModal(subject, context)
+                                      }
+                                      className="rounded-lg p-2 text-gray-400 transition hover:bg-indigo-50 hover:text-indigo-600"
+                                      title="Modifier le contexte"
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleDeleteCurriculum(
+                                          context,
+                                          subject
+                                        )
+                                      }
+                                      className="rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+                                      title="Retirer le contexte"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredClasses.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-16 text-center">
+                  <Settings2 className="mx-auto h-10 w-10 text-gray-300" />
+                  <h2 className="mt-4 text-base font-bold text-gray-800">
+                    Aucune classe trouvée
+                  </h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Modifiez les filtres ou créez d'abord vos classes.
+                  </p>
+                </div>
+              ) : (
+                filteredClasses.map((schoolClass) => {
+                  const assignedSubjects = getAssignedSubjectsForClass(
+                    schoolClass.id
+                  );
+                  const applicableSubjects = getApplicableSubjectsForClass(
+                    schoolClass
+                  );
+                  const availableSubjects = applicableSubjects.filter(
+                    (subject) =>
+                      !assignedSubjects.some(
+                        ({ subject: assigned }) =>
+                          assigned.id === subject.id
+                      )
+                  );
+
+                  return (
+                    <div
+                      key={schoolClass.id}
+                      className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+                    >
+                      <div className="flex flex-col gap-4 px-5 py-5 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex min-w-0 items-center gap-4">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                            <BookOpen className="h-5 w-5" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h2 className="text-base font-bold text-gray-900">
+                                {schoolClass.name}
+                              </h2>
+                              <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-gray-500">
+                                {getCycleName(schoolClass.cycle_id)}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-xs text-gray-400">
+                              {getLevelName(schoolClass.level_id) ||
+                                "Niveau non défini"}
+                              {schoolClass.series_id && (
+                                <>
+                                  {" · "}
+                                  {getSeriesName(schoolClass.series_id)}
+                                </>
+                              )}
+                              {" · "}
+                              {assignedSubjects.length} matière
+                              {assignedSubjects.length > 1 ? "s" : ""} configurée
+                              {assignedSubjects.length > 1 ? "s" : ""}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl bg-gray-50 px-4 py-3 text-right">
+                          <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                            Matières disponibles
+                          </p>
+                          <p className="mt-1 text-lg font-bold text-indigo-600">
+                            {availableSubjects.length}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="border-t border-gray-100 px-5 py-5">
+                        {assignedSubjects.length === 0 ? (
+                          <div className="mb-4 rounded-xl border border-dashed border-gray-200 bg-gray-50 px-5 py-8 text-center">
+                            <p className="text-sm font-medium text-gray-500">
+                              Aucune matière configurée dans cette classe
+                            </p>
+                            <p className="mt-1 text-xs text-gray-400">
+                              Seules les matières applicables à son contexte
+                              apparaîtront ci-dessous.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                            {assignedSubjects.map(({ assignment, subject }) => (
+                              <div
+                                key={assignment.id}
+                                className="rounded-xl border border-gray-100 bg-gray-50 p-4 transition hover:border-indigo-100 hover:bg-white hover:shadow-sm"
+                              >
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex min-w-0 items-center gap-3">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-indigo-600 shadow-sm">
+                                      <BookOpen className="h-4 w-4" />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="truncate text-sm font-bold text-gray-800">
+                                        {subject.name}
+                                      </p>
+                                      <p className="mt-1 text-xs text-gray-400">
+                                        Coef. {assignment.coefficient || 1}
+                                        {" · "}
+                                        {assignment.hours_per_week || 0} h/sem.
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex shrink-0 items-center gap-1">
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        openClassModal(schoolClass, subject)
+                                      }
+                                      className="rounded-lg p-2 text-gray-400 transition hover:bg-indigo-50 hover:text-indigo-600"
+                                      title="Configurer"
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        handleRemoveFromClass(
+                                          schoolClass,
+                                          assignment,
+                                          subject
+                                        )
+                                      }
+                                      className="rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+                                      title="Retirer"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {availableSubjects.length > 0 && (
+                          <div>
+                            <div className="mb-3 flex items-center gap-2">
+                              <Plus className="h-4 w-4 text-indigo-500" />
+                              <p className="text-sm font-bold text-gray-800">
+                                Ajouter une matière applicable
+                              </p>
+                            </div>
+
+                            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                              {availableSubjects.map((subject) => (
+                                <button
+                                  key={subject.id}
+                                  type="button"
+                                  onClick={() =>
+                                    openClassModal(schoolClass, subject)
+                                  }
+                                  className="group rounded-xl border border-gray-200 bg-white p-4 text-left transition hover:border-indigo-200 hover:shadow-sm"
+                                >
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="flex min-w-0 items-center gap-3">
+                                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                                        <Plus className="h-4 w-4" />
+                                      </div>
+                                      <div className="min-w-0">
+                                        <p className="truncate text-sm font-semibold text-gray-800 group-hover:text-indigo-700">
+                                          {subject.name}
+                                        </p>
+                                        <p className="mt-1 text-xs text-gray-400">
+                                          Coef. défaut{" "}
+                                          {subject.coefficient || 1}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    <ChevronDown className="h-4 w-4 -rotate-90 text-gray-300 transition group-hover:text-indigo-500" />
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {availableSubjects.length === 0 &&
+                          assignedSubjects.length > 0 && (
+                            <div className="rounded-xl bg-emerald-50 px-4 py-3">
+                              <p className="flex items-center gap-2 text-xs font-medium text-emerald-700">
+                                <Check className="h-4 w-4" />
+                                Toutes les matières applicables sont configurées
+                                pour cette classe.
+                              </p>
+                            </div>
+                          )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           )}
         </div>
       </main>
 
-      {/* =====================================================
-          MODAL MATIÈRE
-      ===================================================== */}
-
-      {showModal && selectedClass && (
+      {modal === "subject" && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
@@ -886,14 +1559,12 @@ export default function MatieresPage() {
                 <h2 className="text-lg font-bold text-gray-900">
                   {editingSubject
                     ? "Modifier la matière"
-                    : "Ajouter une matière"}
+                    : "Nouvelle matière"}
                 </h2>
-
                 <p className="mt-1 text-xs text-gray-400">
-                  Classe : {selectedClass.name}
+                  Catalogue central des matières
                 </p>
               </div>
-
               <button
                 type="button"
                 onClick={closeModal}
@@ -904,63 +1575,72 @@ export default function MatieresPage() {
             </div>
 
             <div className="space-y-5 px-6 py-6">
-              {errorMessage && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  {errorMessage}
-                </div>
-              )}
-
-              {successMessage && (
-                <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-                  {successMessage}
-                </div>
-              )}
-
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700">
                   Nom de la matière
                 </label>
-
                 <input
                   type="text"
                   value={subjectName}
-                  onChange={(event) =>
-                    setSubjectName(event.target.value)
-                  }
-                  placeholder="Ex. Français"
+                  onChange={(event) => setSubjectName(event.target.value)}
+                  placeholder="Ex. Mathématiques"
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-indigo-400"
                   autoFocus
                 />
               </div>
 
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Code
+                  </label>
+                  <input
+                    type="text"
+                    value={subjectCode}
+                    onChange={(event) => setSubjectCode(event.target.value)}
+                    placeholder="Ex. MATH"
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-indigo-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Coefficient par défaut
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={subjectCoefficient}
+                    onChange={(event) =>
+                      setSubjectCoefficient(
+                        Math.max(1, Number(event.target.value))
+                      )
+                    }
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-indigo-400"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700">
-                  Coefficient
+                  Description
                 </label>
-
-                <input
-                  type="number"
-                  min="1"
-                  value={coefficient}
+                <textarea
+                  value={subjectDescription}
                   onChange={(event) =>
-                    setCoefficient(
-                      Math.max(
-                        1,
-                        Number(event.target.value)
-                      )
-                    )
+                    setSubjectDescription(event.target.value)
                   }
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-indigo-400"
+                  rows={3}
+                  placeholder="Description facultative..."
+                  className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-indigo-400"
                 />
               </div>
 
               <div className="rounded-xl bg-indigo-50 px-4 py-3">
                 <p className="text-xs leading-5 text-indigo-700">
-                  Cette matière sera rattachée uniquement à
-                  la classe{" "}
-                  <strong>{selectedClass.name}</strong>.
-                  Elle pourra ensuite être affectée à un
-                  enseignant depuis l'équipe pédagogique.
+                  La création ici ajoute uniquement la matière au{" "}
+                  <strong>catalogue</strong>. Son cycle, son niveau et sa série
+                  sont configurés séparément.
                 </p>
               </div>
             </div>
@@ -974,7 +1654,6 @@ export default function MatieresPage() {
               >
                 Annuler
               </button>
-
               <button
                 type="button"
                 onClick={handleSaveSubject}
@@ -988,10 +1667,276 @@ export default function MatieresPage() {
                   </>
                 ) : (
                   <>
-                    <Plus className="h-4 w-4" />
-                    {editingSubject
-                      ? "Enregistrer"
-                      : "Ajouter"}
+                    <Check className="h-4 w-4" />
+                    Enregistrer
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modal === "curriculum" && selectedSubject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">
+                  {editingCurriculum
+                    ? "Modifier le contexte"
+                    : "Ajouter un contexte"}
+                </h2>
+                <p className="mt-1 text-xs text-gray-400">
+                  Matière : {selectedSubject.name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-5 px-6 py-6">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  Cycle
+                </label>
+                <select
+                  value={curriculumCycle}
+                  onChange={(event) => {
+                    setCurriculumCycle(event.target.value);
+                    setCurriculumLevel("all");
+                    setCurriculumSeries("all");
+                  }}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400"
+                >
+                  <option value="">Sélectionner un cycle</option>
+                  {cycles.map((cycle) => (
+                    <option key={cycle.id} value={cycle.id}>
+                      {cycle.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  Niveau
+                </label>
+                <select
+                  value={curriculumLevel}
+                  onChange={(event) =>
+                    setCurriculumLevel(event.target.value)
+                  }
+                  disabled={!curriculumCycle}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400 disabled:opacity-50"
+                >
+                  <option value="all">Tous les niveaux</option>
+                  {curriculumCycle &&
+                    getLevelsForCycle(curriculumCycle).map((level) => (
+                      <option key={level.id} value={level.id}>
+                        {level.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {curriculumCycle && isLycee(curriculumCycle) && (
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Série
+                  </label>
+                  <select
+                    value={curriculumSeries}
+                    onChange={(event) =>
+                      setCurriculumSeries(event.target.value)
+                    }
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-indigo-400"
+                  >
+                    <option value="all">Toutes les séries</option>
+                    {getSeriesForCycle(curriculumCycle).map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.code} — {item.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="rounded-xl bg-violet-50 px-4 py-3">
+                <p className="text-xs leading-5 text-violet-700">
+                  Un niveau non sélectionné signifie{" "}
+                  <strong>tous les niveaux</strong> du cycle. Au lycée, une
+                  série non sélectionnée signifie{" "}
+                  <strong>toutes les séries</strong> de ce cycle.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 border-t border-gray-100 px-6 py-4">
+              <button
+                type="button"
+                onClick={closeModal}
+                disabled={saving}
+                className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveCurriculum}
+                disabled={saving || !curriculumCycle}
+                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {saving ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Enregistrement...
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Enregistrer
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modal === "class" && selectedClass && selectedSubject && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">
+                  Configurer la matière
+                </h2>
+                <p className="mt-1 text-xs text-gray-400">
+                  {selectedClass.name} · {selectedSubject.name}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-5 px-6 py-6">
+              <div className="rounded-xl bg-indigo-50 px-4 py-3">
+                <p className="text-xs leading-5 text-indigo-700">
+                  Cette matière est disponible ici parce qu'elle correspond au
+                  contexte pédagogique de la classe. Cette étape configure
+                  uniquement son utilisation dans cette classe pour l'année
+                  scolaire.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Coefficient
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={classCoefficient}
+                    onChange={(event) =>
+                      setClassCoefficient(
+                        Math.max(1, Number(event.target.value))
+                      )
+                    }
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-indigo-400"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-gray-700">
+                    Heures / semaine
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    value={hoursPerWeek}
+                    onChange={(event) =>
+                      setHoursPerWeek(Math.max(0, Number(event.target.value)))
+                    }
+                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-indigo-400"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                  Moyenne maximale
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  step="0.5"
+                  value={maxSubjectAverage}
+                  onChange={(event) =>
+                    setMaxSubjectAverage(
+                      Math.max(1, Number(event.target.value))
+                    )
+                  }
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-indigo-400"
+                />
+              </div>
+
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 px-4 py-3">
+                <input
+                  type="checkbox"
+                  checked={countsTowardAverage}
+                  onChange={(event) =>
+                    setCountsTowardAverage(event.target.checked)
+                  }
+                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span>
+                  <span className="block text-sm font-semibold text-gray-700">
+                    Compte dans la moyenne générale
+                  </span>
+                  <span className="mt-0.5 block text-xs text-gray-400">
+                    Utiliser cette matière dans le calcul de la moyenne générale.
+                  </span>
+                </span>
+              </label>
+            </div>
+
+            <div className="flex justify-end gap-3 border-t border-gray-100 px-6 py-4">
+              <button
+                type="button"
+                onClick={closeModal}
+                disabled={saving}
+                className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveClassSubject}
+                disabled={saving}
+                className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {saving ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Enregistrement...
+                  </>
+                ) : (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Enregistrer
                   </>
                 )}
               </button>
