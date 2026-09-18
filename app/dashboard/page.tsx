@@ -21,6 +21,7 @@ import {
   UserPlus,
   Users,
   X,
+  UserCheck,
 } from "lucide-react";
 
 import Sidebar from "@/components/Sidebar";
@@ -86,6 +87,10 @@ export default function DashboardPage() {
   const [classCount, setClassCount] = useState(0);
   const [attendanceRate, setAttendanceRate] = useState(0);
   const [schoolId, setSchoolId] = useState<string | null>(null);
+  const [academicYearId, setAcademicYearId] = useState<string | null>(null);
+const [academicYearName, setAcademicYearName] = useState("Année scolaire");
+const [configuredClassCount, setConfiguredClassCount] = useState(0);
+const [subjectAssignmentCount, setSubjectAssignmentCount] = useState(0);
   const [showTeacherModal, setShowTeacherModal] = useState(false);
   const [teacherFirstName, setTeacherFirstName] = useState("");
   const [teacherLastName, setTeacherLastName] = useState("");
@@ -96,19 +101,24 @@ export default function DashboardPage() {
   const [todayLabel, setTodayLabel] = useState("");
 
   useEffect(() => {
-    setTodayLabel(
-      new Intl.DateTimeFormat("fr-FR", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      }).format(new Date())
-    );
+  let mounted = true;
 
-    const checkAuth = async () => {
+  setTodayLabel(
+    new Intl.DateTimeFormat("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(new Date())
+  );
+
+  const checkAuth = async () => {
+    try {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+
+      if (!mounted) return;
 
       if (!session) {
         router.replace("/");
@@ -121,6 +131,8 @@ export default function DashboardPage() {
         .eq("auth_user_id", session.user.id)
         .single();
 
+      if (!mounted) return;
+
       if (profileError || !userProfile) {
         console.error("ERREUR PROFIL UTILISATEUR :", profileError);
         setLoading(false);
@@ -128,42 +140,127 @@ export default function DashboardPage() {
       }
 
       setSchoolId(userProfile.school_id);
+
+      const { data: activeYear, error: activeYearError } = await supabase
+        .from("academic_years")
+        .select("id, name")
+        .eq("school_id", userProfile.school_id)
+        .eq("is_active", true)
+        .single();
+
+      if (!mounted) return;
+
+      if (activeYearError && activeYearError.code !== "PGRST116") {
+        throw activeYearError;
+      }
+
+      setAcademicYearId(activeYear?.id ?? null);
+      setAcademicYearName(activeYear?.name ?? "Aucune année active");
+
       const fullName = [userProfile.first_name, userProfile.last_name]
         .filter(Boolean)
         .join(" ");
-      if (fullName) setUserName(fullName);
 
-      const [{ count }, { count: teachersCount }, { count: classesCount }] =
-        await Promise.all([
-          supabase.from("students").select("*", { count: "exact", head: true }),
-          supabase.from("teachers").select("*", { count: "exact", head: true }),
-          supabase.from("classes").select("*", { count: "exact", head: true }),
-        ]);
+      if (fullName) {
+        setUserName(fullName);
+      }
 
-      setStudentCount(count ?? 0);
+      const [
+        { count: studentsCount, error: studentsError },
+        { count: teachersCount, error: teachersError },
+        { count: classesCount, error: classesError },
+      ] = await Promise.all([
+        supabase
+          .from("students")
+          .select("*", { count: "exact", head: true })
+          .eq("school_id", userProfile.school_id),
+
+        supabase
+          .from("teachers")
+          .select("*", { count: "exact", head: true })
+          .eq("school_id", userProfile.school_id),
+
+        supabase
+          .from("classes")
+          .select("*", { count: "exact", head: true })
+          .eq("school_id", userProfile.school_id)
+          .eq("academic_year_id", activeYear?.id ?? ""),
+      ]);
+
+      if (!mounted) return;
+
+      if (studentsError) throw studentsError;
+      if (teachersError) throw teachersError;
+      if (classesError) throw classesError;
+
+      setStudentCount(studentsCount ?? 0);
       setTeacherCount(teachersCount ?? 0);
       setClassCount(classesCount ?? 0);
 
-      const today = new Date().toISOString().split("T")[0];
-      const { data: attendanceData, error: attendanceError } = await supabase
-        .from("student_attendance")
-        .select("status")
-        .eq("attendance_date", today);
+      const [
+        { count: configuredClassesCount, error: configuredClassesError },
+        { count: subjectAssignmentsCount, error: subjectAssignmentsError },
+      ] = await Promise.all([
+        supabase
+          .from("class_subjects")
+          .select("*", { count: "exact", head: true })
+          .eq("academic_year_id", activeYear?.id ?? ""),
 
-      if (!attendanceError && attendanceData?.length) {
+        supabase
+          .from("teacher_subjects")
+          .select("*", { count: "exact", head: true })
+          .eq("academic_year_id", activeYear?.id ?? ""),
+      ]);
+
+      if (!mounted) return;
+
+      if (configuredClassesError) throw configuredClassesError;
+      if (subjectAssignmentsError) throw subjectAssignmentsError;
+
+      setConfiguredClassCount(configuredClassesCount ?? 0);
+      setSubjectAssignmentCount(subjectAssignmentsCount ?? 0);
+
+      const today = new Date().toISOString().split("T")[0];
+
+      const { data: attendanceData, error: attendanceError } =
+        await supabase
+          .from("student_attendance")
+          .select("status")
+          .eq("attendance_date", today);
+
+      if (!mounted) return;
+
+      if (attendanceError) {
+        throw attendanceError;
+      }
+
+      if (attendanceData && attendanceData.length > 0) {
         const presentCount = attendanceData.filter(
           (item) => item.status?.toLowerCase() === "present"
         ).length;
+
         setAttendanceRate(
           Math.round((presentCount / attendanceData.length) * 100)
         );
+      } else {
+        setAttendanceRate(0);
       }
 
       setLoading(false);
-    };
+    } catch (error) {
+      if (!mounted) return;
 
-    checkAuth();
-  }, [router]);
+      console.error("ERREUR CHARGEMENT DASHBOARD :", error);
+      setLoading(false);
+    }
+  };
+
+  checkAuth();
+
+  return () => {
+    mounted = false;
+  };
+}, [router]);
 
   const handleCreateTeacher = async () => {
     if (!teacherFirstName.trim() || !teacherLastName.trim()) {
@@ -251,8 +348,24 @@ export default function DashboardPage() {
     { label: "Élèves", value: studentCount, note: "Effectif actuel", icon: Users, accent: "text-violet-400", bg: "bg-violet-500/10" },
     { label: "Enseignants", value: teacherCount, note: "Personnel enseignant", icon: GraduationCap, accent: "text-cyan-400", bg: "bg-cyan-500/10" },
     { label: "Classes", value: classCount, note: "Classes enregistrées", icon: School, accent: "text-orange-400", bg: "bg-orange-500/10" },
+    {
+  label: "Configuration pédagogique",
+  value: configuredClassCount,
+  note: "Classes avec matières",
+  icon: BookOpen,
+  accent: "text-indigo-400",
+  bg: "bg-indigo-500/10",
+},
+{
+  label: "Affectations",
+  value: subjectAssignmentCount,
+  note: "Enseignants / matières",
+  icon: UserCheck,
+  accent: "text-amber-400",
+  bg: "bg-amber-500/10",
+},
     { label: "Présence élèves", value: `${attendanceRate}%`, note: "Aujourd'hui", icon: Activity, accent: "text-emerald-400", bg: "bg-emerald-500/10" },
-    { label: "Année scolaire", value: "Active", note: "Contexte courant", icon: CalendarDays, accent: "text-pink-400", bg: "bg-pink-500/10" },
+    { label: "Année scolaire", value: academicYearName, note: "Contexte courant", icon: CalendarDays, accent: "text-pink-400", bg: "bg-pink-500/10" },
     { label: "Direction", value: "Global", note: "Vue établissement", icon: LayoutDashboard, accent: "text-blue-400", bg: "bg-blue-500/10" },
   ];
 
@@ -302,7 +415,7 @@ export default function DashboardPage() {
               <p className="mt-1 text-sm text-white/40">La situation de votre établissement en un coup d'œil.</p>
             </div>
             <div className="flex items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.035] px-3 py-2 text-xs text-white/50">
-              <CalendarDays size={15} /> Année scolaire active
+              <CalendarDays size={15} /> Année scolaire active : {academicYearName}
             </div>
           </div>
 

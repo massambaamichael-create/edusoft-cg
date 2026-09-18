@@ -30,30 +30,41 @@ export default function Home() {
   };
 
   const handleLogin = async () => {
-    setError("");
+  console.log("LOGIN CLICK");
 
-    if (!email || !password) {
-      setError("Veuillez renseigner votre email et votre mot de passe.");
-      return;
-    }
+  setError("");
 
-    setLoading(true);
+  if (!email || !password) {
+    setError("Veuillez renseigner votre email et votre mot de passe.");
+    return;
+  }
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  console.log("LOGIN START", email);
 
-    setLoading(false);
+  setLoading(true);
 
-    if (error) {
-      setError("Email ou mot de passe incorrect.");
-      return;
-    }
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-    window.location.href = "/dashboard";
-  };
+  console.log("LOGIN RESULT", {
+    data,
+    error,
+  });
 
+  setLoading(false);
+
+  if (error) {
+    console.error("LOGIN ERROR:", error);
+    setError(error.message);
+    return;
+  }
+
+  console.log("LOGIN SUCCESS", data.user?.email);
+
+  window.location.href = "/dashboard";
+};
   return (
     <main className="min-h-screen bg-[#F7F8FC] flex items-center justify-center p-6">
       <div className="w-full max-w-5xl min-h-[620px] bg-white rounded-3xl shadow-xl overflow-hidden flex">

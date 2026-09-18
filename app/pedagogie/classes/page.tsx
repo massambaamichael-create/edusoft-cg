@@ -3085,38 +3085,74 @@ const handlePrincipalTeacherChange = async (
                   />
 
                   <CycleTable
-                    title="Lycée"
-                    classes={filteredClasses.filter(
-                      (item) =>
-                        item.cycleName
-                          .toLowerCase()
-                          .includes(
-                            "lycée"
-                          )
-                    )}
-                    total={
-                      highSchoolCount
-                    }
-                    color="green"
-                    isDirector={
-                      isDirector
-                    }
-                    processingId={
-                      processingId
-                    }
-                    onTeam={
-                      loadClassTeam
-                    }
-                    onValidate={
-                      handleValidate
-                    }
-                    onReject={
-                      handleReject
-                    }
-                    onDelete={
-                      handleDelete
-                    }
-                  />
+  title="Lycée général"
+  classes={filteredClasses.filter(
+    (item) =>
+      item.cycleName ===
+      "Lycée général"
+  )}
+  total={
+    filteredClasses.filter(
+      (item) =>
+        item.cycleName ===
+        "Lycée général"
+    ).length
+  }
+  color="green"
+  isDirector={
+    isDirector
+  }
+  processingId={
+    processingId
+  }
+  onTeam={
+    loadClassTeam
+  }
+  onValidate={
+    handleValidate
+  }
+  onReject={
+    handleReject
+  }
+  onDelete={
+    handleDelete
+  }
+/>
+
+<CycleTable
+  title="Lycée technique"
+  classes={filteredClasses.filter(
+    (item) =>
+      item.cycleName ===
+      "Lycée technique"
+  )}
+  total={
+    filteredClasses.filter(
+      (item) =>
+        item.cycleName ===
+        "Lycée technique"
+    ).length
+  }
+  color="green"
+  isDirector={
+    isDirector
+  }
+  processingId={
+    processingId
+  }
+  onTeam={
+    loadClassTeam
+  }
+  onValidate={
+    handleValidate
+  }
+  onReject={
+    handleReject
+  }
+  onDelete={
+    handleDelete
+  }
+/>
                 </div>
               )}
             </section>
