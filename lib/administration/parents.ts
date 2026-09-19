@@ -22,6 +22,14 @@ export type StudentParentLink = {
   relationship: string | null;
 };
 
+export type ParentCreateInput = {
+  school_id: string;
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  email?: string;
+};
+
 export async function fetchParentsForSchool(
   supabase: SupabaseClient,
   schoolId: string
@@ -61,7 +69,6 @@ export async function fetchStudentParentLinks(
   supabase: SupabaseClient,
   schoolId: string
 ): Promise<{ data: StudentParentLink[]; error: string | null }> {
-  // student_parents has no school_id in some schemas — filter via join side in UI
   const { data, error } = await supabase
     .from("student_parents")
     .select("parent_id, student_id, relationship");
@@ -85,8 +92,66 @@ export async function fetchStudentParentLinks(
     };
   }
 
-  void schoolId; // reserved for future join filter
+  void schoolId;
   return { data: (data as StudentParentLink[]) || [], error: null };
+}
+
+export async function createParent(
+  supabase: SupabaseClient,
+  input: ParentCreateInput
+): Promise<{ data: ParentRow | null; error: string | null }> {
+  const payload: Record<string, unknown> = {
+    school_id: input.school_id,
+    first_name: input.first_name.trim(),
+    last_name: input.last_name.trim(),
+  };
+  if (input.phone?.trim()) payload.phone = input.phone.trim();
+  if (input.email?.trim()) payload.email = input.email.trim();
+
+  const { data, error } = await supabase
+    .from("parents")
+    .insert(payload)
+    .select("id, school_id, first_name, last_name, phone, email, created_at")
+    .single();
+
+  if (error) {
+    return { data: null, error: error.message };
+  }
+
+  return {
+    data: {
+      ...(data as Omit<ParentRow, "relationship">),
+      relationship: null,
+    },
+    error: null,
+  };
+}
+
+/** Link one parent to one student (many-to-many, PRD). */
+export async function linkStudentParent(
+  supabase: SupabaseClient,
+  studentId: string,
+  parentId: string,
+  relationship?: string
+): Promise<{ error: string | null }> {
+  const payload: Record<string, unknown> = {
+    student_id: studentId,
+    parent_id: parentId,
+  };
+  if (relationship?.trim()) payload.relationship = relationship.trim();
+
+  const { error } = await supabase.from("student_parents").insert(payload);
+
+  if (error) {
+    // Retry without relationship column
+    const retry = await supabase.from("student_parents").insert({
+      student_id: studentId,
+      parent_id: parentId,
+    });
+    if (retry.error) return { error: error.message };
+  }
+
+  return { error: null };
 }
 
 export function parentDisplayName(p: ParentRow): string {
