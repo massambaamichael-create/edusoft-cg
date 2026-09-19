@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getHomePathForRole, isTeacherSpacePath } from "@/lib/auth/routes";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -54,11 +55,38 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Logged in → leave login page
-  if (user && pathname === "/") {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+  // Logged in → resolve role and route to the right space
+  if (user) {
+    let role: string | null = null;
+    try {
+      const { data } = await supabase.rpc("get_my_role");
+      role = (data as string | null) ?? null;
+    } catch {
+      role = null;
+    }
+
+    const home = getHomePathForRole(role);
+
+    // Leave login page → role home
+    if (pathname === "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = home;
+      return NextResponse.redirect(url);
+    }
+
+    // Teacher must stay in teacher space (not full direction UI)
+    if (role === "Enseignant" && !isTeacherSpacePath(pathname) && !isApiRoute) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/enseignant";
+      return NextResponse.redirect(url);
+    }
+
+    // Non-teachers should not use teacher-only space
+    if (role && role !== "Enseignant" && isTeacherSpacePath(pathname)) {
+      const url = request.nextUrl.clone();
+      url.pathname = home;
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;
