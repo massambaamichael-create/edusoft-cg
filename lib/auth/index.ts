@@ -16,3 +16,9 @@ export {
 } from "./permissions";
 
 export { useCurrentUser } from "./useCurrentUser";
+
+export {
+  getHomePathForRole,
+  isDirectionSpacePath,
+  isTeacherSpacePath,
+} from "./routes";
