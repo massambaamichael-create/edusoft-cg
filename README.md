@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EduSoft CG
 
-## Getting Started
+SaaS de gestion et de pilotage des établissements scolaires privés au Congo-Brazzaville.
 
-First, run the development server:
+**Positionnement** : le système d’exploitation numérique de l’établissement scolaire.
+
+## Stack
+
+- Next.js 16 (App Router) + React 19 + TypeScript
+- Supabase (Auth + PostgreSQL + RLS)
+- Tailwind CSS 4
+- Resend, Lucide, Recharts, xlsx
+
+## Documentation
+
+Toute la documentation de référence se trouve dans le dossier [`docs/`](./docs) :
+
+| Fichier | Contenu |
+|---------|---------|
+| [AGENTS.md](./AGENTS.md) | Règles permanentes pour le développement |
+| [docs/PROJECT_STATE.md](./docs/PROJECT_STATE.md) | État actuel vs architecture cible |
+| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Architecture produit |
+| [docs/DATABASE.md](./docs/DATABASE.md) | Principes de données + inventaire |
+| [docs/SECURITY.md](./docs/SECURITY.md) | RBAC, RLS, sécurité |
+| [docs/ROLES_PERMISSIONS.md](./docs/ROLES_PERMISSIONS.md) | Rôles et matrice de responsabilités |
+| [docs/ROADMAP.md](./docs/ROADMAP.md) | Roadmap de migration |
+| [docs/CHANGELOG.md](./docs/CHANGELOG.md) | Historique des changements |
+
+Le **PRD v2.0** est la source de vérité fonctionnelle.
+
+## Démarrage local
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvrir [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Variables d’environnement nécessaires (voir Supabase + Resend) :
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `RESEND_API_KEY`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Règle de développement
 
-## Learn More
+> Une information est créée une seule fois, puis utilisée partout où elle est nécessaire.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Voir `AGENTS.md` pour l’ensemble des règles non négociables.
