@@ -2,13 +2,12 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import crypto from "crypto";
 import { resend } from "@/lib/resend";
+import { resolveRoleIdByName } from "@/lib/auth/permissions";
 
 console.log(
   "RESEND API KEY présente :",
   !!process.env.RESEND_API_KEY
 );
-
-const TEACHER_ROLE_ID = "ec822cba-24fd-447d-8dd2-ec460330978e";
 
 export async function GET() {
   try {
@@ -51,30 +50,42 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-const {
-  first_name,
-  last_name,
-  email,
-  phone,
-  school_id,
-  employee_number,
-} = body;
+    const {
+      first_name,
+      last_name,
+      email,
+      phone,
+      school_id,
+      employee_number,
+    } = body;
 
-const temporaryPassword = crypto.randomBytes(9).toString("base64url");
+    const temporaryPassword = crypto.randomBytes(9).toString("base64url");
 
-    if (
-  !first_name ||
-  !last_name ||
-  !email ||
-  !school_id
-) {
+    if (!first_name || !last_name || !email || !school_id) {
       return NextResponse.json(
         {
           success: false,
           error:
-            "Prénom, nom, email, école et mot de passe sont obligatoires.",
+            "Prénom, nom, email et école sont obligatoires.",
         },
         { status: 400 }
+      );
+    }
+
+    // Resolve role by name (no hardcoded UUID)
+    const teacherRoleId = await resolveRoleIdByName(
+      supabaseAdmin,
+      "Enseignant"
+    );
+
+    if (!teacherRoleId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Le rôle Enseignant est introuvable en base. Vérifiez la table roles.",
+        },
+        { status: 500 }
       );
     }
 
@@ -108,7 +119,7 @@ const temporaryPassword = crypto.randomBytes(9).toString("base64url");
       .insert({
         auth_user_id: authUserId,
         school_id,
-        role_id: TEACHER_ROLE_ID,
+        role_id: teacherRoleId,
         first_name: first_name.trim(),
         last_name: last_name.trim(),
         email: email.trim(),
@@ -121,7 +132,6 @@ const temporaryPassword = crypto.randomBytes(9).toString("base64url");
     if (userError || !userData) {
       console.error("ERREUR CRÉATION USERS :", userError);
 
-      // Nettoyage du compte Auth si la création du profil échoue
       await supabaseAdmin.auth.admin.deleteUser(authUserId);
 
       return NextResponse.json(
@@ -150,13 +160,11 @@ const temporaryPassword = crypto.randomBytes(9).toString("base64url");
     if (teacherError || !teacherData) {
       console.error("ERREUR CRÉATION TEACHERS :", teacherError);
 
-      // Nettoyage du profil users
       await supabaseAdmin
         .from("users")
         .delete()
         .eq("id", userData.id);
 
-      // Nettoyage du compte Auth
       await supabaseAdmin.auth.admin.deleteUser(authUserId);
 
       return NextResponse.json(
@@ -169,11 +177,12 @@ const temporaryPassword = crypto.randomBytes(9).toString("base64url");
         { status: 500 }
       );
     }
-const { data: emailData, error: emailError } = await resend.emails.send({
-  from: "EduSoft CG <onboarding@resend.dev>",
-  to: [email.trim()],
-  subject: "Bienvenue sur EduSoft CG",
-  html: `
+
+    const { error: emailError } = await resend.emails.send({
+      from: "EduSoft CG <onboarding@resend.dev>",
+      to: [email.trim()],
+      subject: "Bienvenue sur EduSoft CG",
+      html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h1>Bienvenue sur EduSoft CG</h1>
 
@@ -201,20 +210,21 @@ const { data: emailData, error: emailError } = await resend.emails.send({
       </p>
     </div>
   `,
-});
+    });
 
-if (emailError) {
-  console.error("ERREUR ENVOI EMAIL :", emailError);
+    if (emailError) {
+      console.error("ERREUR ENVOI EMAIL :", emailError);
 
-  return NextResponse.json(
-    {
-      success: false,
-      error:
-        "L'enseignant a été créé, mais l'email d'accès n'a pas pu être envoyé.",
-    },
-    { status: 500 }
-  );
-}
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "L'enseignant a été créé, mais l'email d'accès n'a pas pu être envoyé.",
+        },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
       {
         success: true,
