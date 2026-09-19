@@ -24,6 +24,7 @@ Pour un enseignant, une action pédagogique n’est autorisée que si :
 | `types.ts` | Types rôle, permissions, école, contexte |
 | `permissions.ts` | Appels RPC Supabase |
 | `useCurrentUser.ts` | Hook React central |
+| `routes.ts` | Mapping rôle → chemin d’accueil |
 | `index.ts` | Exports |
 
 ### Usage recommandé (Client Component)
@@ -50,19 +51,20 @@ import { resolveRoleIdByName, checkPermission } from "@/lib/auth";
 
 Un rôle ≠ masquer des boutons dans une UI unique.
 
-Cible progressive :
+| Rôle | Espace (chemin) | Statut |
+|------|-----------------|--------|
+| Directeur | `/dashboard` (Direction) | Existant |
+| Enseignant | `/enseignant` | **Phase 2 livrée** |
+| Secrétaire / Admin | `/administration` | À venir |
+| Comptable | `/finance` | À venir |
+| Surveillant | `/vie-scolaire` | À venir |
+| Parent / Élève | portails | Releases ultérieures |
 
-| Rôle | Espace |
-|------|--------|
-| Directeur | Direction / pilotage |
-| Enseignant | Espace enseignant (ses classes / matières) |
-| Secrétaire | Administration |
-| Comptable | Finance |
-| Surveillant | Vie scolaire |
-| Parent / Élève | Portails (releases ultérieures) |
+### Comportement actuel
 
-La Phase 1 pose uniquement la **couche d’identité et de permissions**.  
-Les layouts par rôle arrivent en Phase 2+.
+- Après login → `get_my_role()` → redirection vers l’espace du rôle
+- Middleware : un **Enseignant** ne peut pas rester sur l’UI Direction ; un non-enseignant ne peut pas entrer dans `/enseignant`
+- Layout enseignant : sidebar dédiée (teal), navigation limitée, garde de rôle
 
 ## Règles
 
@@ -70,3 +72,4 @@ Les layouts par rôle arrivent en Phase 2+.
 - Préférer `hasPermission` / `getMyRole` aux tests dispersés
 - Ne pas réappliquer l’ancienne migration RLS du repo (obsolète vs production)
 - Ne pas casser l’auth existante lors des migrations d’UI
+- **Un rôle = un espace**
