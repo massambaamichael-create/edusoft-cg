@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { fetchMyRole } from "@/lib/auth/permissions";
+import { getHomePathForRole } from "@/lib/auth/routes";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -10,6 +12,16 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [githubLoading, setGithubLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const redirectAfterAuth = async () => {
+    try {
+      const role = await fetchMyRole(supabase);
+      const path = getHomePathForRole(role);
+      window.location.href = path;
+    } catch {
+      window.location.href = "/dashboard";
+    }
+  };
 
   const handleGithubLogin = async () => {
     setError("");
@@ -44,21 +56,19 @@ export default function Home() {
       password,
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       setError("Email ou mot de passe incorrect.");
       return;
     }
 
-    window.location.href = "/dashboard";
+    await redirectAfterAuth();
   };
 
   return (
     <main className="min-h-screen bg-[#F7F8FC] flex items-center justify-center p-6">
       <div className="w-full max-w-5xl min-h-[620px] bg-white rounded-3xl shadow-xl overflow-hidden flex">
 
-        {/* LEFT SIDE */}
         <div className="hidden md:flex md:w-1/2 bg-[#6C2BD9] text-white p-12 flex-col justify-between">
           <div>
             <div className="flex items-center gap-3">
@@ -88,6 +98,7 @@ export default function Home() {
               <p className="mt-6 max-w-md text-white/75 leading-7">
                 Une plateforme moderne pour gérer les élèves, les enseignants,
                 les finances, la pédagogie et l'administration de votre école.
+                Chaque rôle dispose de son propre espace de travail.
               </p>
             </div>
           </div>
@@ -97,7 +108,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* RIGHT SIDE */}
         <div className="w-full md:w-1/2 p-8 sm:p-12 lg:p-16 flex items-center">
           <div className="w-full max-w-md mx-auto">
 
@@ -111,7 +121,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* EMAIL */}
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Adresse email
@@ -126,7 +135,6 @@ export default function Home() {
               />
             </div>
 
-            {/* PASSWORD */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-2">
                 <label className="text-sm font-medium text-gray-700">
@@ -160,14 +168,12 @@ export default function Home() {
               </div>
             </div>
 
-            {/* ERROR */}
             {error && (
               <div className="mb-6 rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-600">
                 {error}
               </div>
             )}
 
-            {/* REMEMBER */}
             <div className="flex items-center gap-2 mb-8">
               <input
                 type="checkbox"
@@ -179,7 +185,6 @@ export default function Home() {
               </span>
             </div>
 
-            {/* LOGIN */}
             <button
               type="button"
               onClick={handleLogin}
