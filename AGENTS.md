@@ -62,14 +62,23 @@ Avant toute modification majeure :
 
 Tous les documents se trouvent dans `/docs` :
 
-- `PROJECT_STATE.md` — état actuel vs cible
-- `ARCHITECTURE.md`
-- `DATABASE.md`
-- `SECURITY.md`
-- `ROLES_PERMISSIONS.md`
-- `BUSINESS_RULES.md`
-- `ROADMAP.md`
-- `CHANGELOG.md`
+| Fichier | Contenu |
+|---------|---------|
+| `PROJECT_STATE.md` | État actuel vs cible (audit) |
+| `ARCHITECTURE.md` | Architecture produit |
+| `DATABASE.md` | Principes de données |
+| `SECURITY.md` | RBAC + RLS |
+| `ROLES_PERMISSIONS.md` | Rôles et matrice |
+| `BUSINESS_RULES.md` | Règles métier non négociables |
+| `MODULES.md` | Cartographie des modules |
+| `PEDAGOGY.md` | Structure pédagogique + audit code |
+| `EVALUATIONS.md` | Système d’évaluations |
+| `PAYMENTS.md` | Payment Engine |
+| `DOCUMENTS.md` | Documents, signatures, QR |
+| `WORKFLOWS.md` | Workflows d’approbation |
+| `AI.md` | Gouvernance et capacités IA |
+| `ROADMAP.md` | Roadmap de migration |
+| `CHANGELOG.md` | Historique des changements |
 
 Le PRD complet (Product Requirements Document v2.0) est la source de vérité fonctionnelle.
 
