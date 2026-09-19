@@ -2,6 +2,26 @@
 
 Format : [Date] — Description
 
+## [2026-09-20] — Release 1 / Phase 2 — Espace Enseignant + redirection par rôle
+
+### Multi-espaces (particularité EduSoft)
+- `lib/auth/routes.ts` — mapping rôle → chemin d’accueil
+- Login : redirection selon `get_my_role()` (Enseignant → `/enseignant`, Directeur → `/dashboard`)
+- Middleware :
+  - Enseignant forcé dans `/enseignant/*` (pas l’UI Direction complète)
+  - Non-enseignants exclus de `/enseignant`
+
+### Espace enseignant
+- `app/enseignant/layout.tsx` — shell dédié + garde de rôle
+- `components/TeacherSidebar.tsx` — navigation limitée (teal)
+- `app/enseignant/page.tsx` — accueil enseignant (permissions visibles)
+- Placeholders : `classes`, `matieres`, `evaluations`, `emploi-du-temps`
+
+### Intention
+Un rôle = un espace. L’enseignant n’utilise plus la sidebar Direction.
+
+---
+
 ## [2026-09-20] — Release 1 / Phase 1 — Alignement auth frontend
 
 ### Code
@@ -17,35 +37,8 @@ Format : [Date] — Description
 - Préparer les **espaces multi-rôles** (Direction, Enseignant, Administration…)
 - Ne pas casser l’auth ni les écrans existants
 
-### Non fait dans cette livraison
-- Layouts / routes par rôle (Phase 2)
-- Refactor de la page Classes
-- Modification des policies SQL production
-
 ---
 
 ## [2026-09-19] — Phase 0 Documentation ✅ TERMINÉE
 
-### Première vague
-- Remplacement du boilerplate `AGENTS.md` par les règles du projet EduSoft CG
-- Création du dossier `docs/`
-- Ajout de `docs/PROJECT_STATE.md`
-- Ajout de `docs/ARCHITECTURE.md`
-- Ajout de `docs/DATABASE.md`
-- Ajout de `docs/SECURITY.md`
-- Ajout de `docs/ROLES_PERMISSIONS.md`
-- Ajout de `docs/ROADMAP.md`
-- Ajout de `docs/CHANGELOG.md`
-- Mise à jour du `README.md`
-
-### Seconde vague (complétion Phase 0)
-- Ajout de `docs/BUSINESS_RULES.md`
-- Ajout de `docs/MODULES.md`
-- Ajout de `docs/PEDAGOGY.md` (avec audit du code Classes / Matières)
-- Ajout de `docs/EVALUATIONS.md`
-- Ajout de `docs/PAYMENTS.md`
-- Ajout de `docs/DOCUMENTS.md`
-- Ajout de `docs/WORKFLOWS.md`
-- Ajout de `docs/AI.md`
-- Mise à jour de `docs/PROJECT_STATE.md` (audit détaillé + Phase 0 terminée)
-- Mise à jour de `docs/ROADMAP.md` (Phase 0 marquée terminée)
+Voir historique précédent (documentation complète PRD).
