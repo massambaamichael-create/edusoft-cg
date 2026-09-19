@@ -1,36 +1,35 @@
 # CHANGELOG.md — EduSoft CG
 
-Format : [Date] — Description
+## [2026-09-20] — Release 1 — Administration (PRD Core)
 
-## [2026-09-20] — Release 1 / Phase 2b — Espaces multi-rôles + Mes classes
+### Aligné PRD
+- **Une seule source de vérité** : tables `students`, `parents`, `student_parents`, `student_enrollments`
+- Filtrage strict `school_id`
+- Inscriptions **contextualisées par année scolaire**
+- Contrôle d’accès via `students.*` / `parents.*` / `enrollments.*`
 
-### Espaces par rôle
-| Rôle | Chemin |
-|------|--------|
-| Directeur | `/dashboard` |
-| Enseignant | `/enseignant` |
-| Secrétaire / Admin / RH | `/administration` |
-| Comptable | `/finance` |
-| Surveillant / Infirmerie | `/vie-scolaire` |
+### Pages
+- `/administration/eleves` — liste + recherche
+- `/administration/parents` — liste + nombre d’enfants liés
+- `/administration/inscriptions` — filtre par année scolaire
 
-- Middleware : contrôle d’accès par espace (`canRoleAccessPath`)
-- `RoleSpaceShell` réutilisable
-- Homes Administration / Finance / Vie scolaire (permissions affichées)
+### Libs
+- `lib/administration/students.ts`
+- `lib/administration/parents.ts`
+- `lib/administration/enrollments.ts`
 
-### Enseignant — données
-- `lib/enseignant/assignments.ts` : charge les classes via `teacher_assignments` (fallback `teacher_subjects`)
-- Page `/enseignant/classes` branchée sur les affectations réelles
+Création / édition détaillée : prochaine itération (formulaires + validation).
 
 ---
 
-## [2026-09-20] — Phase 2 — Espace Enseignant + redirection
+## [2026-09-20] — Multi-espaces + enseignant classes
 
-Voir commits précédents (layout enseignant, sidebar, login/middleware).
+Espaces Enseignant / Administration / Finance / Vie scolaire + Mes classes via affectations.
 
-## [2026-09-20] — Phase 1 — Couche auth frontend
+## [2026-09-20] — Phase 1–2 auth
 
-Voir commits précédents (`lib/auth`, rôle par nom).
+Couche `lib/auth`, redirection par rôle.
 
-## [2026-09-19] — Phase 0 Documentation
+## [2026-09-19] — Phase 0 docs
 
-Documentation PRD complète.
+Documentation PRD.
