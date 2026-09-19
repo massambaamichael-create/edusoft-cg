@@ -18,7 +18,11 @@ export {
 export { useCurrentUser } from "./useCurrentUser";
 
 export {
+  canRoleAccessPath,
   getHomePathForRole,
+  getSpaceForPath,
   isDirectionSpacePath,
   isTeacherSpacePath,
+  rolesAllowedInSpace,
+  type AppSpace,
 } from "./routes";
