@@ -2,43 +2,35 @@
 
 Format : [Date] — Description
 
-## [2026-09-20] — Release 1 / Phase 2 — Espace Enseignant + redirection par rôle
+## [2026-09-20] — Release 1 / Phase 2b — Espaces multi-rôles + Mes classes
 
-### Multi-espaces (particularité EduSoft)
-- `lib/auth/routes.ts` — mapping rôle → chemin d’accueil
-- Login : redirection selon `get_my_role()` (Enseignant → `/enseignant`, Directeur → `/dashboard`)
-- Middleware :
-  - Enseignant forcé dans `/enseignant/*` (pas l’UI Direction complète)
-  - Non-enseignants exclus de `/enseignant`
+### Espaces par rôle
+| Rôle | Chemin |
+|------|--------|
+| Directeur | `/dashboard` |
+| Enseignant | `/enseignant` |
+| Secrétaire / Admin / RH | `/administration` |
+| Comptable | `/finance` |
+| Surveillant / Infirmerie | `/vie-scolaire` |
 
-### Espace enseignant
-- `app/enseignant/layout.tsx` — shell dédié + garde de rôle
-- `components/TeacherSidebar.tsx` — navigation limitée (teal)
-- `app/enseignant/page.tsx` — accueil enseignant (permissions visibles)
-- Placeholders : `classes`, `matieres`, `evaluations`, `emploi-du-temps`
+- Middleware : contrôle d’accès par espace (`canRoleAccessPath`)
+- `RoleSpaceShell` réutilisable
+- Homes Administration / Finance / Vie scolaire (permissions affichées)
 
-### Intention
-Un rôle = un espace. L’enseignant n’utilise plus la sidebar Direction.
-
----
-
-## [2026-09-20] — Release 1 / Phase 1 — Alignement auth frontend
-
-### Code
-- Ajout de `lib/auth/` :
-  - `types.ts` — types rôle, permissions, école, contexte utilisateur
-  - `permissions.ts` — wrappers RPC (`get_my_role`, `has_permission`, `get_my_permissions`, `is_my_class_subject`, `resolveRoleIdByName`)
-  - `useCurrentUser.ts` — hook React (profil + école + rôle + permissions)
-  - `index.ts` — exports publics
-- `/api/teachers` : le rôle **Enseignant** est résolu par **nom** (`roles.name = 'Enseignant'`), plus d’UUID hardcodé
-
-### Intention
-- Aligner le frontend sur le modèle RBAC déjà présent en base Supabase
-- Préparer les **espaces multi-rôles** (Direction, Enseignant, Administration…)
-- Ne pas casser l’auth ni les écrans existants
+### Enseignant — données
+- `lib/enseignant/assignments.ts` : charge les classes via `teacher_assignments` (fallback `teacher_subjects`)
+- Page `/enseignant/classes` branchée sur les affectations réelles
 
 ---
 
-## [2026-09-19] — Phase 0 Documentation ✅ TERMINÉE
+## [2026-09-20] — Phase 2 — Espace Enseignant + redirection
 
-Voir historique précédent (documentation complète PRD).
+Voir commits précédents (layout enseignant, sidebar, login/middleware).
+
+## [2026-09-20] — Phase 1 — Couche auth frontend
+
+Voir commits précédents (`lib/auth`, rôle par nom).
+
+## [2026-09-19] — Phase 0 Documentation
+
+Documentation PRD complète.
