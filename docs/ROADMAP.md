@@ -2,7 +2,7 @@
 
 Alignée sur le PRD v2.0 (§82 et §83) et adaptée à l’existant.
 
-## Phase 0 — Documentation (en cours)
+## Phase 0 — Documentation ✅ TERMINÉE (19 septembre 2026)
 
 - [x] AGENTS.md
 - [x] docs/PROJECT_STATE.md
@@ -11,23 +11,35 @@ Alignée sur le PRD v2.0 (§82 et §83) et adaptée à l’existant.
 - [x] docs/SECURITY.md
 - [x] docs/ROLES_PERMISSIONS.md
 - [x] docs/ROADMAP.md
-- [ ] docs/CHANGELOG.md
-- [ ] docs/BUSINESS_RULES.md (ultérieur)
-- [ ] Autres docs spécialisées (PEDAGOGY, PAYMENTS, etc.) au fur et à mesure
+- [x] docs/CHANGELOG.md
+- [x] docs/BUSINESS_RULES.md
+- [x] docs/MODULES.md
+- [x] docs/PEDAGOGY.md
+- [x] docs/EVALUATIONS.md
+- [x] docs/PAYMENTS.md
+- [x] docs/DOCUMENTS.md
+- [x] docs/WORKFLOWS.md
+- [x] docs/AI.md
 
-## Release 1 — Core (priorité immédiate après Phase 0)
+## Release 1 — Core (prochaine priorité)
 
 Objectif : fondations solides multi-tenant + année scolaire + identité + administration de base.
 
-- Authentification complète
-- École + année scolaire contextualisée partout
-- Utilisateurs + rôles + RLS affinés
-- Administration : élèves, parents/tuteurs, classes, inscriptions
-- Formalisation des 3 concepts matières
+Ordre recommandé (données & sécurité d’abord) :
+
+1. École
+2. Année scolaire (contextualisation partout)
+3. Utilisateurs / Rôles (helpers RLS étendus)
+4. Élèves / Parents / Tuteurs
+5. Inscriptions
+6. Classes (déjà bien avancées)
+7. Matières (formalisation des 3 concepts)
+8. Affectations
+9. RLS affinés (surtout enseignants)
 
 ## Release 2 — Pédagogie fondamentale
 
-- Matières + affectations
+- Matières + affectations stabilisées
 - Emplois du temps (détection de conflits)
 - Notes → Moyennes → Bulletins (source unique)
 
