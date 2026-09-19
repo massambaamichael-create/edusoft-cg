@@ -1,35 +1,18 @@
 # CHANGELOG.md — EduSoft CG
 
-## [2026-09-20] — Release 1 — Administration (PRD Core)
+## [2026-09-20] — Administration : création + liaison PRD
 
-### Aligné PRD
-- **Une seule source de vérité** : tables `students`, `parents`, `student_parents`, `student_enrollments`
-- Filtrage strict `school_id`
-- Inscriptions **contextualisées par année scolaire**
-- Contrôle d’accès via `students.*` / `parents.*` / `enrollments.*`
+- **Nouvel élève** (`students.create`) → insert unique dans `students` + `school_id`
+- **Nouveau parent** (`parents.manage`) → insert unique dans `parents`
+- **Lier parent ↔ élève** → `student_parents` (un parent, plusieurs enfants)
+- Pas de double fiche, permissions respectées
 
-### Pages
-- `/administration/eleves` — liste + recherche
-- `/administration/parents` — liste + nombre d’enfants liés
-- `/administration/inscriptions` — filtre par année scolaire
+## [2026-09-20] — Listes Administration
 
-### Libs
-- `lib/administration/students.ts`
-- `lib/administration/parents.ts`
-- `lib/administration/enrollments.ts`
+Élèves / Parents / Inscriptions (lecture + filtre année)
 
-Création / édition détaillée : prochaine itération (formulaires + validation).
+## [2026-09-20] — Multi-espaces + auth
 
----
-
-## [2026-09-20] — Multi-espaces + enseignant classes
-
-Espaces Enseignant / Administration / Finance / Vie scolaire + Mes classes via affectations.
-
-## [2026-09-20] — Phase 1–2 auth
-
-Couche `lib/auth`, redirection par rôle.
+Espaces par rôle, `lib/auth`, Mes classes enseignant
 
 ## [2026-09-19] — Phase 0 docs
-
-Documentation PRD.
