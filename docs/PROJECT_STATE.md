@@ -10,90 +10,108 @@ Dernière mise à jour : 19 septembre 2026
 | Version PRD de référence | 2.0 |
 | Stack | Next.js 16 + React 19 + TypeScript + Supabase + Tailwind 4 |
 | Repo | `massambaamichael-create/edusoft-cg` (privé) |
-| Phase actuelle | Core partiel (Release 1 incomplète) |
+| Phase actuelle | **Phase 0 terminée** → prêt pour Release 1 — Core |
 | Stratégie | Migration progressive (jamais repartir de zéro) |
 
-## 2. Ce qui existe et fonctionne
+## 2. Documentation de référence (Phase 0)
+
+| Fichier | Statut |
+|---------|--------|
+| AGENTS.md | ✅ |
+| docs/ARCHITECTURE.md | ✅ |
+| docs/DATABASE.md | ✅ |
+| docs/SECURITY.md | ✅ |
+| docs/ROLES_PERMISSIONS.md | ✅ |
+| docs/PROJECT_STATE.md | ✅ (ce fichier) |
+| docs/ROADMAP.md | ✅ |
+| docs/CHANGELOG.md | ✅ |
+| docs/BUSINESS_RULES.md | ✅ |
+| docs/MODULES.md | ✅ |
+| docs/PEDAGOGY.md | ✅ |
+| docs/EVALUATIONS.md | ✅ |
+| docs/PAYMENTS.md | ✅ |
+| docs/DOCUMENTS.md | ✅ |
+| docs/WORKFLOWS.md | ✅ |
+| docs/AI.md | ✅ |
+
+## 3. Ce qui existe et fonctionne (audit code 19/09/2026)
 
 ### Authentification & Identity
 - Supabase Auth (email/password)
 - Table `users` liée à `auth.users` via `auth_user_id`
 - Table `roles`
 - Création d’enseignant avec compte Auth + profil `users` + profil `teachers` + email temporaire (Resend)
+- Rôle détecté côté UI (`Directeur`, `Enseignant`)
 
-### Multi-tenant
+### Multi-tenant & RLS
 - Colonne `school_id` sur les tables principales
-- Helpers RLS : `get_my_school_id()`, `get_my_role_name()`, `is_director()`
-- Policies RLS activées sur les tables existantes
+- Helpers : `get_my_school_id()`, `get_my_role_name()`, `is_director()`
+- Policies RLS activées
+- Policies sur `assessments` / `report_cards` encore trop ouvertes (SELECT true)
 
-### Structure pédagogique de base
-- `cycles`, `levels`, `series`
-- `subjects` (catalogue)
-- `classes`
-- `academic_years`
-- `class_subjects`
-- `teacher_subjects`
-- `student_enrollments`
-- `student_attendance`
-- `assessments`, `report_cards` (schéma encore partiel)
+### Structure pédagogique (détail observé dans le code)
+
+**cycles** — `school_id`, `name`
+
+**levels** — `school_id`, `cycle_id`, `name`, `display_order`, `is_state_exam`
+
+**series** — `school_id`, `cycle_id`, `name`, `description`, `category`
+
+**academic_years** — `school_id`, `name`, `start_date`, `end_date`, `is_active`
+
+**classes** — `school_id`, `cycle_id`, `level_id`, `series_id`, `academic_year_id`, `name`, `status` (`pending` | `approved` | `rejected`), `principal_teacher_id`, `created_by`, `validated_by`, `validated_at`
+
+**subjects** (catalogue) — `school_id`, `name`, `coefficient`
+
+**class_subjects** — `class_id`, `subject_id`, `academic_year_id`, `coefficient`
+
+**teacher_subjects** — `teacher_id`, `subject_id`, `class_id`, `academic_year_id`
+
+**Autres** : `student_enrollments`, `student_attendance`, `assessments`, `report_cards`
+
+### Points particulièrement conformes
+- Année scolaire liée aux classes et aux liaisons matières/affectations
+- Distinction catalogue (`subjects`) vs matière-classe (`class_subjects`)
+- Gestion explicite de **Lycée général** et **Lycée technique** dans la page Classes
+- Workflow de validation de classe (`pending` / `approved` / `rejected`)
+- Enseignant principal par classe
+- Coefficients sur `class_subjects`
 
 ### Interface
 - Dashboard
 - Page Enseignants (liste + création)
-- Pédagogie → Classes
+- Pédagogie → Classes (riche : création, validation, équipe pédagogique, import)
 - Pédagogie → Matières
 - Sidebar anticipant les futurs modules
 
-## 3. Écarts majeurs par rapport au PRD v2.0
+## 4. Écarts majeurs par rapport au PRD v2.0
 
 | Domaine PRD | État actuel | Priorité |
 |-------------|-------------|----------|
 | Une seule source de vérité | Partiellement respecté | Critique |
-| Contextualisation année scolaire partout | Partielle | Critique |
-| Distinction Catalogue / Matière-classe / Affectation | Début (`subjects` + `class_subjects` + `teacher_subjects`) | Haute |
-| Rôles complets (Directeur des Études, Secrétariat, Finance, Vie scolaire, Parent, Élève…) | Très limité (surtout Directeur) | Haute |
+| Contextualisation année scolaire partout | Bien avancée sur classes / class_subjects / teacher_subjects | Haute |
+| Distinction Catalogue / Matière-classe / Affectation | Bon début (3 tables présentes) | Haute (formaliser + nettoyer coefficient sur subjects) |
+| Rôles complets | Très limité (surtout Directeur + Enseignant) | Haute |
 | Parents / Tuteurs | Absent | Haute |
-| Inscriptions complètes + historique | Partiel | Haute |
+| Inscriptions complètes + historique | Partiel (`student_enrollments`) | Haute |
 | Notes → Moyennes → Bulletins (source unique) | Très partiel | Haute |
 | Emplois du temps | Absent | Moyenne |
 | Finance + Payment Engine | Absent | Haute (après Core) |
-| Programmes scolaires + Progression | Absent | Moyenne |
-| Évaluations avancées (banque, sujets, variantes, corrigés) | Absent | Basse (Phase 6) |
-| Documents & Workflows (signature, cachet, QR) | Absent | Moyenne |
+| Programmes + Progression | Absent | Moyenne |
+| Évaluations avancées | Absent | Basse |
+| Documents & Workflows | Absent | Moyenne |
 | Portails Parent / Élève | Absent | Moyenne |
 | Audit Engine complet | Minimal | Haute |
-| Notifications | Absent | Moyenne |
 | Interfaces adaptées par rôle | Non (sidebar unique) | Haute |
-| Documentation persistante | En cours (Phase 0) | Critique |
-
-## 4. Tables existantes (inventaire)
-
-```
-roles
-users
-teachers
-students
-cycles
-levels
-series
-subjects
-academic_years
-classes
-teacher_subjects
-class_subjects
-student_enrollments
-student_attendance
-assessments
-report_cards
-```
 
 ## 5. Points de vigilance techniques
 
 - La clé `service_role` contourne le RLS (utilisée volontairement dans `/api/teachers`).
-- Les policies sur `assessments` et `report_cards` sont encore trop permissives (SELECT true).
-- Pas de table `schools` visible dans le code analysé (à confirmer côté Supabase).
-- Pas de gestion explicite des parents.
-- Pas de table de permissions fine (seulement `roles` + `is_director()`).
+- Coefficient présent à la fois sur `subjects` et sur `class_subjects` → risque de confusion.
+- Policies `assessments` / `report_cards` trop permissives.
+- Pas de table `parents` / `guardians`.
+- Pas de helpers RLS pour les autres rôles (`is_teacher()`, etc.).
+- Table `schools` non visible dans le code frontend (à confirmer côté Supabase).
 
 ## 6. Décision de migration
 
@@ -101,16 +119,16 @@ Conformément au PRD §84 :
 
 > Améliorer et migrer progressivement, pas repartir de zéro.
 
-On conserve :
-- Toute la stack Next.js + Supabase
-- L’Auth existante
-- Les tables et le RLS de base
-- La logique de création d’enseignants
-- Les pages Classes / Matières / Enseignants comme point de départ
+On conserve et on fait évoluer :
+- Toute la stack
+- L’Auth et la création d’enseignants
+- Le modèle classes / cycles / levels / series / academic_years
+- Les tables `subjects` + `class_subjects` + `teacher_subjects`
+- Le workflow de validation des classes
+- Les pages existantes comme base
 
-On fait évoluer progressivement vers l’architecture cible du PRD.
+## 7. Prochaine étape
 
-## 7. Prochaine étape recommandée
+**Release 1 — Core** (fondations de données et de sécurité, pas encore l’interface) :
 
-Après Phase 0 (documentation) :
-→ Renforcer le Core (année scolaire, parents, rôles, RLS enseignant, formalisation matières).
+École → Année scolaire → Utilisateurs / Rôles → Élèves / Parents → Inscriptions → Classes → Matières → Affectations → RLS affinés
