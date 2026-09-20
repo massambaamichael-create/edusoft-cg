@@ -36,7 +36,10 @@ import {
 
 import { supabase } from "@/lib/supabase";
 
-import Sidebar from "@/components/Sidebar";
+      <Sidebar
+  userProfile={userProfile}
+  userRole={userRole}
+/>
 
 
 /* =========================================================
@@ -2670,8 +2673,7 @@ const handlePrincipalTeacherChange = async (
           SIDEBAR
       =================================================== */}
 
-      <Sidebar />
-
+      <div className="pl-[270px] min-w-0">
       {/* ===================================================
           CONTENU
       =================================================== */}
