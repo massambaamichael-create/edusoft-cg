@@ -72,7 +72,7 @@ export function rolesAllowedInSpace(space: AppSpace): RoleName[] {
     case "enseignant":
       return ["Enseignant"];
     case "administration":
-      return ["Secrétaire", "Administrateur", "RH", "Directeur"];
+      return ["Secrétaire", "Administrateur", "Directeur"];
     case "finance":
       return ["Comptable", "Directeur"];
     case "vie-scolaire":
