@@ -24,7 +24,7 @@ Pour un enseignant, une action pédagogique n’est autorisée que si :
 | `types.ts` | Types rôle, permissions, école, contexte |
 | `permissions.ts` | Appels RPC Supabase |
 | `useCurrentUser.ts` | Hook React central |
-| `routes.ts` | Mapping rôle → chemin d’accueil |
+| `routes.ts` | Mapping rôle → espace + chemin d’accueil + contrôle d’accès |
 | `index.ts` | Exports |
 
 ### Usage recommandé (Client Component)
@@ -51,25 +51,42 @@ import { resolveRoleIdByName, checkPermission } from "@/lib/auth";
 
 Un rôle ≠ masquer des boutons dans une UI unique.
 
-| Rôle | Espace (chemin) | Statut |
-|------|-----------------|--------|
-| Directeur | `/dashboard` (Direction) | **Protégé / existant** |
-| Enseignant | `/enseignant` | **Protégé / existant** |
-| Secrétaire / Admin | `/administration` | **Espace protégé** |
-| Comptable | `/finance` | **Espace protégé** |
-| Surveillant | `/vie-scolaire` | **Espace protégé** |
-| RH | `/rh` | **Espace protégé / socle** |
-| Infirmerie | `/sante` | **Espace protégé / socle** |
-| Directeur des Études | `/pedagogie` | **Espace protégé** |
-| Parent / Élève | `/parent`, `/eleve` | Releases ultérieures |
+| Rôle | Espace principal | Statut |
+|------|------------------|--------|
+| Directeur | `/dashboard` (Direction) | Protégé par middleware + interface Direction existante |
+| Directeur des Études | `/pedagogie` | Espace pédagogique protégé |
+| Enseignant | `/enseignant` | Espace enseignant protégé |
+| Secrétaire / Administrateur | `/administration` | Espace administration protégé |
+| Comptable | `/finance` | Espace finance protégé |
+| Surveillant | `/vie-scolaire` | Espace vie scolaire protégé |
+| RH | `/rh` | Espace RH protégé |
+| Infirmerie | `/sante` | Espace santé protégé |
+| Parent | `/parent` | Release portail ultérieure |
+| Élève | `/eleve` | Release portail ultérieure |
 
-### Comportement actuel
+### Architecture consolidée
 
-- Après login → `get_my_role()` → redirection vers l’espace principal du rôle
-- Les espaces métier sont protégés par un garde de route côté interface : un rôle non autorisé est redirigé vers son espace d’accueil
-- Le serveur/RLS reste l’autorité de sécurité : le garde frontend ne remplace jamais les politiques Supabase
-- L’espace enseignant conserve sa sidebar dédiée ; les autres espaces disposent de leur propre navigation métier
-- Les modules restent partiels tant que leurs fonctionnalités métier ne sont pas livrées : protéger un espace ne signifie pas que tout son domaine est terminé
+Le projet utilise une seule architecture d'espace métier :
+
+```
+Rôle
+  → Permission
+  → Espace métier
+  → Navigation de l'espace
+  → Données/actions autorisées
+  → Supabase RLS
+```
+
+- `getHomePathForRole()` détermine l'espace d'accueil après authentification.
+- `canRoleAccessPath()` fournit la règle centrale des espaces.
+- Le middleware Supabase applique cette règle côté serveur avant de laisser accéder aux routes protégées.
+- `RoleSpaceShell` fournit le shell réutilisable pour les espaces métier concernés ; il n'y a pas de second `WorkspaceGuard`/`WorkspaceSidebar` concurrent.
+- Le dashboard Direction conserve son interface existante et s'appuie sur le middleware pour la protection de route.
+- Le frontend ne remplace jamais Supabase RLS : l'UI limite la navigation, tandis que RLS reste l'autorité finale sur les données.
+
+### Règle de cohérence
+
+Un nouveau rôle ou espace doit être ajouté dans le modèle centralisé (`RoleName`, `AppSpace`, `getHomePathForRole`, `getSpaceForPath`, `rolesAllowedInSpace`, `canRoleAccessPath`) avant de créer des gardes locaux dispersés.
 
 ## Règles
 
