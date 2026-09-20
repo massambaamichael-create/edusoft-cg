@@ -1,6 +1,27 @@
-import WorkspaceGuard from "@/components/WorkspaceGuard";
-import WorkspaceSidebar from "@/components/WorkspaceSidebar";
+"use client";
 
-export default function SanteLayout({children}:{children:React.ReactNode}) {
- return <WorkspaceGuard allowedRoles={["Directeur","Infirmerie"]}><div className="min-h-screen bg-slate-50"><WorkspaceSidebar space="sante"/><div className="ml-[270px] min-h-screen">{children}</div></div></WorkspaceGuard>;
+import { LayoutDashboard, Activity } from "lucide-react";
+import RoleSpaceShell from "@/components/RoleSpaceShell";
+
+const NAV = [
+  { label: "Tableau de bord", href: "/sante", icon: LayoutDashboard },
+  { label: "Dossiers santé", href: "/sante/dossiers", icon: Activity },
+];
+
+export default function SanteLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <RoleSpaceShell
+      space="sante"
+      title="Infirmerie"
+      accentClass="bg-rose-900"
+      nav={NAV}
+      allowedRoles={["Infirmerie", "Directeur"]}
+    >
+      {children}
+    </RoleSpaceShell>
+  );
 }
