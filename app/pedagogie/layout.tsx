@@ -13,8 +13,6 @@ const NAV = [
   { label: "Tableau de bord", href: "/pedagogie", icon: LayoutDashboard },
   { label: "Classes", href: "/pedagogie/classes", icon: GraduationCap },
   { label: "Matières", href: "/pedagogie/matieres", icon: BookOpen },
-  { label: "Emplois du temps", href: "/pedagogie/emploi-du-temps", icon: CalendarDays },
-  { label: "Notes & bulletins", href: "/pedagogie/notes-bulletins", icon: ClipboardList },
 ];
 
 export default function PedagogieLayout({
