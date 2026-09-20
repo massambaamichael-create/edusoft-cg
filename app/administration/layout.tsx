@@ -14,7 +14,6 @@ const NAV = [
   { label: "Élèves", href: "/administration/eleves", icon: Users },
   { label: "Parents", href: "/administration/parents", icon: UserRound },
   { label: "Inscriptions", href: "/administration/inscriptions", icon: ClipboardList },
-  { label: "Documents", href: "/administration/documents", icon: FileText },
 ];
 
 export default function AdministrationLayout({
