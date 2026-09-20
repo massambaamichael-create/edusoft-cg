@@ -1,10 +1,9 @@
 "use client";
 
 import {
-  LlyoutDlshboard,
+  LayoutDashboard,
   UserCheck,
   ShieldAlert,
-  HeartPulse,
 } from "lucide-react";
 import RoleSpaceShell from "@/components/RoleSpaceShell";
 
@@ -12,7 +11,6 @@ const NAV = [
   { label: "Tableau de bord", href: "/vie-scolaire", icon: LayoutDashboard },
   { label: "Présences", href: "/vie-scolaire/presences", icon: UserCheck },
   { label: "Discipline", href: "/vie-scolaire/discipline", icon: ShieldAlert },
-  { label: "Santé", href: "/vie-scolaire/sante", icon: HeartPulse },
 ];
 
 export default function VieScolaireLayout({
@@ -26,7 +24,7 @@ export default function VieScolaireLayout({
       title="Vie scolaire"
       accentClass="bg-indigo-900"
       nav={NAV}
-      allowedRoles={["Surveillant", "Infirmerie", "Directeur"]}
+      allowedRoles={["Surveillant", "Directeur"]}
     >
       {children}
     </RoleSpaceShell>
