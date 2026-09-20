@@ -42,7 +42,7 @@ export default function EnseignantEvaluations(){
    {loading?<div className="p-10 text-center text-sm text-slate-400">Chargement…</div>:!rows.length?<div className="p-10 text-center text-sm text-slate-400">Aucune évaluation créée.</div>:
    <div className="divide-y divide-slate-100">{rows.map(r=><div key={r.id} className="flex flex-col gap-3 p-5 md:flex-row md:items-center md:justify-between">
     <div><p className="font-semibold text-slate-900">{r.title}</p><p className="mt-1 text-sm text-slate-500">{types.find(t=>t.id===r.assessment_type_id)?.name??"Évaluation"} · {r.variant_count} variante{r.variant_count>1?"s":""} · {r.assessment_date??"Date non fixée"}</p></div>
-    <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">{status(r.status)}</span>
+    <button onClick={()=>router.push(`/enseignant/evaluations/${r.id}`)} className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50">Ouvrir</button><span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">{status(r.status)}</span>
    </div>)}</div>}
   </section>
  </div></main>
