@@ -11,6 +11,7 @@ type Unit={id:string;title:string;unit_type:string;display_order:number};
 type ClassRow={id:string;name:string;cycle_id:string;level_id:string;series_id:string|null;academic_year_id:string};
 type Year={id:string;name:string;is_active:boolean};
 type Assignment={id:string;class_id:string;academic_year_id:string};
+type TeacherAssignment={teacher_id:string;status:string;is_primary_teacher:boolean;teacher_name:string};
 type Progress={program_unit_id:string;status:string;coverage_percent:number;taught_date:string|null};
 
 export default function ProgressionPage(){
@@ -18,7 +19,7 @@ export default function ProgressionPage(){
  const [program,setProgram]=useState<Program|null>(null),[versions,setVersions]=useState<Version[]>([]),[versionId,setVersionId]=useState("");
  const [units,setUnits]=useState<Unit[]>([]),[classes,setClasses]=useState<ClassRow[]>([]),[years,setYears]=useState<Year[]>([]),[assignments,setAssignments]=useState<Assignment[]>([]);
  const [yearId,setYearId]=useState(""),[classId,setClassId]=useState(""),[progress,setProgress]=useState<Record<string,Progress>>({});
- const [loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState<string|null>(null);
+ const [loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState<string|null>(null),[teacherAssignments,setTeacherAssignments]=useState<TeacherAssignment[]>([]);
 
  useEffect(()=>{void loadBase()},[id]);
  async function loadBase(){
@@ -43,6 +44,22 @@ export default function ProgressionPage(){
   if(u.error||a.error){setError((u.error||a.error)!.message);return} setUnits((u.data??[]) as Unit[]);setAssignments((a.data??[]) as Assignment[]);
  }
  const assignment=assignments.find(a=>a.class_id===classId&&a.academic_year_id===yearId);
+ useEffect(()=>{if(!classId||!yearId||!program){setTeacherAssignments([]);return}void loadTeachers()},[classId,yearId,program?.id]);
+ async function loadTeachers(){
+  const cs=await supabase.from("class_subjects").select("id").eq("class_id",classId).eq("subject_id",program!.subject_id).eq("academic_year_id",yearId).eq("is_active",true);
+  if(cs.error){setError(cs.error.message);return}
+  const ids=(cs.data??[]).map(x=>x.id);if(!ids.length){setTeacherAssignments([]);return}
+  const ta=await supabase.from("teacher_assignments").select("teacher_id,status,is_primary_teacher").in("class_subject_id",ids).eq("academic_year_id",yearId).eq("status","active");
+  if(ta.error){setError(ta.error.message);return}
+  const teacherIds=(ta.data??[]).map(x=>x.teacher_id);if(!teacherIds.length){setTeacherAssignments([]);return}
+  const tr=await supabase.from("teachers").select("id,user_id").in("id",teacherIds);
+  if(tr.error){setError(tr.error.message);return}
+  const userIds=(tr.data??[]).map(x=>x.user_id).filter(Boolean);const ur=userIds.length?await supabase.from("users").select("id,first_name,last_name").in("id",userIds):{data:[],error:null};
+  if(ur.error){setError(ur.error.message);return}
+  const userMap=Object.fromEntries((ur.data??[]).map(u=>[u.id,`${u.first_name??""} ${u.last_name??""}`.trim()]));
+  const teacherUserMap=Object.fromEntries((tr.data??[]).map(t=>[t.id,userMap[t.user_id]||"Enseignant"]));
+  setTeacherAssignments((ta.data??[]).map(t=>({...t,teacher_name:teacherUserMap[t.teacher_id]||"Enseignant"})) as TeacherAssignment[]);
+ }
  useEffect(()=>{if(assignment)void loadProgress(assignment.id);else setProgress({})},[assignment?.id]);
  async function loadProgress(aid:string){const r=await supabase.from("progression_entries").select("program_unit_id,status,coverage_percent,taught_date").eq("program_class_assignment_id",aid);if(r.error)setError(r.error.message);else setProgress(Object.fromEntries(((r.data??[]) as Progress[]).map(p=>[p.program_unit_id,p])))}
  async function assign(){if(!versionId||!classId||!yearId)return;setSaving(true);const r=await supabase.from("program_class_assignments").insert({program_version_id:versionId,class_id:classId,academic_year_id:yearId,status:"active"});if(r.error&&r.error.code!=="23505")setError(r.error.message);await loadVersion();setSaving(false)}
@@ -60,6 +77,7 @@ export default function ProgressionPage(){
     <select className="input" value={yearId} onChange={e=>setYearId(e.target.value)}><option value="">Année scolaire</option>{years.map(y=><option key={y.id} value={y.id}>{y.name}{y.is_active?" · active":""}</option>)}</select>
     <select className="input" value={classId} onChange={e=>setClassId(e.target.value)}><option value="">Classe compatible</option>{compatible.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select>
    </div>
+   <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50 p-4"><div className="flex items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Enseignant affecté à cette matière</p><div className="mt-1 text-sm font-semibold text-slate-800">{teacherAssignments.length?teacherAssignments.map(t=>t.teacher_name).join(", "):"Aucune affectation officielle active"}</div></div><span className={`rounded-full px-3 py-1 text-xs font-semibold ${teacherAssignments.length?"bg-emerald-50 text-emerald-700":"bg-amber-50 text-amber-700"}`}>{teacherAssignments.length?"Affectation trouvée":"À affecter"}</span></div></div>
    <div className="mt-4 flex items-center justify-between"><div><span className="text-xs text-slate-500">Couverture</span><div className="text-2xl font-bold">{coverage}%</div></div><button disabled={!classId||!yearId||!versionId||!!assignment||saving} onClick={assign} className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40"><CheckCircle2 className="h-4 w-4"/>{assignment?"Programme affecté":"Affecter à la classe"}</button></div>
   </section>
   <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
