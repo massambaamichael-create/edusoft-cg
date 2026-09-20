@@ -35,13 +35,6 @@ import {
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
-
-      <Sidebar
-  userProfile={userProfile}
-  userRole={userRole}
-/>
-
-
 /* =========================================================
    TYPES
 ========================================================= */
@@ -2658,12 +2651,7 @@ const handlePrincipalTeacherChange = async (
 
   return (
     <div className="min-h-screen bg-[#F5F7FB] text-gray-900">
-      
-      <Sidebar
-  userProfile={userProfile}
-  userRole={userRole}
-/>
-      {/* ===================================================
+{/* ===================================================
           SIDEBAR MOBILE
       =================================================== */}
 
