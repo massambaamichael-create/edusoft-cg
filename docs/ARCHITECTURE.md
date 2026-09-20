@@ -58,10 +58,27 @@ Séparation stricte Lycée général / Lycée technique.
 
 | Service | Rôle |
 |---------|------|
-| **Identity & Access** | Comptes, authentification, rôles, permissions, invitations, sessions |
+| **Identity & Access** | Identités, numéros métier, comptes, authentification, rôles, permissions, invitations, sessions |
+| **Import & Migration** | Excel/CSV, mapping, validation, dédoublonnage, migrations, identifiants externes, journalisation |
 | **Documents & Workflows** | Génération, validation, signature, cachet, QR, archivage |
 | **Payment Engine** | Paiements multi-canaux, confirmation, rapprochement, reçus |
 | **Notifications & Audit** | Notifications multi-canal + journal d’audit complet |
+
+## 5.1 Import & Migration — principe transversal
+
+L’Import & Migration Engine n’est pas un module réservé aux élèves. Il permet à chaque rôle autorisé d’importer les données de son domaine métier.
+
+Le contrôle suit :
+
+`Rôle → Permission → Domaine → Périmètre → École → Année scolaire → Données autorisées`
+
+Une donnée importée devient une donnée native et une source de vérité commune. Elle est ensuite réutilisée par les autres domaines selon leurs permissions et les RLS.
+
+Aucun service ne doit réimporter ou recréer une information déjà présente uniquement parce qu’il en a besoin.
+
+Le moteur doit respecter les structures existantes, les dépendances, la séparation Lycée Général / Lycée Technique et la conservation de l’historique.
+
+Voir `docs/IMPORT_MIGRATION.md` pour le cadrage détaillé.
 
 ## 6. Piliers métier
 
