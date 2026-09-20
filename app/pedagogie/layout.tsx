@@ -15,6 +15,7 @@ const NAV = [
   { label: "Matières", href: "/pedagogie/matieres", icon: BookOpen },
   { label: "Programmes & Progression", href: "/pedagogie/programmes", icon: ClipboardList },
   { label: "Responsabilités pédagogiques", href: "/pedagogie/responsabilites", icon: UserCog },
+  { label: "Évaluations & examens", href: "/pedagogie/evaluations", icon: ClipboardList },
 ];
 
 export default function PedagogieLayout({
