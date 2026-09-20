@@ -61,6 +61,29 @@ ENSEIGNANT AFFECTÉ
 PROGRAMME → CHAPITRE → COMPÉTENCE → ÉVALUATION → RÉSULTAT
 ```
 
+## 5. Programme & Progression — référentiel ajouté
+
+Le noyau du module utilise deux nouvelles tables :
+
+- `programs` — référentiel unique d'un programme par **école + cycle + niveau + série/filière éventuelle + matière** ;
+- `program_versions` — versions historisées d'un programme.
+
+Règles structurantes :
+
+- un programme n'est **jamais** créé pour une classe ;
+- CP1 Mathématiques et CP2 Mathématiques sont deux contextes distincts ;
+- 6e Mathématiques et 3e Mathématiques sont distincts ;
+- au lycée, la série/filière fait partie du contexte : général et technique ne sont pas mélangés ;
+- plusieurs classes peuvent réutiliser le même programme si leur contexte pédagogique est identique ;
+- l'année scolaire sera portée par l'affectation et la progression, afin de conserver le référentiel réutilisable et son historique ;
+- un trigger vérifie que cycle, niveau, série/filière et matière appartiennent au même contexte d'école.
+
+La chaîne cible reste :
+
+`PROGRAMME → VERSION → UNITÉS/CHAPITRES → AFFECTATION CLASSE → PROGRESSION → ÉVALUATION`
+
+La migration correspondante est `supabase/migrations/20260920090000_programmes_progression_core.sql`.
+
 ## 5. Tables manquantes prioritaires (Core)
 
 À ajouter progressivement :
