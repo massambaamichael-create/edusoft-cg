@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
-import Sidebar from "@/components/Sidebar";
+      <Sidebar />
 
 /* =========================================================
    TYPES
@@ -586,7 +586,7 @@ export default function MatieresPage() {
     <div className="min-h-screen bg-gray-50">
       <Sidebar />
 
-      <main className="ml-64 min-h-screen">
+      <main className="min-h-screen">
         <div className="px-8 py-8">
           {/* HEADER */}
 
