@@ -34,6 +34,7 @@ export function getHomePathForRole(role: RoleName | null | undefined): string {
 
 export type AppSpace =
   | "direction"
+  | "pedagogie"
   | "enseignant"
   | "administration"
   | "finance"
@@ -46,6 +47,8 @@ export type AppSpace =
 
 export function getSpaceForPath(pathname: string): AppSpace {
   if (pathname === "/" || pathname.startsWith("/api/")) return "public";
+  if (pathname === "/pedagogie" || pathname.startsWith("/pedagogie/"))
+    return "pedagogie";
   if (pathname === "/enseignant" || pathname.startsWith("/enseignant/"))
     return "enseignant";
   if (pathname === "/administration" || pathname.startsWith("/administration/"))
@@ -64,6 +67,8 @@ export function getSpaceForPath(pathname: string): AppSpace {
 /** Roles allowed in a given space */
 export function rolesAllowedInSpace(space: AppSpace): RoleName[] {
   switch (space) {
+    case "pedagogie":
+      return ["Directeur", "Directeur des Études"];
     case "enseignant":
       return ["Enseignant"];
     case "administration":
@@ -117,6 +122,7 @@ export function canRoleAccessPath(
   if (role === "Directeur") {
     return (
       space === "direction" ||
+      space === "pedagogie" ||
       space === "administration" ||
       space === "finance" ||
       space === "vie-scolaire" ||
