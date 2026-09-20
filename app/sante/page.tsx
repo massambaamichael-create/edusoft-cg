@@ -1,0 +1,1 @@
+export default function SanteHomePage(){return <main className="px-8 py-10"><h1 className="text-3xl font-bold text-slate-900">Espace infirmerie</h1><p className="mt-2 text-slate-500">Données de santé protégées et accessibles uniquement selon les permissions.</p></main>}
