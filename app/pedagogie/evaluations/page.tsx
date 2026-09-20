@@ -30,17 +30,10 @@ export default function EvaluationsPage(){
  const next=(s:string)=>transitions[s]||[];
  async function changeStatus(a:Assessment,to:string,action:string){
   setSaving(true);setMessage("");
-  const {data:{user}}=await supabase.auth.getUser();
-  const {data:profile}=user?await supabase.from("users").select("id").eq("auth_user_id",user.id).maybeSingle():{data:null};
-  const patch:any={status:to};
-  if(action==="submit"){patch.submitted_at=new Date().toISOString();patch.submitted_by=profile?.id??null;}
-  if(action==="approve"){patch.validated_at=new Date().toISOString();patch.validated_by=profile?.id??null;patch.rejection_reason=null;}
-  if(action==="reject"||action==="request_changes")patch.rejection_reason=comment.trim()||"Motif non précisé";
-  const r=await supabase.from("assessments").update(patch).eq("id",a.id).eq("school_id",a.school_id);
-  if(r.error){setMessage(r.error.message);setSaving(false);return}
-  const log=await supabase.from("assessment_workflow_actions").insert({assessment_id:a.id,action,from_status:a.status,to_status:to,actor_user_id:profile?.id??null,comment:comment.trim()||null});
-  if(log.error)setMessage(log.error.message); else setMessage("Workflow mis à jour.");
-  setComment("");setSelected({...a,...patch});await load();setSaving(false);
+  const {data,error}=await supabase.rpc("transition_assessment_workflow",{p_assessment_id:a.id,p_to_status:to,p_comment:comment.trim()||null});
+  if(error){setMessage(error.message);setSaving(false);return}
+  setMessage("Workflow mis à jour.");
+  setComment("");setSelected(data as Assessment);await load();setSaving(false);
  }
  const label=(s:string)=>({draft:"Brouillon",submitted:"Soumis",in_review:"En vérification",changes_requested:"Correction demandée",rejected:"Rejeté",approved:"Validé",scheduled:"Programmé",published:"Publié",completed:"Terminé",archived:"Archivé"} as any)[s]||s;
  const filtered=items.filter(x=>filter==="all"||x.status===filter);
