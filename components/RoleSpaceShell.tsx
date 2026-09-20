@@ -6,14 +6,10 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useCurrentUser } from "@/lib/auth";
-import {
-  canRoleAccessPath,
-  getHomePathForRole,
-  type AppSpace,
-} from "@/lib/auth/routes";
+import { getHomePathForRole, type AppSpace } from "@/lib/auth/routes";
 import type { RoleName } from "@/lib/auth/types";
 
-export type NavItem = {
+type NavItem = {
   label: string;
   href: string;
   icon: LucideIcon;
