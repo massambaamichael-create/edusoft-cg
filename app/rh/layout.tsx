@@ -1,6 +1,28 @@
-import WorkspaceGuard from "@/components/WorkspaceGuard";
-import WorkspaceSidebar from "@/components/WorkspaceSidebar";
+"use client";
 
-export default function RHLayout({children}:{children:React.ReactNode}) {
- return <WorkspaceGuard allowedRoles={["Directeur","RH"]}><div className="min-h-screen bg-slate-50"><WorkspaceSidebar space="rh"/><div className="ml-[270px] min-h-screen">{children}</div></div></WorkspaceGuard>;
+import { LayoutDashboard, UsersRound, FileText } from "lucide-react";
+import RoleSpaceShell from "@/components/RoleSpaceShell";
+
+const NAV = [
+  { label: "Tableau de bord", href: "/rh", icon: LayoutDashboard },
+  { label: "Personnel", href: "/rh/personnel", icon: UsersRound },
+  { label: "Documents RH", href: "/rh/documents", icon: FileText },
+];
+
+export default function RHLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <RoleSpaceShell
+      space="rh"
+      title="Ressources humaines"
+      accentClass="bg-slate-800"
+      nav={NAV}
+      allowedRoles={["RH", "Directeur"]}
+    >
+      {children}
+    </RoleSpaceShell>
+  );
 }
