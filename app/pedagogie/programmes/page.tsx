@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 type Ref = { id: string; name: string; cycle_id?: string | null };
 type Program = {
@@ -26,6 +27,7 @@ type Program = {
 
 export default function ProgrammesPage() {
   const supabase = createClient();
+  const router = useRouter();
   const [programs, setPrograms] = useState<Program[]>([]);
   const [cycles, setCycles] = useState<Ref[]>([]);
   const [levels, setLevels] = useState<Ref[]>([]);
@@ -270,7 +272,7 @@ export default function ProgrammesPage() {
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{p.status}</span>
                     </td>
                     <td className="px-5 py-4 text-right">
-                      <span className="text-sm font-semibold text-violet-600">Ouvrir →</span>
+                      <button onClick={() => router.push(`/pedagogie/programmes/${p.id}`)} className="rounded-lg px-3 py-2 text-sm font-semibold text-violet-600 hover:bg-violet-50">Ouvrir →</button>
                     </td>
                   </tr>
                 ))}
