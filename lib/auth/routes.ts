@@ -11,15 +11,15 @@ export function getHomePathForRole(role: RoleName | null | undefined): string {
     case "Secrétaire":
     case "Administrateur":
     case "RH":
-      return "/administration";
+      return "/rh";
     case "Comptable":
       return "/finance";
     case "Surveillant":
     case "Infirmerie":
-      return "/vie-scolaire";
+      return "/sante";
     case "Directeur":
     case "Directeur des Études":
-      return "/dashboard";
+      return "/pedagogie";
     case "Parent":
       return "/parent"; // future
     case "Élève":
@@ -35,6 +35,8 @@ export type AppSpace =
   | "administration"
   | "finance"
   | "vie-scolaire"
+  | "rh"
+  | "sante"
   | "parent"
   | "eleve"
   | "public";
@@ -49,6 +51,8 @@ export function getSpaceForPath(pathname: string): AppSpace {
     return "finance";
   if (pathname === "/vie-scolaire" || pathname.startsWith("/vie-scolaire/"))
     return "vie-scolaire";
+  if (pathname === "/rh" || pathname.startsWith("/rh/")) return "rh";
+  if (pathname === "/sante" || pathname.startsWith("/sante/")) return "sante";
   if (pathname === "/parent" || pathname.startsWith("/parent/")) return "parent";
   if (pathname === "/eleve" || pathname.startsWith("/eleve/")) return "eleve";
   return "direction";
@@ -64,9 +68,13 @@ export function rolesAllowedInSpace(space: AppSpace): RoleName[] {
     case "finance":
       return ["Comptable", "Directeur"];
     case "vie-scolaire":
-      return ["Surveillant", "Infirmerie", "Directeur"];
+      return ["Surveillant", "Directeur"];
     case "direction":
       return ["Directeur", "Directeur des Études"];
+    case "rh":
+      return ["RH", "Directeur"];
+    case "sante":
+      return ["Infirmerie", "Directeur"];
     case "parent":
       return ["Parent"];
     case "eleve":
@@ -107,7 +115,9 @@ export function canRoleAccessPath(
       space === "direction" ||
       space === "administration" ||
       space === "finance" ||
-      space === "vie-scolaire"
+      space === "vie-scolaire" ||
+      space === "rh" ||
+      space === "sante"
     );
   }
 
