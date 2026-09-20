@@ -53,7 +53,9 @@ export default function NewEvaluation(){
  async function loadProgram(option:{cs:CS;cl:ClassRow;s:Subject}|null){
   setProgram(null);setVersion(null);setUnits([]);setUnitIds([]);
   if(!option)return;
-  const {data:p,error:pe}=await supabase.from("programs").select("id,name,subject_id,cycle_id,level_id,series_id").eq("school_id",option.cl.school_id).eq("cycle_id",option.cl.cycle_id).eq("level_id",option.cl.level_id).eq("subject_id",option.s.id).is("series_id",option.cl.series_id===null?null:undefined).eq("status","active").maybeSingle();
+  let pq=supabase.from("programs").select("id,name,subject_id,cycle_id,level_id,series_id").eq("school_id",option.cl.school_id).eq("cycle_id",option.cl.cycle_id).eq("level_id",option.cl.level_id).eq("subject_id",option.s.id).eq("status","active");
+  pq=option.cl.series_id===null?pq.is("series_id",null):pq.eq("series_id",option.cl.series_id);
+  const {data:p,error:pe}=await pq.maybeSingle();
   if(pe){setError(pe.message);return}
   if(!p){setError("Aucun programme actif ne correspond exactement à cette classe et cette matière.");return}
   setProgram(p as Program);
