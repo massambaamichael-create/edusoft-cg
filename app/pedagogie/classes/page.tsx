@@ -169,7 +169,12 @@ type ClassView = SchoolClass & {
   principalTeacherName: string;
 };
 
-type CycleFilter = "all" | "Primaire" | "Collège" | "Lycée";
+type CycleFilter =
+  | "all"
+  | "Primaire"
+  | "Collège"
+  | "Lycée général"
+  | "Lycée technique";
 
 type ImportRow = {
   name: string;
@@ -807,22 +812,11 @@ export default function ClassesPage() {
 
           let matchesCycle = true;
 
-          if (
-            cycleFilter !== "all"
-          ) {
-            if (
-              cycleFilter ===
-              "Lycée"
-            ) {
-              matchesCycle =
-                schoolClass.cycleName
-                  .toLowerCase()
-                  .includes("lycée");
-            } else {
-              matchesCycle =
-                schoolClass.cycleName ===
-                cycleFilter;
-            }
+          if (cycleFilter !== "all") {
+            matchesCycle =
+              schoolClass.cycleName
+                .toLowerCase()
+                .trim() === cycleFilter.toLowerCase();
           }
 
           return (
@@ -896,13 +890,25 @@ export default function ClassesPage() {
         "Collège"
     ).length;
 
-  const highSchoolCount =
+  const generalHighSchoolCount =
     approvedClasses.filter(
       (item) =>
         item.cycleName
           .toLowerCase()
-          .includes("lycée")
+          .trim() === "lycée général"
     ).length;
+
+  const technicalHighSchoolCount =
+    approvedClasses.filter(
+      (item) =>
+        item.cycleName
+          .toLowerCase()
+          .trim() === "lycée technique"
+    ).length;
+
+  const highSchoolCount =
+    generalHighSchoolCount +
+    technicalHighSchoolCount;
 
   const cycleTotal =
     primaryCount +
@@ -976,6 +982,10 @@ export default function ClassesPage() {
         selectedCycle
     );
 
+  /*
+   * Le Lycée général et le Lycée technique sont
+   * deux contextes pédagogiques distincts.
+   */
   const isHighSchool =
     selectedCycleData?.name ===
       "Lycée général" ||
@@ -1117,6 +1127,10 @@ export default function ClassesPage() {
             .eq(
               "academic_year_id",
               selectedAcademicYear
+            )
+            .eq(
+              "cycle_id",
+              selectedCycle
             )
             .ilike(
               "name",
@@ -2375,6 +2389,10 @@ const handlePrincipalTeacherChange = async (
                 "academic_year_id",
                 selectedAcademicYear
               )
+              .eq(
+                "cycle_id",
+                cycle.id
+              )
               .ilike(
                 "name",
                 row.name
@@ -2593,7 +2611,8 @@ const handlePrincipalTeacherChange = async (
         "",
         `Primaire : ${primaryCount} classes`,
         `Collège : ${collegeCount} classes`,
-        `Lycée : ${highSchoolCount} classes`,
+        `Lycée général : ${generalHighSchoolCount} classes`,
+        `Lycée technique : ${technicalHighSchoolCount} classes`,
       ].join("\n");
 
       const blob =
@@ -2978,7 +2997,8 @@ const handlePrincipalTeacherChange = async (
                         "all",
                         "Primaire",
                         "Collège",
-                        "Lycée",
+                        "Lycée général",
+                        "Lycée technique",
                       ] as CycleFilter[]
                     ).map(
                       (filter) => (
@@ -3085,19 +3105,51 @@ const handlePrincipalTeacherChange = async (
                   />
 
                   <CycleTable
-                    title="Lycée"
+                    title="Lycée général"
                     classes={filteredClasses.filter(
                       (item) =>
                         item.cycleName
                           .toLowerCase()
-                          .includes(
-                            "lycée"
-                          )
+                          .trim() ===
+                        "lycée général"
                     )}
                     total={
-                      highSchoolCount
+                      generalHighSchoolCount
                     }
                     color="green"
+                    isDirector={
+                      isDirector
+                    }
+                    processingId={
+                      processingId
+                    }
+                    onTeam={
+                      loadClassTeam
+                    }
+                    onValidate={
+                      handleValidate
+                    }
+                    onReject={
+                      handleReject
+                    }
+                    onDelete={
+                      handleDelete
+                    }
+                  />
+
+                  <CycleTable
+                    title="Lycée technique"
+                    classes={filteredClasses.filter(
+                      (item) =>
+                        item.cycleName
+                          .toLowerCase()
+                          .trim() ===
+                        "lycée technique"
+                    )}
+                    total={
+                      technicalHighSchoolCount
+                    }
+                    color="indigo"
                     isDirector={
                       isDirector
                     }
@@ -3184,14 +3236,37 @@ const handlePrincipalTeacherChange = async (
                   />
 
                   <CycleLegend
-                    label="Lycée"
+                    label="Lycée général"
                     value={
-                      highSchoolCount
+                      generalHighSchoolCount
                     }
                     percent={
-                      highSchoolPercent
+                      highSchoolCount > 0
+                        ? Math.round(
+                            (generalHighSchoolCount /
+                              highSchoolCount) *
+                              100
+                          )
+                        : 0
                     }
                     dotClass="bg-[#10B981]"
+                  />
+
+                  <CycleLegend
+                    label="Lycée technique"
+                    value={
+                      technicalHighSchoolCount
+                    }
+                    percent={
+                      highSchoolCount > 0
+                        ? Math.round(
+                            (technicalHighSchoolCount /
+                              highSchoolCount) *
+                              100
+                          )
+                        : 0
+                    }
+                    dotClass="bg-[#6366F1]"
                   />
                 </div>
               </div>
