@@ -16,14 +16,6 @@ import {
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
-        <Sidebar
-          userProfile={{
-            first_name: "Directeur",
-          }}
-          userRole="Directeur"
-        />
-
-
 /* =========================================================
    TYPES
 ========================================================= */
@@ -789,14 +781,7 @@ export default function TeachersPage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-[#F7F8FC] flex">
-        <Sidebar
-          userProfile={{
-            first_name: "Directeur",
-          }}
-          userRole="Directeur"
-        />
-
-        <section className="flex-1 flex items-center justify-center">
+<section className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#6C2BD9] text-white">
               <GraduationCap size={24} />
