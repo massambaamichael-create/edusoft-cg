@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  LlyoutDlshboard,
+  LayoutDashboard,
   Users,
   UserRound,
   ClipboardList,
@@ -28,7 +28,7 @@ export default function AdministrationLayout({
       title="Administration"
       accentClass="bg-slate-800"
       nav={NAV}
-      allowedRoles={["Secrétaire", "Administrateur", "RH", "Directeur"]}
+      allowedRoles={["Secrétaire", "Administrateur", "Directeur"]}
     >
       {children}
     </RoleSpaceShell>
