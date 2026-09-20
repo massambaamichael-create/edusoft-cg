@@ -8,7 +8,13 @@ export default function CorrectionsIndex(){
  const [items,setItems]=useState<A[]>([]),[classes,setClasses]=useState<Record<string,string>>({});
  useEffect(()=>{void load()},[]);
  async function load(){
-  const a=await supabase.from("assessments").select("id,title,status,assessment_date,class_id").in("status",["published","completed"]).order("assessment_date",{ascending:false});
+  const auth=await supabase.auth.getUser();
+  if(!auth.data.user)return;
+  const ur=await supabase.from("users").select("id").eq("auth_user_id",auth.data.user.id).single();
+  if(ur.error){return}
+  const tr=await supabase.from("teachers").select("id").eq("user_id",ur.data.id).single();
+  if(tr.error){return}
+  const a=await supabase.from("assessments").select("id,title,status,assessment_date,class_id").eq("teacher_id",tr.data.id).in("status",["published","completed"]).order("assessment_date",{ascending:false});
   const ids=(a.data??[]).map(x=>x.class_id).filter(Boolean) as string[];
   const c=ids.length?await supabase.from("classes").select("id,name").in("id",ids):{data:[] as any[]};
   const map:Record<string,string>={};(c.data??[]).forEach((x:any)=>map[x.id]=x.name);setItems(a.data??[]);setClasses(map);
