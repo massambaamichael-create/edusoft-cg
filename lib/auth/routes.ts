@@ -10,14 +10,17 @@ export function getHomePathForRole(role: RoleName | null | undefined): string {
       return "/enseignant";
     case "Secrétaire":
     case "Administrateur":
+      return "/administration";
     case "RH":
       return "/rh";
     case "Comptable":
       return "/finance";
     case "Surveillant":
+      return "/vie-scolaire";
     case "Infirmerie":
       return "/sante";
     case "Directeur":
+      return "/dashboard";
     case "Directeur des Études":
       return "/pedagogie";
     case "Parent":
@@ -70,7 +73,7 @@ export function rolesAllowedInSpace(space: AppSpace): RoleName[] {
     case "vie-scolaire":
       return ["Surveillant", "Directeur"];
     case "direction":
-      return ["Directeur", "Directeur des Études"];
+      return ["Directeur"];
     case "rh":
       return ["RH", "Directeur"];
     case "sante":
@@ -109,8 +112,9 @@ export function canRoleAccessPath(
     return space === "enseignant";
   }
 
-  // Direction can access direction + operational spaces
-  if (role === "Directeur" || role === "Directeur des Études") {
+  // The Director can supervise all operational staff spaces. The Directeur des Études
+  // remains scoped to the pedagogical workspace.
+  if (role === "Directeur") {
     return (
       space === "direction" ||
       space === "administration" ||
