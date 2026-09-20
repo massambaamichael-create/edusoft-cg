@@ -53,18 +53,23 @@ Un rôle ≠ masquer des boutons dans une UI unique.
 
 | Rôle | Espace (chemin) | Statut |
 |------|-----------------|--------|
-| Directeur | `/dashboard` (Direction) | Existant |
-| Enseignant | `/enseignant` | **Phase 2 livrée** |
-| Secrétaire / Admin | `/administration` | À venir |
-| Comptable | `/finance` | À venir |
-| Surveillant | `/vie-scolaire` | À venir |
-| Parent / Élève | portails | Releases ultérieures |
+| Directeur | `/dashboard` (Direction) | **Protégé / existant** |
+| Enseignant | `/enseignant` | **Protégé / existant** |
+| Secrétaire / Admin | `/administration` | **Espace protégé** |
+| Comptable | `/finance` | **Espace protégé** |
+| Surveillant | `/vie-scolaire` | **Espace protégé** |
+| RH | `/rh` | **Espace protégé / socle** |
+| Infirmerie | `/sante` | **Espace protégé / socle** |
+| Directeur des Études | `/pedagogie` | **Espace protégé** |
+| Parent / Élève | `/parent`, `/eleve` | Releases ultérieures |
 
 ### Comportement actuel
 
-- Après login → `get_my_role()` → redirection vers l’espace du rôle
-- Middleware : un **Enseignant** ne peut pas rester sur l’UI Direction ; un non-enseignant ne peut pas entrer dans `/enseignant`
-- Layout enseignant : sidebar dédiée (teal), navigation limitée, garde de rôle
+- Après login → `get_my_role()` → redirection vers l’espace principal du rôle
+- Les espaces métier sont protégés par un garde de route côté interface : un rôle non autorisé est redirigé vers son espace d’accueil
+- Le serveur/RLS reste l’autorité de sécurité : le garde frontend ne remplace jamais les politiques Supabase
+- L’espace enseignant conserve sa sidebar dédiée ; les autres espaces disposent de leur propre navigation métier
+- Les modules restent partiels tant que leurs fonctionnalités métier ne sont pas livrées : protéger un espace ne signifie pas que tout son domaine est terminé
 
 ## Règles
 
