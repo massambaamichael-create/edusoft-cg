@@ -111,7 +111,29 @@ Cible fonctionnelle :
 
 Les permissions et politiques RLS seront ajoutées avec le schéma correspondant, après validation des tables et relations.
 
-## 9. Première implémentation
+## 9. Schéma initial implémenté
+
+Le premier noyau est maintenant présent dans Supabase via :
+
+- `programs`
+- `program_versions`
+
+L'identité d'un programme est déterminée par :
+
+**École + Cycle + Niveau + Série/Filière éventuelle + Matière**
+
+Un index unique empêche la création de deux programmes concurrents pour le même contexte pédagogique. Un trigger vérifie également la cohérence entre école, cycle, niveau, série/filière et matière.
+
+Cette structure garantit notamment :
+
+- CP1 ≠ CP2 pour une même matière ;
+- 6e ≠ 5e ≠ 4e ≠ 3e ;
+- 2nde générale ≠ 2nde technique ;
+- un programme commun peut être référencé par plusieurs classes sans duplication.
+
+Les versions sont séparées du programme lui-même afin de préserver l'historique du référentiel.
+
+## 10. Première implémentation
 
 La première étape technique ne doit pas créer immédiatement toute la chaîne.
 
