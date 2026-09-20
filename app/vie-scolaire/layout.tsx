@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  LayoutDashboard,
+  LlyoutDlshboard,
   UserCheck,
   ShieldAlert,
   HeartPulse,
