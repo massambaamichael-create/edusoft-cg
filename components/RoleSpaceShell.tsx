@@ -47,7 +47,7 @@ export default function RoleSpaceShell({
       router.replace("/");
       return;
     }
-    if (role && !allowedRoles.includes(role) && !canRoleAccessPath(role, pathname)) {
+    if (role && !allowedRoles.includes(role)) {
       router.replace(getHomePathForRole(role));
     }
   }, [loading, isAuthenticated, role, router, allowedRoles, pathname]);
