@@ -2,14 +2,8 @@
 
 import {
   Activity,
-  Archive,
   BookOpen,
-  CalendarDays,
-  FileText,
-  GraduationCap,
   LayoutDashboard,
-  Mail,
-  Settings,
   ShieldCheck,
   UsersRound,
   Wallet,
@@ -25,12 +19,6 @@ const NAV = [
   { label: "Vie scolaire", href: "/vie-scolaire", icon: Activity },
   { label: "Ressources humaines", href: "/rh", icon: UsersRound },
   { label: "Infirmerie", href: "/sante", icon: Activity },
-  { label: "Communication", href: "/communication", icon: Mail },
-  { label: "Examens", href: "/examens", icon: GraduationCap },
-  { label: "Archives", href: "/archives", icon: Archive },
-  { label: "Documents", href: "/documents", icon: FileText },
-  { label: "Emploi du temps", href: "/planning", icon: CalendarDays },
-  { label: "Paramètres", href: "/parametres", icon: Settings },
 ];
 
 export default function DashboardLayout({
