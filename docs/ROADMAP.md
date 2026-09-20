@@ -36,6 +36,7 @@ Ordre recommandé (données & sécurité d’abord) :
 7. Matières (formalisation des 3 concepts)
 8. Affectations
 9. RLS affinés (surtout enseignants)
+10. Import & Migration Engine (Excel/CSV, mapping, validation, dédoublonnage, identités, imports par métier et journalisation)
 
 ## Release 2 — Pédagogie fondamentale
 
