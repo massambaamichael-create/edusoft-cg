@@ -36,10 +36,13 @@ Matrice d’équivalence conservée.
 
 ## 5. Correction
 
-- Mode classique (papier puis saisie)
-- Mode assisté (grille + barème + corrigé)
-- Mode QCM (automatique)
-- IA : assistance à l’analyse, validation finale humaine
+- **Mode principal — correction manuelle puis saisie directe de la note finale** : l’enseignant corrige la copie hors d’EduSoft puis renseigne simplement la note obtenue (/20 ou barème de l’évaluation).
+- Saisie en feuille de classe pour les effectifs importants, avec une note par élève et appréciation facultative.
+- Mode QCM automatique possible lorsqu’une évaluation est explicitement configurée pour cela.
+- IA : assistance facultative, jamais substitutive au jugement de l’enseignant ; validation finale humaine.
+
+### Règle de correction EduSoft CG
+EduSoft CG ne doit pas obliger l’enseignant à saisir les points question par question pour une évaluation classique. La correction pédagogique reste celle de l’enseignant. EduSoft enregistre la note finale une seule fois, puis la transmet au workflow de validation et au registre officiel `grades` après validation.
 
 ## 6. Notes et bulletins
 
