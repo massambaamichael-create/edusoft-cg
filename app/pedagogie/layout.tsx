@@ -24,7 +24,7 @@ export default function PedagogieLayout({
 }) {
   return (
     <RoleSpaceShell
-      space="direction"
+      space="pedagogie"
       title="Pédagogie"
       accentClass="bg-slate-900"
       nav={NAV}
