@@ -7,6 +7,7 @@ const NAV = [
   { label: "Tableau de bord", href: "/enseignant", icon: LayoutDashboard },
   { label: "Mes matières & classes", href: "/enseignant/matieres", icon: BookOpen },
   { label: "Programmes & progression", href: "/enseignant/programmes", icon: ClipboardList },
+  { label: "Évaluations & sujets", href: "/enseignant/evaluations", icon: ClipboardList },
 ];
 
 export default function EnseignantLayout({ children }: { children: React.ReactNode }) {
