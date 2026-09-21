@@ -21,13 +21,13 @@ export default function AdministrationInscriptionsPage() {
 
   useEffect(() => {
     if (userLoading) return;
-    if (!schoolId || !canRead) {
-      setLoading(false);
-      return;
-    }
 
     let cancelled = false;
     (async () => {
+      if (!schoolId || !canRead) {
+        if (!cancelled) setLoading(false);
+        return;
+      }
       setLoading(true);
       const supabase = createClient();
       const result = await fetchEnrollmentsForSchool(supabase, schoolId);
