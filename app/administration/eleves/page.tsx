@@ -223,7 +223,7 @@ export default function AdministrationElevesPage() {
           <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
             <h2 className="text-lg font-bold text-slate-900">Nouvel élève</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Une seule fiche dans <code>students</code>, rattachée à l'école.
+              Une seule fiche dans <code>students</code>, rattachée à l{"'"}école.
             </p>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
