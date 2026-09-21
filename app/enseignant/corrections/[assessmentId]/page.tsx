@@ -31,43 +31,35 @@ export default function MassCorrectionPage(){
   setAssessment(a.data);
   setRows((st.data??[]).map((student:Student)=>{
    const se=smap.get(student.id);
-   return {student,variantId:amap.get(student.id)??null,sessionId:se?.id??null,status:se?.status??"draft",score:se?.normalized_score==null?"":String(se.normalized_score),feedback:se?.feedback??""};
+   return {student,variantId:amap.get(student.id)??null,sessionId:se?.id??null,status:se?.status??"draft",score:se?.normalized_score!=null?String(se.normalized_score):"",feedback:se?.feedback??""};
   }));
   setLoading(false);
  }
- function update(i:number,key:"score"|"feedback",value:string){setRows(r=>r.map((x,n)=>n===i?{...x,[key]:value}:x))}
+ function update(i:number,key:"score"|"feedback",value:string){setRows(r=>r.map((row,n)=>n===i?{...row,[key]:value}:row))}
  async function save(submit:boolean){
+  if(!assessment)return;
   setSaving(true);setError("");setMessage("");
   for(const row of rows){
-   if(row.score==="") continue;
-   const score=Number(row.score);
-   if(!Number.isFinite(score)||score<0||score>Number(assessment.max_score??20)){setError(`Note invalide pour ${row.student.last_name} ${row.student.first_name}. La note doit être comprise entre 0 et ${assessment.max_score??20}.`);setSaving(false);return}
+   if(row.status==="validated")continue;
    let sessionId=row.sessionId;
    if(!sessionId){
-    const r=await supabase.from("assessment_correction_sessions").insert({school_id:assessment.school_id,assessment_id:assessmentId,student_id:row.student.id,assessment_variant_id:row.variantId,max_score:Number(assessment.max_score??20),corrected_by:(await supabase.auth.getUser()).data.user?.id}).select("id").single();
-    if(r.error){setError(r.error.message);setSaving(false);return} sessionId=r.data.id;
-   }
-   const u=await supabase.from("assessment_correction_sessions").update({total_score:score,max_score:Number(assessment.max_score??20),normalized_score:score,feedback:row.feedback.trim()||null,corrected_by:(await supabase.auth.getUser()).data.user?.id}).eq("id",sessionId);
-   if(u.error){setError(u.error.message);setSaving(false);return}
-   if(submit && !["submitted","validated"].includes(row.status)){
-    const tr=await supabase.rpc("transition_assessment_correction",{p_session_id:sessionId,p_to_status:"submitted",p_comment:row.feedback.trim()||null});
-    if(tr.error){setError(`${row.student.last_name} ${row.student.first_name}: ${tr.error.message}`);setSaving(false);return}
+    const r=await supabase.from("assessment_correction_sessions").insert({school_id:assessment.school_id,assessment_id:assessmentId,student_id:row.student.id,assessment_variant_id:row.variantId,max_score:Number(assessment.max_score??20),normalized_score:row.score===""?null:Number(row.score),feedback:row.feedback||null,status:submit?"submitted":"draft"}).select("id").single();
+    if(r.error){setError(r.error.message);setSaving(false);return}sessionId=r.data.id;
+   }else{
+    const r=await supabase.from("assessment_correction_sessions").update({normalized_score:row.score===""?null:Number(row.score),feedback:row.feedback||null,status:submit?"submitted":row.status}).eq("id",sessionId);
+    if(r.error){setError(r.error.message);setSaving(false);return}
    }
   }
-  setMessage(submit?"Notes enregistrées et corrections soumises pour validation.":"Notes enregistrées.");
+  setMessage(submit?"Corrections soumises.":"Corrections enregistrées.");
   setSaving(false);await load();
  }
- const corrected=useMemo(()=>rows.filter(r=>r.score!=="").length,[rows]);
  if(loading)return <main className="min-h-screen bg-[#F7F8FC] p-8 text-sm text-slate-500">Chargement…</main>;
  if(!assessment)return <main className="p-8 text-red-600">Évaluation introuvable.</main>;
  return <main className="min-h-screen bg-[#F7F8FC] p-6 lg:p-8"><div className="mx-auto max-w-6xl space-y-6">
-  <button onClick={()=>router.push("/enseignant/evaluations/"+assessmentId)} className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500"><ArrowLeft className="h-4 w-4"/> Évaluation</button>
-  <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-   <div><p className="text-sm font-semibold text-violet-700">Correction & notes</p><h1 className="mt-1 text-2xl font-bold text-slate-950">{assessment.title}</h1><p className="mt-2 text-sm text-slate-500">Saisie rapide des notes finales · évaluation sur {assessment.max_score??20} · la correction reste entièrement à l’appréciation de l’enseignant.</p></div>
-   <div className="rounded-xl bg-white px-4 py-3 text-sm shadow-sm border"><b>{corrected}</b> / {rows.length} notes saisies</div>
-  </header>
+  <button onClick={()=>router.push("/enseignant/corrections")} className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500"><ArrowLeft className="h-4 w-4"/> Corrections</button>
+  <header className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between"><div><p className="text-sm font-semibold text-violet-700">Correction & notes</p><h1 className="mt-1 text-2xl font-bold text-slate-950">{assessment.title}</h1><p className="mt-2 text-sm text-slate-500">Saisie rapide des notes finales · évaluation sur {assessment.max_score??20} · la correction reste entièrement à l&apos;appréciation de l&apos;enseignant.</p></div></header>
   {error&&<div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}{message&&<div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">{message}</div>}
-  {!rows.length?<div className="rounded-2xl border bg-white p-8 text-sm text-slate-500">Aucun élève n'est encore associé à cette évaluation. Répartissez d'abord les variantes depuis la page de l'évaluation.</div>:
+  {!rows.length?<div className="rounded-2xl border bg-white p-8 text-sm text-slate-500">Aucun élève n&apos;est encore associé à cette évaluation. Répartissez d&apos;abord les variantes depuis la page de l&apos;évaluation.</div>:
   <section className="overflow-hidden rounded-2xl border bg-white shadow-sm">
    <div className="overflow-x-auto"><table className="w-full text-sm"><thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500"><tr><th className="px-5 py-4">Élève</th><th className="px-5 py-4">Matricule</th><th className="px-5 py-4">Note /{assessment.max_score??20}</th><th className="px-5 py-4">Appréciation</th><th className="px-5 py-4">Statut</th></tr></thead><tbody className="divide-y">{rows.map((r,i)=><tr key={r.student.id} className="hover:bg-slate-50/70"><td className="px-5 py-3 font-semibold text-slate-900">{r.student.last_name} {r.student.first_name}</td><td className="px-5 py-3 text-slate-500">{r.student.registration_number??"—"}</td><td className="px-5 py-3"><input inputMode="decimal" type="number" min="0" max={assessment.max_score??20} step="0.25" value={r.score} disabled={r.status==="validated"} onChange={e=>update(i,"score",e.target.value)} placeholder="—" className="w-28 rounded-lg border px-3 py-2 font-semibold focus:border-violet-500 focus:outline-none"/></td><td className="px-5 py-3"><input value={r.feedback} disabled={r.status==="validated"} onChange={e=>update(i,"feedback",e.target.value)} placeholder="Optionnel" className="min-w-64 rounded-lg border px-3 py-2"/></td><td className="px-5 py-3">{r.status==="validated"?<span className="inline-flex items-center gap-1 text-emerald-700"><CheckCircle2 className="h-4 w-4"/> Validée</span>:<span className="text-slate-500">{r.status==="submitted"?"Soumise":"À saisir"}</span>}</td></tr>)}</tbody></table></div>
    <div className="flex flex-wrap items-center justify-between gap-3 border-t bg-slate-50 px-5 py-4"><p className="text-xs text-slate-500">Aucune saisie par question : vous renseignez directement la note finale de chaque élève.</p><div className="flex gap-2"><button disabled={saving} onClick={()=>void save(false)} className="inline-flex items-center gap-2 rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold">{saving?<Loader2 className="h-4 w-4 animate-spin"/>:<Save className="h-4 w-4"/>} Enregistrer</button><button disabled={saving} onClick={()=>void save(true)} className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"><Send className="h-4 w-4"/> Soumettre les corrections</button></div></div>
