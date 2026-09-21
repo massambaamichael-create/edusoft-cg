@@ -642,6 +642,8 @@ export default function ClassesPage() {
     }
   };
 
+  // Data loading synchronizes the page with Supabase.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     loadData();
   }, []);
