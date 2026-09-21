@@ -21,6 +21,7 @@ export default function NewEvaluation(){
  const [program,setProgram]=useState<Program|null>(null),[version,setVersion]=useState<Version|null>(null),[units,setUnits]=useState<Unit[]>([]);
  const [loading,setLoading]=useState(true),[working,setWorking]=useState(false),[message,setMessage]=useState(""),[error,setError]=useState<string|null>(null);
 
+ // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
  useEffect(()=>{void load()},[]);
  async function load(){
   setLoading(true);setError(null);
@@ -49,7 +50,7 @@ export default function NewEvaluation(){
    setTypeId((ty??[])[0]?.id??"");
   }catch(e){setError(e instanceof Error?e.message:"Impossible de charger le formulaire.");}finally{setLoading(false)}
  }
- const options=useMemo(()=>assignments.map(a=>{const cs=classSubjects.find(x=>x.id===a.class_subject_id);const cl=classes.find(x=>x.id===cs?.class_id);const s=subjects.find(x=>x.id===cs?.subject_id);return cs&&cl&&s?{a,cs,cl,s}:null}).filter(Boolean) as {a:Assignment;cs:CS;cl:ClassRow;s:Subject}[],[assignments,classSubjects,classes,subjects]);
+ const options=useMemo(()=>assignments.map(a=>{const cs=classSubjects.find(x=>x.id===a.class_subject_id);const s=subjects.find(x=>x.id===cs?.subject_id);return cs&&cl&&s?{a,cs,cl,s}:null}).filter(Boolean) as {a:Assignment;cs:CS;cl:ClassRow;s:Subject}[],[assignments,classSubjects,classes,subjects]);
  async function loadProgram(option:{cs:CS;cl:ClassRow;s:Subject}|null){
   setProgram(null);setVersion(null);setUnits([]);setUnitIds([]);
   if(!option)return;
