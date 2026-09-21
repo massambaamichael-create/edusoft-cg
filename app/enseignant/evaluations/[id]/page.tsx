@@ -55,3 +55,4 @@ export default function EvaluationDetail(){
    <div className="mt-4 flex items-center gap-2 text-xs text-slate-400"><CheckCircle2 className="h-4 w-4"/> Statut : {v.status}</div>
   </article>)}</div>
  </div></main>
+}
