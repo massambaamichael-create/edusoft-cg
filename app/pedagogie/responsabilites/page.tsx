@@ -84,7 +84,7 @@ export default function PedagogicalResponsibilitiesPage() {
   };
 
   return <main className="min-h-screen bg-slate-50 p-6 lg:p-8"><div className="mx-auto max-w-7xl space-y-6">
-    <div><p className="text-sm font-semibold text-indigo-700">Pédagogie</p><h1 className="mt-1 text-2xl font-bold text-slate-900">Responsabilités pédagogiques</h1><p className="mt-2 text-sm text-slate-500">Désignez les professeurs principaux des classes et les responsables de matière. Ces responsabilités ne remplacent pas les affectations d'enseignement.</p></div>
+    <div><p className="text-sm font-semibold text-indigo-700">Pédagogie</p><h1 className="mt-1 text-2xl font-bold text-slate-900">Responsabilités pédagogiques</h1><p className="mt-2 text-sm text-slate-500">Désignez les professeurs principaux des classes et les responsables de matière. Ces responsabilités ne remplacent pas les affectations d’enseignement.</p></div>
     <div className="rounded-2xl border bg-white p-5 shadow-sm"><label className="text-sm font-semibold text-slate-700">Année scolaire</label><select value={yearId} onChange={e=>setYearId(e.target.value)} className="mt-2 w-full max-w-sm rounded-xl border px-3 py-2">{years.map(y=><option key={y.id} value={y.id}>{y.name}</option>)}</select></div>
     {message&&<div className="rounded-xl border bg-white p-4 text-sm text-slate-700">{message}</div>}
     <section className="rounded-2xl border bg-white shadow-sm"><div className="flex items-center gap-3 border-b p-5"><UsersRound className="h-5 w-5 text-indigo-600"/><div><h2 className="font-semibold text-slate-900">Professeurs principaux</h2><p className="text-sm text-slate-500">Une responsabilité au niveau de la classe.</p></div></div>
