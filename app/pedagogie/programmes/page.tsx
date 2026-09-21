@@ -84,6 +84,7 @@ export default function ProgrammesPage() {
     setLoading(false);
   };
 
+  // Data loading synchronizes the page with Supabase.
   // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => {
     void load();
