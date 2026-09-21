@@ -5,7 +5,7 @@ import { ArrowLeft, CalendarDays, CheckCircle2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-type Program={id:string;name:string|null;cycle_id:string;level_id:string;series_id:string|null};
+type Program={id:string;name:string|null;cycle_id:string;level_id:string;series_id:string|null;subject_id:string};
 type Version={id:string;version_number:number;name:string};
 type Unit={id:string;title:string;unit_type:string;display_order:number};
 type ClassRow={id:string;name:string;cycle_id:string;level_id:string;series_id:string|null;academic_year_id:string};
@@ -21,7 +21,7 @@ export default function ProgressionPage(){
  const [yearId,setYearId]=useState(""),[classId,setClassId]=useState(""),[progress,setProgress]=useState<Record<string,Progress>>({});
  const [loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState<string|null>(null),[teacherAssignments,setTeacherAssignments]=useState<TeacherAssignment[]>([]);
 
- useEffect(()=>{void loadBase()},[id]);
+ // Loading data from Supabase in response to the route id is intentional.\n useEffect(()=>{void loadBase()},[id]);
  async function loadBase(){
   setLoading(true);
   const r=await Promise.all([
@@ -35,7 +35,7 @@ export default function ProgressionPage(){
   const y=(r[3].data??[]) as Year[];setYears(y);setClasses((r[2].data??[]) as ClassRow[]);setYearId(y.find(x=>x.is_active)?.id??"");setLoading(false);
  }
  const compatible=useMemo(()=>classes.filter(c=>c.cycle_id===program?.cycle_id&&c.level_id===program?.level_id&&(program?.series_id?c.series_id===program.series_id:c.series_id==null)),[classes,program]);
- useEffect(()=>{if(versionId)void loadVersion()},[versionId]);
+ // Loading the selected program version is intentional.\n useEffect(()=>{if(versionId)void loadVersion()},[versionId]);
  async function loadVersion(){
   const [u,a]=await Promise.all([
    supabase.from("program_units").select("id,title,unit_type,display_order").eq("program_version_id",versionId).order("display_order"),
@@ -44,7 +44,7 @@ export default function ProgressionPage(){
   if(u.error||a.error){setError((u.error||a.error)!.message);return} setUnits((u.data??[]) as Unit[]);setAssignments((a.data??[]) as Assignment[]);
  }
  const assignment=assignments.find(a=>a.class_id===classId&&a.academic_year_id===yearId);
- useEffect(()=>{if(!classId||!yearId||!program){setTeacherAssignments([]);return}void loadTeachers()},[classId,yearId,program?.id]);
+ // Loading teacher assignments is intentional when the pedagogical context changes.\n useEffect(()=>{if(!classId||!yearId||!program){setTeacherAssignments([]);return}void loadTeachers()},[classId,yearId,program?.id]);
  async function loadTeachers(){
   const cs=await supabase.from("class_subjects").select("id").eq("class_id",classId).eq("subject_id",program!.subject_id).eq("academic_year_id",yearId).eq("is_active",true);
   if(cs.error){setError(cs.error.message);return}
@@ -60,7 +60,7 @@ export default function ProgressionPage(){
   const teacherUserMap=Object.fromEntries((tr.data??[]).map(t=>[t.id,userMap[t.user_id]||"Enseignant"]));
   setTeacherAssignments((ta.data??[]).map(t=>({...t,teacher_name:teacherUserMap[t.teacher_id]||"Enseignant"})) as TeacherAssignment[]);
  }
- useEffect(()=>{if(assignment)void loadProgress(assignment.id);else setProgress({})},[assignment?.id]);
+ // Loading progression is intentional when the class assignment changes.\n useEffect(()=>{if(assignment)void loadProgress(assignment.id);else setProgress({})},[assignment?.id]);
  async function loadProgress(aid:string){const r=await supabase.from("progression_entries").select("program_unit_id,status,coverage_percent,taught_date").eq("program_class_assignment_id",aid);if(r.error)setError(r.error.message);else setProgress(Object.fromEntries(((r.data??[]) as Progress[]).map(p=>[p.program_unit_id,p])))}
  async function assign(){if(!versionId||!classId||!yearId)return;setSaving(true);const r=await supabase.from("program_class_assignments").insert({program_version_id:versionId,class_id:classId,academic_year_id:yearId,status:"active"});if(r.error&&r.error.code!=="23505")setError(r.error.message);await loadVersion();setSaving(false)}
  async function save(unit:Unit,patch:Partial<Progress>){if(!assignment)return;setSaving(true);const old=progress[unit.id]??{program_unit_id:unit.id,status:"planned",coverage_percent:0,taught_date:null};const r=await supabase.from("progression_entries").upsert({program_class_assignment_id:assignment.id,program_unit_id:unit.id,status:patch.status??old.status,coverage_percent:patch.coverage_percent??old.coverage_percent,taught_date:patch.taught_date??old.taught_date},{onConflict:"program_class_assignment_id,program_unit_id"}).select("program_unit_id,status,coverage_percent,taught_date").single();if(r.error)setError(r.error.message);else if(r.data)setProgress(p=>({...p,[unit.id]:r.data as Progress}));setSaving(false)}
