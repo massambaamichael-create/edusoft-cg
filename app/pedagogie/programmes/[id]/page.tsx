@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, BookOpen, ChevronDown, Plus, Save, Route } from "lucide-react";
+import { ArrowLeft, BookOpen, Plus, Save, Route } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -97,7 +97,7 @@ export default function ProgrammeDetailPage() {
     setLoading(false);
   }
 
-  useEffect(() => { void load(); }, [id]);
+  // Initial Supabase load is intentionally triggered by the route id.\n  useEffect(() => { void load(); }, [id]);
 
   useEffect(() => {
     if (!activeVersion) return;
