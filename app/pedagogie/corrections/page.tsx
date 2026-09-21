@@ -3,6 +3,8 @@ import { useEffect,useState } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 type Row={id:string;student_id:string;assessment_id:string;status:string;normalized_score:number|null;feedback:string|null};
+type StudentLookup={id:string;first_name:string;last_name:string};
+type AssessmentLookup={id:string;title:string};
 export default function CorrectionsPedagogie(){
  const [rows,setRows]=useState<Row[]>([]),[students,setStudents]=useState<Record<string,string>>({}),[assessments,setAssessments]=useState<Record<string,string>>({}),[comment,setComment]=useState(""),[message,setMessage]=useState("");
  useEffect(()=>{void load()},[]);
@@ -10,8 +12,8 @@ export default function CorrectionsPedagogie(){
   const r=await supabase.from("assessment_correction_sessions").select("id,student_id,assessment_id,status,normalized_score,feedback").in("status",["submitted","rejected"]).order("updated_at",{ascending:false});
   if(r.error){setMessage(r.error.message);return}setRows(r.data??[]);
   const si=(r.data??[]).map(x=>x.student_id),ai=(r.data??[]).map(x=>x.assessment_id);
-  const [s,a]=await Promise.all([si.length?supabase.from("students").select("id,first_name,last_name").in("id",si):{data:[] as any[]},ai.length?supabase.from("assessments").select("id,title").in("id",ai):{data:[] as any[]}]);
-  const sm:Record<string,string>={},am:Record<string,string>={};(s.data??[]).forEach((x:any)=>sm[x.id]=x.last_name+" "+x.first_name);(a.data??[]).forEach((x:any)=>am[x.id]=x.title);setStudents(sm);setAssessments(am);
+  const [s,a]=await Promise.all([si.length?supabase.from("students").select("id,first_name,last_name").in("id",si):{data:[] as StudentLookup[]},ai.length?supabase.from("assessments").select("id,title").in("id",ai):{data:[] as AssessmentLookup[]}]);
+  const sm:Record<string,string>={},am:Record<string,string>={};(s.data??[]).forEach((x:StudentLookup)=>sm[x.id]=x.last_name+" "+x.first_name);(a.data??[]).forEach((x:AssessmentLookup)=>am[x.id]=x.title);setStudents(sm);setAssessments(am);
  }
  async function act(id:string,to:string){
   setMessage("");const r=await supabase.rpc("transition_assessment_correction",{p_session_id:id,p_to_status:to,p_comment:comment.trim()||null});
