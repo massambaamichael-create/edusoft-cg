@@ -197,7 +197,7 @@ useEffect(() => {
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
-              Suivez l'avancement de la saisie et de la validation des notes.
+              Suivez l’avancement de la saisie et de la validation des notes.
             </p>
           </div>
 
