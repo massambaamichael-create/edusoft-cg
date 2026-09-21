@@ -16,6 +16,7 @@ export default function TeacherProgrammePage(){
  const [program,setProgram]=useState<Program|null>(null),[version,setVersion]=useState<Version|null>(null),[units,setUnits]=useState<Unit[]>([]),[entries,setEntries]=useState<Record<string,Entry>>({});
  const [className,setClassName]=useState(""),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState<string|null>(null);
 
+ // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
  useEffect(()=>{void load()},[id,classId,yearId]);
  async function load(){
   if(!classId||!yearId){setError("Classe ou année scolaire manquante.");setLoading(false);return}
