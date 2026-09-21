@@ -22,7 +22,7 @@ export default function ProgressionPage(){
  const [loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState<string|null>(null),[teacherAssignments,setTeacherAssignments]=useState<TeacherAssignment[]>([]);
 
  // Loading data from Supabase in response to the route id is intentional.
- // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+ // eslint-disable-next-line react-hooks/immutability, react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
  useEffect(()=>{void loadBase()},[id]);
  async function loadBase(){
   setLoading(true);
