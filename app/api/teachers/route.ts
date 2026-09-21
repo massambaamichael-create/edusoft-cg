@@ -273,10 +273,10 @@ export async function POST(request: Request) {
 
     const escapeHtml = (value: string) =>
       value
-        .replaceAll("&", "&")
-        .replaceAll("<", "<")
-        .replaceAll(">", ">")
-        .replaceAll('"', """)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
 
     const { error: emailError } = await resend.emails.send({
