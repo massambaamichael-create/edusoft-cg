@@ -35,7 +35,7 @@ export default function EvaluationsPage(){
   setMessage("Workflow mis à jour.");
   setComment("");setSelected(data as Assessment);await load();setSaving(false);
  }
- const label=(s:string)=>({draft:"Brouillon",submitted:"Soumis",in_review:"En vérification",changes_requested:"Correction demandée",rejected:"Rejeté",approved:"Validé",scheduled:"Programmé",published:"Publié",completed:"Terminé",archived:"Archivé"} as any)[s]||s;
+ const label=(s:string)=>({draft:"Brouillon",submitted:"Soumis",in_review:"En vérification",changes_requested:"Correction demandée",rejected:"Rejeté",approved:"Validé",scheduled:"Programmé",published:"Publié",completed:"Terminé",archived:"Archivé"} as Record<string,string>)[s]||s;
  const filtered=items.filter(x=>filter==="all"||x.status===filter);
  return <main className="min-h-screen bg-[#F7F8FC] p-6 lg:p-8"><div className="mx-auto max-w-7xl space-y-6">
   <header><p className="text-sm font-semibold text-violet-700">Pédagogie</p><h1 className="mt-1 text-2xl font-bold text-slate-950">Évaluations & examens</h1><p className="mt-2 text-sm text-slate-500">Suivi des devoirs, contrôles, compositions et examens avec validation pédagogique avant utilisation.</p></header>
