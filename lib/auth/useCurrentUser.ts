@@ -128,7 +128,9 @@ export function useCurrentUser(): CurrentUserContext {
     }
   }, []);
 
+  // Initial identity load is intentionally triggered by the hook lifecycle.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
   }, [load]);
 
