@@ -21,7 +21,7 @@ export default function NewEvaluation(){
  const [program,setProgram]=useState<Program|null>(null),[version,setVersion]=useState<Version|null>(null),[units,setUnits]=useState<Unit[]>([]);
  const [loading,setLoading]=useState(true),[working,setWorking]=useState(false),[message,setMessage]=useState(""),[error,setError]=useState<string|null>(null);
 
- // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+ // eslint-disable-next-line react-hooks/immutability, react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
  useEffect(()=>{void load()},[]);
  async function load(){
   setLoading(true);setError(null);
