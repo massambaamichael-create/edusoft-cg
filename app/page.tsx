@@ -97,7 +97,7 @@ export default function Home() {
 
               <p className="mt-6 max-w-md text-white/75 leading-7">
                 Une plateforme moderne pour gérer les élèves, les enseignants,
-                les finances, la pédagogie et l'administration de votre école.
+                les finances, la pédagogie et l&apos;administration de votre école.
                 Chaque rôle dispose de son propre espace de travail.
               </p>
             </div>
