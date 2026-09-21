@@ -11,6 +11,7 @@ type Row = {
 };
 type Item = { id: string; name: string; cycle_id?: string; level_id?: string | null; series_id?: string | null };
 type Teacher = Item & { user_id: string | null };
+type UserRow = { id: string; first_name: string | null; last_name: string | null; email: string | null };
 
 export default function PedagogicalResponsibilitiesPage() {
   const [schoolId,setSchoolId]=useState(""); const [yearId,setYearId]=useState("");
@@ -46,8 +47,8 @@ export default function PedagogicalResponsibilitiesPage() {
       supabase.from("teachers").select("id,user_id").eq("school_id",profile.school_id),
       supabase.from("classes").select("id,name,cycle_id,level_id,series_id").eq("school_id",profile.school_id).order("name")
     ]);
-    const trs=t.data||[]; const ids=trs.map(x=>x.user_id).filter(Boolean); let us:any[]=[];
-    if(ids.length){const {data}=await supabase.from("users").select("id,first_name,last_name,email").in("id",ids);us=data||[];}
+    const trs=t.data||[]; const ids=trs.map(x=>x.user_id).filter((id): id is string => Boolean(id)); let us:UserRow[]=[];
+    if(ids.length){const {data}=await supabase.from("users").select("id,first_name,last_name,email").in("id",ids);us=(data||[]) as UserRow[];}
     setYears(y.data||[]); setCycles(c.data||[]); setLevels(l.data||[]); setSeries(s.data||[]); setSubjects(sub.data||[]);
     setTeachers(trs.map(x=>{const u=us.find(v=>v.id===x.user_id);return {id:x.id,user_id:x.user_id,name:[u?.first_name,u?.last_name].filter(Boolean).join(" ")||u?.email||x.id.slice(0,8)};}));
     setClasses(cl.data||[]);
@@ -60,8 +61,8 @@ export default function PedagogicalResponsibilitiesPage() {
       setResponsibilities(r.data||[]); const map:Record<string,string>={}; (cc.data||[]).forEach(x=>map[x.id]=x.principal_teacher_id||""); setPrincipalByClass(map);
     }
   };
-  useEffect(()=>{load();},[]);
-  useEffect(()=>{if(schoolId&&yearId)load();},[yearId]);
+  // Initial data load is intentionally triggered on mount.\n  useEffect(()=>{load();},[]);
+  // Refresh when the selected academic year changes.\n  useEffect(()=>{if(schoolId&&yearId)load();},[yearId]);
 
   const savePrincipal=async(id:string,teacher:string)=>{
     setSaving(true);setMessage("");
