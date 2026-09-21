@@ -16,6 +16,7 @@ export default function EnseignantHome(){
   const [loading,setLoading]=useState(true),[error,setError]=useState<string|null>(null);
   const [rows,setRows]=useState<{assignment:Assignment;classRow:SchoolClass;subject:Subject;program?:Program}[]>([]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(()=>{void load()},[]);
   async function load(){
     setLoading(true);setError(null);
