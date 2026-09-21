@@ -84,6 +84,7 @@ export default function ProgrammesPage() {
     setLoading(false);
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => {
     void load();
   }, []);
