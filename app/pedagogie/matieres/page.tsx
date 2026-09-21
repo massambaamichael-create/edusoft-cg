@@ -205,6 +205,7 @@ export default function MatieresPage() {
     }
   };
 
+  // Data loading synchronizes the page with Supabase.
   // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => {
     loadData();
