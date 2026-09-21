@@ -205,6 +205,7 @@ export default function MatieresPage() {
     }
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
   useEffect(() => {
     loadData();
   }, []);
