@@ -5,6 +5,21 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+type EnrollmentStudent = { id: string; first_name: string | null; last_name: string | null; school_id: string | null };
+type EnrollmentClass = { id: string; name: string | null; school_id: string | null };
+type EnrollmentYear = { id: string; name: string | null };
+type EnrollmentQueryRow = {
+  id: string;
+  school_id?: string | null;
+  student_id: string;
+  class_id: string;
+  academic_year_id: string;
+  status: string | null;
+  students?: EnrollmentStudent | null;
+  classes?: EnrollmentClass | null;
+  academic_years?: EnrollmentYear | null;
+};
+
 export type EnrollmentRow = {
   id: string;
   school_id: string | null;
@@ -55,7 +70,7 @@ export async function fetchEnrollmentsForSchool(
       return { data: [], error: error.message };
     }
 
-    const rows = ((fallback.data || []) as any[])
+    const rows = ((fallback.data || []) as EnrollmentQueryRow[])
       .filter(
         (r) =>
           r.students?.school_id === schoolId || r.classes?.school_id === schoolId
@@ -66,12 +81,12 @@ export async function fetchEnrollmentsForSchool(
   }
 
   return {
-    data: ((data || []) as any[]).map(mapEnrollment),
+    data: ((data || []) as EnrollmentQueryRow[]).map(mapEnrollment),
     error: null,
   };
 }
 
-function mapEnrollment(r: any): EnrollmentRow {
+function mapEnrollment(r: EnrollmentQueryRow): EnrollmentRow {
   const st = r.students;
   const cl = r.classes;
   const yr = r.academic_years;
