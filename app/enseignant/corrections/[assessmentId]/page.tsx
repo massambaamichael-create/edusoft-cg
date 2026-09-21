@@ -5,11 +5,14 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 type Student={id:string;first_name:string;last_name:string;registration_number:string|null};
+type Assessment={id:string;title:string;max_score:number|null;status:string;class_id:string|null;academic_year_id:string|null;school_id:string};
+type VariantAssignment={student_id:string;assessment_variant_id:string};
+type CorrectionSession={id:string;student_id:string;assessment_variant_id:string|null;status:string;normalized_score:number|null;feedback:string|null};
 type Row={student:Student;variantId:string|null;sessionId:string|null;status:string;score:string;feedback:string};
 
 export default function MassCorrectionPage(){
  const {assessmentId}=useParams<{assessmentId:string}>(); const router=useRouter();
- const [assessment,setAssessment]=useState<any>(null),[rows,setRows]=useState<Row[]>([]),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState(""),[message,setMessage]=useState("");
+ const [assessment,setAssessment]=useState<Assessment|null>(null),[rows,setRows]=useState<Row[]>([]),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState(""),[message,setMessage]=useState("");
  useEffect(()=>{void load()},[assessmentId]);
  async function load(){
   setLoading(true);setError("");
@@ -19,14 +22,14 @@ export default function MassCorrectionPage(){
    supabase.from("assessment_correction_sessions").select("id,student_id,assessment_variant_id,status,normalized_score,feedback").eq("assessment_id",assessmentId)
   ]);
   if(a.error||aa.error||s.error){setError((a.error||aa.error||s.error)!.message);setLoading(false);return}
-  const ids=(aa.data??[]).map((x:any)=>x.student_id);
+  const ids=(aa.data??[]).map((x:VariantAssignment)=>x.student_id);
   if(!ids.length){setAssessment(a.data);setRows([]);setLoading(false);return}
   const st=await supabase.from("students").select("id,first_name,last_name,registration_number").in("id",ids).order("last_name");
   if(st.error){setError(st.error.message);setLoading(false);return}
-  const amap=new Map((aa.data??[]).map((x:any)=>[x.student_id,x.assessment_variant_id]));
-  const smap=new Map((s.data??[]).map((x:any)=>[x.student_id,x]));
+  const amap=new Map((aa.data??[]).map((x:VariantAssignment)=>[x.student_id,x.assessment_variant_id]));
+  const smap=new Map((s.data??[]).map((x:CorrectionSession)=>[x.student_id,x]));
   setAssessment(a.data);
-  setRows((st.data??[]).map((student:any)=>{
+  setRows((st.data??[]).map((student:Student)=>{
    const se=smap.get(student.id);
    return {student,variantId:amap.get(student.id)??null,sessionId:se?.id??null,status:se?.status??"draft",score:se?.normalized_score==null?"":String(se.normalized_score),feedback:se?.feedback??""};
   }));
