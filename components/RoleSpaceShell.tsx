@@ -66,7 +66,7 @@ export default function RoleSpaceShell({
   if (loading || !isAuthenticated) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-600">
-        <p className="text-sm">Chargement de l'espace {title}…</p>
+        <p className="text-sm">Chargement de l’espace {title}…</p>
       </main>
     );
   }
