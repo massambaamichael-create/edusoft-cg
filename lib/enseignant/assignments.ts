@@ -6,6 +6,31 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+type TeacherAssignmentQueryRow = {
+  id: string;
+  academic_year_id: string | null;
+  class_subject_id: string | null;
+  class_subjects?: {
+    id: string;
+    class_id: string;
+    subject_id: string;
+    academic_year_id: string | null;
+    classes?: { id: string; name: string | null; academic_year_id: string | null } | null;
+    subjects?: { id: string; name: string | null } | null;
+    academic_years?: { id: string; name: string | null } | null;
+  } | null;
+};
+
+type LegacyTeacherSubjectRow = {
+  id: string;
+  class_id: string;
+  subject_id: string;
+  academic_year_id: string | null;
+  classes?: { id: string; name: string | null } | null;
+  subjects?: { id: string; name: string | null } | null;
+  academic_years?: { id: string; name: string | null } | null;
+};
+
 export type TeacherClassRow = {
   classId: string;
   className: string;
@@ -68,7 +93,7 @@ export async function fetchTeacherClasses(
   if (!modern.error && modern.data && modern.data.length > 0) {
     const map = new Map<string, TeacherClassRow>();
 
-    for (const row of modern.data as any[]) {
+    for (const row of modern.data as TeacherAssignmentQueryRow[]) {
       const cs = row.class_subjects;
       if (!cs) continue;
       const cls = cs.classes;
@@ -140,7 +165,7 @@ export async function fetchTeacherClasses(
   }
 
   const map = new Map<string, TeacherClassRow>();
-  for (const row of (legacy.data || []) as any[]) {
+  for (const row of (legacy.data || []) as LegacyTeacherSubjectRow[]) {
     const cls = row.classes;
     const sub = row.subjects;
     if (!cls?.id) continue;
