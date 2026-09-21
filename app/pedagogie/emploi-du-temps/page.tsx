@@ -17,7 +17,6 @@ import {
   X,
 } from "lucide-react";
 
-import Sidebar from "@/components/Sidebar";
 import { supabase } from "@/lib/supabase";
 
 type Role = { name: string };
@@ -2074,19 +2073,7 @@ export default function TimetablePage() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
-      <Sidebar
-        userProfile={
-          profile
-            ? {
-                first_name: profile.first_name,
-                last_name: profile.last_name,
-              }
-            : null
-        }
-        userRole={userRole}
-      />
-
-      <div className="min-h-screen pl-[270px]">
+      <div className="min-h-screen">
         <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
           <div className="flex min-h-[76px] items-center justify-between gap-4 px-6 lg:px-8">
             <div>
