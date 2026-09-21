@@ -11,7 +11,7 @@ type Variant={id:string;variant_code:string;variant_number:number;generation_met
 export default function EvaluationDetail(){
  const {id}=useParams<{id:string}>();const router=useRouter();
  const [a,setA]=useState<Assessment|null>(null),[variants,setVariants]=useState<Variant[]>([]),[loading,setLoading]=useState(true),[working,setWorking]=useState(false),[showCorrection,setShowCorrection]=useState<Record<string,boolean>>({}),[error,setError]=useState<string|null>(null),[message,setMessage]=useState("");
- // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+ // eslint-disable-next-line react-hooks/immutability, react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
  useEffect(()=>{void load()},[id]);
  async function load(){
   setLoading(true);setError(null);
