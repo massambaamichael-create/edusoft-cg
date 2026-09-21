@@ -68,13 +68,13 @@ export default function AdministrationParentsPage() {
 
   useEffect(() => {
     if (userLoading) return;
-    if (!schoolId || !canRead) {
-      setLoading(false);
-      return;
-    }
 
     let cancelled = false;
     (async () => {
+      if (!schoolId || !canRead) {
+        if (!cancelled) setLoading(false);
+        return;
+      }
       setLoading(true);
       await reload();
       if (!cancelled) setLoading(false);
