@@ -37,7 +37,7 @@ export default function Home() {
     setGithubLoading(false);
 
     if (error) {
-      setError("La connexion GitHub n'a pas pu être démarrée.");
+      setError("La connexion GitHub n&apos;a pas pu être démarrée.");
     }
   };
 
