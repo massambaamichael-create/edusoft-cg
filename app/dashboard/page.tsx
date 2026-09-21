@@ -24,7 +24,6 @@ import {
   UserCheck,
 } from "lucide-react";
 
-import Sidebar from "@/components/Sidebar";
 import { supabase } from "@/lib/supabase";
 
 type QuickActionProps = {
@@ -371,9 +370,7 @@ const [subjectAssignmentCount, setSubjectAssignmentCount] = useState(0);
 
   return (
     <main className="min-h-screen bg-[#080B16] text-white">
-      <Sidebar userProfile={{ first_name: userName }} userRole="Directeur Général" />
-
-      <section className="ml-[270px] min-w-0">
+      <section className="min-w-0">
         <header className="sticky top-0 z-40 flex min-h-[82px] items-center justify-between border-b border-white/[0.07] bg-[#080B16]/95 px-6 backdrop-blur-xl lg:px-8">
           <div>
             <p className="text-xs capitalize text-white/35">{todayLabel}</p>
