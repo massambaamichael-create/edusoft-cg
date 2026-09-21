@@ -2664,7 +2664,7 @@ const handlePrincipalTeacherChange = async (
       <div className="pl-[270px] min-w-0">
       {/* ===================================================
           CONTENU
-      =================================================== */
+      =================================================== */}
         {/* HEADER */}
 
         <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur">
