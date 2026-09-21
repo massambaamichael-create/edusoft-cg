@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ClipboardCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 type A={id:string;title:string;status:string;assessment_date:string|null;class_id:string|null};
+type ClassLookup={id:string;name:string};
 export default function CorrectionsIndex(){
  const [items,setItems]=useState<A[]>([]),[classes,setClasses]=useState<Record<string,string>>({});
  useEffect(()=>{void load()},[]);
@@ -16,8 +17,8 @@ export default function CorrectionsIndex(){
   if(tr.error){return}
   const a=await supabase.from("assessments").select("id,title,status,assessment_date,class_id").eq("teacher_id",tr.data.id).in("status",["published","completed"]).order("assessment_date",{ascending:false});
   const ids=(a.data??[]).map(x=>x.class_id).filter(Boolean) as string[];
-  const c=ids.length?await supabase.from("classes").select("id,name").in("id",ids):{data:[] as any[]};
-  const map:Record<string,string>={};(c.data??[]).forEach((x:any)=>map[x.id]=x.name);setItems(a.data??[]);setClasses(map);
+  const c=ids.length?await supabase.from("classes").select("id,name").in("id",ids):{data:[] as ClassLookup[]};
+  const map:Record<string,string>={};(c.data??[]).forEach((x:ClassLookup)=>map[x.id]=x.name);setItems(a.data??[]);setClasses(map);
  }
  return <main className="min-h-screen bg-[#F7F8FC] p-6 lg:p-8"><div className="mx-auto max-w-6xl space-y-6">
   <header><p className="text-sm font-semibold text-violet-700">Espace Enseignant</p><h1 className="mt-1 text-2xl font-bold text-slate-950">Mes corrections</h1><p className="mt-2 text-sm text-slate-500">Ouvrez une évaluation pour saisir directement les notes finales après votre correction manuelle.</p></header>
