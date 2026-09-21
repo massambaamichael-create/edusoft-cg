@@ -11,7 +11,7 @@ type Type={id:string;name:string};
 export default function EnseignantEvaluations(){
  const router=useRouter();
  const [rows,setRows]=useState<Row[]>([]),[types,setTypes]=useState<Type[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState<string|null>(null);
- // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
+ // eslint-disable-next-line react-hooks/immutability, react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
  useEffect(()=>{void load()},[]);
  async function load(){
   setLoading(true);setError(null);
