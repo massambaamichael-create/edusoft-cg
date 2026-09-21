@@ -6,11 +6,12 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 type Assessment={id:string;title:string;status:string;variant_count:number;assessment_date:string|null;max_score:number|null;coefficient:number|null;teacher_id:string|null;class_id:string|null;class_subject_id:string|null;subject_id:string|null};
-type Variant={id:string;variant_code:string;variant_number:number;generation_method:string;status:string;title:string|null;content:any;correction_content:any;subject_document_path:string|null;source_filename:string|null};
+type Variant={id:string;variant_code:string;variant_number:number;generation_method:string;status:string;title:string|null;content:unknown;correction_content:unknown;subject_document_path:string|null;source_filename:string|null};
 
 export default function EvaluationDetail(){
  const {id}=useParams<{id:string}>();const router=useRouter();
  const [a,setA]=useState<Assessment|null>(null),[variants,setVariants]=useState<Variant[]>([]),[loading,setLoading]=useState(true),[working,setWorking]=useState(false),[showCorrection,setShowCorrection]=useState<Record<string,boolean>>({}),[error,setError]=useState<string|null>(null),[message,setMessage]=useState("");
+ // eslint-disable-next-line react-hooks/set-state-in-effect, react-hooks/exhaustive-deps
  useEffect(()=>{void load()},[id]);
  async function load(){
   setLoading(true);setError(null);
@@ -39,7 +40,7 @@ export default function EvaluationDetail(){
   if(error){setError(error.message);return}
   window.open(data.signedUrl,"_blank","noopener,noreferrer");
  }
- const pretty=(value:any)=>typeof value==="string"?value:JSON.stringify(value,null,2);
+ const pretty=(value:unknown)=>typeof value==="string"?value:JSON.stringify(value,null,2);
  if(loading)return <main className="min-h-screen bg-[#F7F8FC] p-8 text-sm text-slate-500">Chargement…</main>;
  if(!a)return <main className="min-h-screen bg-[#F7F8FC] p-8 text-sm text-red-600">Évaluation introuvable.</main>;
  return <main className="min-h-screen bg-[#F7F8FC] p-6 lg:p-8"><div className="mx-auto max-w-6xl space-y-6">
