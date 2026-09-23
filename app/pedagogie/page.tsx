@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   BookOpen,
   ClipboardList,
@@ -16,6 +17,7 @@ import {
 import { supabase } from "@/lib/supabase";
 
 export default function PedagogiePage() {
+  const router = useRouter();
   const [classCount, setClassCount] = useState(0);
   const [teacherCount, setTeacherCount] = useState(0);
   const [assessmentCount, setAssessmentCount] = useState(0);
@@ -166,24 +168,28 @@ useEffect(() => {
             icon={<Plus className="h-5 w-5" />}
             title="Nouvelle évaluation"
             description="Créer un devoir, examen ou contrôle"
+            onClick={() => router.push("/enseignant/evaluations/nouveau")}
           />
 
           <QuickAction
             icon={<FileCheck2 className="h-5 w-5" />}
-            title="Saisir les notes"
-            description="Entrer les notes des élèves"
+            title="Classes & notes"
+            description="Accéder aux classes pédagogiques"
+            onClick={() => router.push("/pedagogie/classes")}
           />
 
           <QuickAction
             icon={<CheckCircle2 className="h-5 w-5" />}
-            title="Valider les notes"
-            description="Contrôler les notes soumises"
+            title="Responsabilités"
+            description="Contrôler les responsabilités pédagogiques"
+            onClick={() => router.push("/pedagogie/responsabilites")}
           />
 
           <QuickAction
             icon={<GraduationCap className="h-5 w-5" />}
-            title="Générer les bulletins"
-            description="Créer les bulletins PDF"
+            title="Programmes & progression"
+            description="Suivre les programmes officiels"
+            onClick={() => router.push("/pedagogie/programmes")}
           />
         </div>
       </section>
@@ -230,19 +236,9 @@ useEffect(() => {
             </thead>
 
             <tbody>
-              <StatusRow
-                className="Aucune donnée"
-                progress={0}
-                status="En attente"
-                type="waiting"
-              />
-
               <tr>
-                <td
-                  colSpan={4}
-                  className="px-6 py-10 text-center text-sm text-gray-400"
-                >
-                  Aucune donnée pédagogique disponible pour le moment.
+                <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-400">
+                  Les indicateurs sont calculés à partir des données de l’établissement.
                 </td>
               </tr>
             </tbody>
