@@ -140,3 +140,29 @@ REVOKE EXECUTE ON FUNCTION public.get_my_student_id() FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_my_user_id() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_my_parent_id() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_my_student_id() TO authenticated;
+
+
+-- Harden parent-child RLS against policy recursion.
+CREATE OR REPLACE FUNCTION public.get_my_child_ids()
+RETURNS SETOF uuid LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public
+AS $$
+  SELECT sp.student_id
+  FROM public.student_parents sp
+  WHERE sp.parent_id=public.get_my_parent_id()
+    AND sp.student_id IS NOT NULL
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.get_my_child_ids() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_my_child_ids() TO authenticated;
+
+DROP POLICY IF EXISTS students_select_scoped ON public.students;
+CREATE POLICY students_select_scoped ON public.students
+FOR SELECT TO authenticated
+USING (
+  (school_id=public.get_my_school_id() AND (
+    public.has_permission('students.read') OR public.has_permission('students.create')
+    OR public.has_permission('students.update') OR public.has_permission('students.archive')
+  ))
+  OR id=public.get_my_student_id()
+  OR id IN (SELECT public.get_my_child_ids())
+);
