@@ -1,12 +1,10 @@
 "use client";
 
-import { LayoutDashboard, UsersRound, FileText } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 import RoleSpaceShell from "@/components/RoleSpaceShell";
 
 const NAV = [
   { label: "Tableau de bord", href: "/rh", icon: LayoutDashboard },
-  { label: "Personnel", href: "/rh/personnel", icon: UsersRound },
-  { label: "Documents RH", href: "/rh/documents", icon: FileText },
 ];
 
 export default function RHLayout({
