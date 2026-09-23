@@ -1,11 +1,10 @@
 "use client";
 
-import { LayoutDashboard, Activity } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 import RoleSpaceShell from "@/components/RoleSpaceShell";
 
 const NAV = [
   { label: "Tableau de bord", href: "/sante", icon: LayoutDashboard },
-  { label: "Dossiers santé", href: "/sante/dossiers", icon: Activity },
 ];
 
 export default function SanteLayout({
