@@ -74,30 +74,30 @@ export default function PedagogiePage() {
       {/* HEADER */}
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-sm font-medium text-violet-600">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">
             Gestion pédagogique
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-gray-900">
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
             Pédagogie
           </h1>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm leading-6 text-slate-500">
             Gérez les classes, matières, évaluations, notes et résultats.
           </p>
-          <div className="mt-3 inline-flex items-center rounded-full border border-violet-100 bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
+          <div className="mt-3 inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm">
             Année active : {academicYearName}
           </div>
         </div>
 
-        <button type="button" onClick={() => router.push("/pedagogie/evaluations")} className="flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700">
+        <button type="button" onClick={() => router.push("/pedagogie/evaluations")} className="flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow">
           <Plus className="h-4 w-4" />
           Nouvelle évaluation
         </button>
       </div>
 
       {/* KPI CARDS */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Classes"
           value={dataLoading ? "…" : classCount.toString()}
@@ -132,13 +132,13 @@ export default function PedagogiePage() {
       </div>
 
       {/* QUICK ACTIONS */}
-      <section className="mt-8 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+      <section className="mt-8 rounded-[26px] border border-slate-200/80 bg-white p-6 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
         <div className="mb-5">
-          <h2 className="text-lg font-bold text-gray-900">
+          <h2 className="text-lg font-bold text-slate-950">
             Actions rapides
           </h2>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-slate-500">
             Accédez rapidement aux tâches pédagogiques les plus utilisées.
           </p>
         </div>
@@ -175,8 +175,8 @@ export default function PedagogiePage() {
       </section>
 
       {/* PEDAGOGICAL STATUS */}
-      <section className="mt-8 rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div className="flex flex-col gap-3 border-b border-gray-100 p-6 md:flex-row md:items-center md:justify-between">
+      <section className="mt-8 rounded-[26px] border border-slate-200/80 bg-white shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
+        <div className="flex flex-col gap-3 border-b border-slate-100 p-6 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-lg font-bold text-gray-900">
               État pédagogique
@@ -196,7 +196,7 @@ export default function PedagogiePage() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left">
             <thead>
-              <tr className="border-b border-gray-100 bg-gray-50/70">
+              <tr className="border-b border-gray-100 bg-slate-50/70">
                 <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
                   Classe
                 </th>
@@ -217,7 +217,7 @@ export default function PedagogiePage() {
 
             <tbody>
               <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-sm text-gray-400">
+                <td colSpan={4} className="px-6 py-10 text-center text-sm text-slate-400">
                   Les indicateurs sont calculés à partir des données de l’établissement.
                 </td>
               </tr>
@@ -250,7 +250,7 @@ function StatCard({
   };
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="flex items-start justify-between">
         <div
           className={`flex h-11 w-11 items-center justify-center rounded-xl ${colors[color]}`}
