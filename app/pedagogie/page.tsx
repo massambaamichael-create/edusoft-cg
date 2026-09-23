@@ -164,9 +164,9 @@ useEffect(() => {
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
           <QuickAction
             icon={<Plus className="h-5 w-5" />}
-            title="Nouvelle évaluation"
-            description="Créer un devoir, examen ou contrôle"
-            onClick={() => router.push("/enseignant/evaluations/nouveau")}
+            title="Évaluations & examens"
+            description="Suivre et valider les évaluations"
+            onClick={() => router.push("/pedagogie/evaluations")}
           />
 
           <QuickAction
