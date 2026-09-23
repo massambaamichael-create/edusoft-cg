@@ -144,3 +144,16 @@ On conserve et on fait évoluer :
 6. Ensuite seulement : lint → typecheck/build → corrections de release.
 
 Règle de travail : aucune nouvelle page ne doit recréer une donnée déjà portée par une autre source de vérité.
+
+
+## Identity & Access — état actuel
+
+- \`users.must_change_password\` est maintenant serveur-authoritative.
+- \`users.login_identifier\` centralise l'identifiant de connexion.
+- Les rôles \`Parent\` et \`Élève\` sont présents en base.
+- \`parents.user_id\` et \`students.user_id\` relient les profils métier à l'identité centrale.
+- Une API sécurisée génère les accès Parent/Élève avec mot de passe temporaire.
+- Les profils sans email peuvent recevoir un identifiant établissement généré.
+- La connexion accepte email ou identifiant.
+- Le middleware bloque l'accès aux espaces métier tant que le changement du mot de passe temporaire n'est pas finalisé.
+- \`/parent\` et \`/eleve\` disposent maintenant d'un premier espace métier connecté aux données réelles via une API serveur filtrée par identité.
