@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import crypto from "crypto";
 import { resend } from "@/lib/resend";
 import { resolveRoleIdByName } from "@/lib/auth/permissions";
+import { provisionAuthAccount } from "@/lib/auth/account-provisioning";
 
 const ALLOWED_CREATOR_ROLES = new Set(["Directeur"]);
 
@@ -184,31 +184,32 @@ export async function POST(request: Request) {
       );
     }
 
-    const temporaryPassword = crypto.randomBytes(9).toString("base64url");
     const normalizedEmail = email.trim().toLowerCase();
 
-    const {
-      data: authData,
-      error: authError,
-    } = await supabaseAdmin.auth.admin.createUser({
-      email: normalizedEmail,
-      password: temporaryPassword,
-      email_confirm: true,
-    });
-
-    if (authError || !authData.user) {
-      console.error("ERREUR CRÉATION AUTH :", authError);
+    let provisionedAccount;
+    try {
+      provisionedAccount = await provisionAuthAccount({
+        email: normalizedEmail,
+        schoolId: user.school_id,
+        roleName: "Enseignant",
+      });
+    } catch (authError) {
+      console.error("ERREUR PROVISIONING AUTH :", authError);
 
       return NextResponse.json(
         {
           success: false,
-          error: authError?.message ?? "Impossible de créer le compte.",
+          error:
+            authError instanceof Error
+              ? authError.message
+              : "Impossible de créer le compte.",
         },
         { status: 500 }
       );
     }
 
-    createdAuthUserId = authData.user.id;
+    const temporaryPassword = provisionedAccount.temporaryPassword;
+    createdAuthUserId = provisionedAccount.authUserId;
 
     const { data: userData, error: userError } = await supabaseAdmin
       .from("users")
