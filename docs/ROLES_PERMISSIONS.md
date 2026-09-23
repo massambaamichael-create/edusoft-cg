@@ -36,20 +36,33 @@
 | Documents officiels | Service propriétaire | Autorité habilitée |
 | Signatures / Cachets | Autorité habilitée | Selon document |
 
-## 3. État actuel dans le code
+## 3. Identity & Access — règle de provisioning
+
+Tout rôle disposant d'un espace nécessitant une authentification suit le modèle centralisé :
+
+`auth.users` → authentification / mot de passe  
+`users` → identité + école + rôle  
+`profil métier` → données métier existantes  
+`espace` → accès déterminé par RBAC + RLS
+
+L'identifiant de connexion actuel est l'email du compte Auth. Le matricule ou identifiant métier reste une donnée distincte. Lorsqu'un compte est créé par l'établissement, un mot de passe temporaire est généré côté serveur, transmis par un canal contrôlé et marqué pour changement obligatoire à la première connexion. Aucun mot de passe n'est stocké dans les tables métier.
+
+Cette règle s'applique notamment aux espaces Enseignant, Parent/Tuteur, Élève, Finance/Comptabilité, RH, Administration/Secrétariat, Vie scolaire, Santé/Infirmerie et aux espaces de Direction selon les permissions.
+
+## 4. État actuel dans le code
 
 - Rôle principal géré : **Directeur** (`is_director()`)
 - Création d’enseignants avec un `role_id` hardcodé
 - Pas encore de gestion fine des autres rôles côté application
 - RLS principalement orientée « même école + Directeur »
 
-## 4. Objectif de migration
+## 5. Objectif de migration
 
 1. Introduire tous les rôles ci-dessus dans la table `roles`
 2. Étendre les helpers RLS (`is_teacher()`, `is_secretary()`, etc.)
 3. Affiner les policies selon le rôle + les affectations
 4. Adapter l’interface (Sidebar + pages) selon le rôle de l’utilisateur connecté
 
-## 5. Règle d’or pour les enseignants
+## 6. Règle d’or pour les enseignants
 
 Un enseignant ne voit et ne modifie que ce qui lui est explicitement affecté (classes + matières + année).
