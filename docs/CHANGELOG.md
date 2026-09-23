@@ -6,9 +6,12 @@
 - Socle workflow documentaire (`draft` → `submitted` → `validated`/`rejected` → `archived`)
 - RPC `transition_document_workflow`
 - Registre documentaire dans Administration (`/administration/documents`)
+- **Dépôt / création de brouillon** (modal, types PRD, élève optionnel, code de vérification)
+- Stats registre + design aligné Admin (cartes, modal, boutons slate)
+- **RLS corrigée** : isolation par `school_id` (plus d’obligation d’avoir un `student_id` pour lire)
 - Archivage depuis le registre (sans suppression silencieuse)
 - Notifications sur transitions de workflow
-- Migrations : `documents_workflow_foundation`, `document_archive_audit_completion`, `document_workflow_notifications`
+- Migrations : `documents_workflow_foundation`, `document_archive_audit_completion`, `document_workflow_notifications`, `documents_rls_school_scope_and_create`
 
 ### Audit & Notifications
 - Journal d’audit administratif (`/administration/audit`, permission `audit.read`)
@@ -27,9 +30,12 @@
 - Durcissement workflow correction (RLS / permissions)
 - Alignement navigation enseignant sur les routes réelles
 
+### Administration UI
+- Tableau de bord : cartes Documents, Audit, Accès & comptes
+- Accès comptes aligné sur rôles réels (pas de permissions inventées)
+
 ### Documentation
-- `docs/DOCUMENTS.md` et `docs/WORKFLOWS.md` alignés sur Supabase et le code
-- `docs/PROJECT_STATE.md` mis à jour (écarts PRD)
+- `docs/DOCUMENTS.md`, `docs/WORKFLOWS.md`, `docs/PROJECT_STATE.md`, `docs/ROADMAP.md` alignés
 
 ---
 
