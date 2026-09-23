@@ -220,6 +220,7 @@ export async function POST(request: Request) {
         first_name: first_name.trim(),
         last_name: last_name.trim(),
         email: normalizedEmail,
+        login_identifier: normalizedEmail,
         phone: phone?.trim() || null,
         is_active: true,
         must_change_password: true,
