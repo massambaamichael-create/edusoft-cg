@@ -802,7 +802,7 @@ export default function TeachersPage() {
 
   return (
     <main className="min-h-screen bg-[#F7F8FC]">
-      <section className="ml-[270px] min-h-screen">
+      <section className="min-h-screen">
         {/* HEADER */}
 
         <header className="flex h-[82px] items-center justify-between border-b border-gray-100 bg-white px-8">
