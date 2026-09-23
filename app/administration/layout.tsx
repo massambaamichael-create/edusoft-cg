@@ -6,6 +6,7 @@ import {
   UserRound,
   ClipboardList,
   ShieldCheck,
+  FileText,
 } from "lucide-react";
 import RoleSpaceShell from "@/components/RoleSpaceShell";
 
@@ -15,6 +16,7 @@ const NAV = [
   { label: "Parents", href: "/administration/parents", icon: UserRound },
   { label: "Inscriptions", href: "/administration/inscriptions", icon: ClipboardList },
   { label: "Accès & comptes", href: "/administration/acces", icon: ShieldCheck },
+  { label: "Documents", href: "/administration/documents", icon: FileText },
 ];
 
 export default function AdministrationLayout({
