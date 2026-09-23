@@ -11,6 +11,36 @@ function escapeHtml(value: string) {
   return value.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
 }
 
+async function recordIdentityEvent(args: {
+  actorId: string;
+  schoolId: string;
+  targetId: string;
+  action: string;
+  oldData?: Record<string, unknown>;
+  newData?: Record<string, unknown>;
+  notificationTitle: string;
+  notificationMessage: string;
+}) {
+  await Promise.all([
+    supabaseAdmin.from("audit_logs").insert({
+      school_id: args.schoolId,
+      user_id: args.actorId,
+      action: args.action,
+      table_name: "users",
+      record_id: args.targetId,
+      old_data: args.oldData ?? null,
+      new_data: args.newData ?? null,
+    }),
+    supabaseAdmin.from("notifications").insert({
+      school_id: args.schoolId,
+      user_id: args.targetId,
+      title: args.notificationTitle,
+      message: args.notificationMessage,
+      is_read: false,
+    }),
+  ]);
+}
+
 async function authorize(request: Request) {
   const token = request.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1];
   if (!token) return { error: NextResponse.json({success:false,error:"Authentification requise."},{status:401}) };
@@ -67,6 +97,20 @@ export async function POST(request: Request) {
       if(authUpdateError) return NextResponse.json({success:false,error:authUpdateError.message},{status:500});
       const {error:dbError}=await supabaseAdmin.from("users").update({is_active:active}).eq("id",target.id).eq("school_id",auth.profile.school_id);
       if(dbError) return NextResponse.json({success:false,error:dbError.message},{status:500});
+
+      await recordIdentityEvent({
+        actorId: auth.profile.id,
+        schoolId: auth.profile.school_id,
+        targetId: target.id,
+        action: active ? "identity.account_activated" : "identity.account_deactivated",
+        oldData: { is_active: target.is_active !== false },
+        newData: { is_active: active },
+        notificationTitle: active ? "Accès EduSoft réactivé" : "Accès EduSoft désactivé",
+        notificationMessage: active
+          ? "Votre compte EduSoft CG a été réactivé par votre établissement."
+          : "Votre compte EduSoft CG a été désactivé par votre établissement.",
+      });
+
       return NextResponse.json({success:true,action,status:active?"active":"inactive"});
     }
 
@@ -75,6 +119,17 @@ export async function POST(request: Request) {
     if(passwordError) return NextResponse.json({success:false,error:passwordError.message},{status:500});
     const {error:profileError}=await supabaseAdmin.from("users").update({must_change_password:true}).eq("id",target.id);
     if(profileError) return NextResponse.json({success:false,error:profileError.message},{status:500});
+
+    await recordIdentityEvent({
+      actorId: auth.profile.id,
+      schoolId: auth.profile.school_id,
+      targetId: target.id,
+      action: "identity.password_reset",
+      oldData: { must_change_password: false },
+      newData: { must_change_password: true },
+      notificationTitle: "Accès EduSoft réinitialisé",
+      notificationMessage: "Votre mot de passe temporaire a été renouvelé. Un changement est obligatoire à votre prochaine connexion.",
+    });
 
     const email=clean(target.email).toLowerCase();
     if(email && !email.endsWith("@login.edusoft.cg")) {
