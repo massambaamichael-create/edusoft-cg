@@ -11,7 +11,7 @@ type Account = {
   must_change_password: boolean; created_at: string | null; role: string;
 };
 
-const roleOrder = ["Directeur","Administrateur","Secrétaire","Comptable","RH","Infirmerie","Surveillant","Enseignant","Parent","Élève"];
+const roleOrder = ["Directeur","Directeur des Études","Administrateur","Secrétaire","Comptable","RH","Infirmerie","Surveillant","Enseignant","Parent","Élève"];
 
 export default function AdministrationAccountsPage() {
   const { school, role, loading: userLoading } = useCurrentUser();
