@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Link2, Plus, Search, ShieldCheck, Users, X } from "lucide-react";
+import { KeyRound, Link2, Plus, Search, ShieldCheck, Users, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useCurrentUser } from "@/lib/auth";
 import {
@@ -36,6 +36,8 @@ export default function AdministrationParentsPage() {
   const [openLink, setOpenLink] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  const [accessLoading, setAccessLoading] = useState<string | null>(null);
+  const [credentials, setCredentials] = useState<{ identifier: string; temporaryPassword: string } | null>(null);
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -98,6 +100,47 @@ export default function AdministrationParentsPage() {
       return blob.includes(term);
     });
   }, [parents, q]);
+
+  const handleProvisionAccess = async (parentId: string) => {
+    setFormError("");
+    setAccessLoading(parentId);
+
+    try {
+      const { data: { session } } = await createClient().auth.getSession();
+      if (!session?.access_token) {
+        setFormError("Session expirée. Reconnectez-vous.");
+        return;
+      }
+
+      const response = await fetch("/api/identity/provision", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ entity: "parent", entity_id: parentId }),
+      });
+      const result = await response.json().catch(() => null);
+
+      if (!response.ok || !result?.success) {
+        setFormError(result?.error || "Impossible de générer l'accès parent.");
+        return;
+      }
+
+      if (result.temporaryPassword) {
+        setCredentials({
+          identifier: result.identifier,
+          temporaryPassword: result.temporaryPassword,
+        });
+      } else {
+        setFormError(result.message || "Ce parent possède déjà un accès.");
+      }
+    } catch {
+      setFormError("Erreur réseau lors de la génération de l'accès.");
+    } finally {
+      setAccessLoading(null);
+    }
+  };
 
   const handleCreate = async () => {
     setFormError("");
@@ -234,6 +277,7 @@ export default function AdministrationParentsPage() {
                 <th className="px-6 py-3.5 font-bold">Parent</th>
                 <th className="px-4 py-3 font-semibold">Contact</th>
                 <th className="px-4 py-3 font-semibold">Enfants liés</th>
+                {canManage && <th className="px-4 py-3 text-right font-semibold">Accès</th>}
               </tr>
             </thead>
             <tbody>
@@ -251,10 +295,46 @@ export default function AdministrationParentsPage() {
                   <td className="px-4 py-3 text-slate-600">
                     {linkCounts[p.id] ?? 0}
                   </td>
+                  {canManage && (
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => handleProvisionAccess(p.id)}
+                        disabled={accessLoading === p.id}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+                        title="Générer les identifiants du portail parent"
+                      >
+                        <KeyRound className="h-3.5 w-3.5" />
+                        {accessLoading === p.id ? "Génération…" : "Accès"}
+                      </button>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {credentials && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-7 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">Identity & Access</p>
+                <h2 className="mt-2 text-xl font-bold text-slate-950">Accès parent généré</h2>
+              </div>
+              <button type="button" onClick={() => setCredentials(null)} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="mt-6 space-y-3 rounded-2xl bg-slate-50 p-4">
+              <div><p className="text-xs text-slate-400">Identifiant</p><p className="mt-1 font-mono text-sm font-semibold text-slate-900">{credentials.identifier}</p></div>
+              <div><p className="text-xs text-slate-400">Mot de passe temporaire</p><p className="mt-1 font-mono text-sm font-semibold text-slate-900">{credentials.temporaryPassword}</p></div>
+            </div>
+            <p className="mt-4 text-xs leading-5 text-slate-500">Ces identifiants ne sont affichés qu'une fois dans cette interface. Le changement du mot de passe sera obligatoire à la première connexion.</p>
+            <button type="button" onClick={() => setCredentials(null)} className="mt-6 w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white">Fermer</button>
+          </div>
         </div>
       )}
 
