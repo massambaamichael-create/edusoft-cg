@@ -39,8 +39,10 @@ export async function POST(request: Request) {
 
     const targetRole=Array.isArray(target.roles)?target.roles[0]:target.roles;
     const targetRoleName=(targetRole as {name?:string}|null)?.name??"";
-    if(target.id===auth.profile.id || targetRoleName==="Directeur" && auth.profile.roleName!=="Directeur")
+    if(target.id===auth.profile.id || (targetRoleName==="Directeur" && auth.profile.roleName!=="Directeur"))
       return NextResponse.json({success:false,error:"Ce compte ne peut pas être modifié depuis cet espace."},{status:403});
+    if(auth.profile.roleName==="Secrétaire" && !["Parent","Élève"].includes(targetRoleName))
+      return NextResponse.json({success:false,error:"Le secrétariat ne peut gérer que les accès Parent et Élève."},{status:403});
 
     if(action==="activate" || action==="deactivate") {
       const active=action==="activate";
