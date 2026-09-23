@@ -13,13 +13,17 @@ import {
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
+import { useCurrentUser } from "@/lib/auth";
 
 export default function PedagogiePage() {
   const router = useRouter();
+  const { schoolId, loading: userLoading } = useCurrentUser();
+  const [academicYearId, setAcademicYearId] = useState<string | null>(null);
   const [classCount, setClassCount] = useState(0);
   const [teacherCount, setTeacherCount] = useState(0);
   const [assessmentCount, setAssessmentCount] = useState(0);
   const [reportCardCount, setReportCardCount] = useState(0);
+  const [dataLoading, setDataLoading] = useState(true);
   const [academicYearName, setAcademicYearName] = useState("Aucune année active");
   useEffect(() => {
     const loadDashboard = async () => {
@@ -97,7 +101,7 @@ export default function PedagogiePage() {
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Classes"
-          value={classCount.toString()}
+          value={dataLoading ? "…" : classCount.toString()}
           description="Classes actives"
           icon={<BookOpen className="h-5 w-5" />}
           color="violet"
@@ -105,7 +109,7 @@ export default function PedagogiePage() {
 
         <StatCard
           title="Enseignants"
-          value={teacherCount.toString()}
+          value={dataLoading ? "…" : teacherCount.toString()}
           description="Enseignants affectés"
           icon={<Users className="h-5 w-5" />}
           color="blue"
@@ -113,7 +117,7 @@ export default function PedagogiePage() {
 
         <StatCard
           title="Évaluations"
-          value={assessmentCount.toString()}
+          value={dataLoading ? "…" : assessmentCount.toString()}
           description="Cette année"
           icon={<ClipboardList className="h-5 w-5" />}
           color="amber"
@@ -121,7 +125,7 @@ export default function PedagogiePage() {
 
         <StatCard
           title="Bulletins"
-          value={reportCardCount.toString()}
+          value={dataLoading ? "…" : reportCardCount.toString()}
           description="Générés"
           icon={<GraduationCap className="h-5 w-5" />}
           color="emerald"
@@ -184,8 +188,8 @@ export default function PedagogiePage() {
             </p>
           </div>
 
-          <button className="flex items-center gap-2 text-sm font-semibold text-violet-600 hover:text-violet-700">
-            Voir tout
+          <button type="button" onClick={() => router.push("/pedagogie/evaluations")} className="flex items-center gap-2 text-sm font-semibold text-violet-600 hover:text-violet-700">
+            Voir les évaluations
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
