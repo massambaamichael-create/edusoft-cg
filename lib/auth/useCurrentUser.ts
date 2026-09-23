@@ -63,7 +63,7 @@ export function useCurrentUser(): CurrentUserContext {
       const { data: profileRow, error: profileError } = await supabase
         .from("users")
         .select(
-          "id, auth_user_id, school_id, role_id, first_name, last_name, email, phone, is_active"
+          "id, auth_user_id, school_id, role_id, first_name, last_name, email, login_identifier, phone, is_active, must_change_password"
         )
         .eq("auth_user_id", user.id)
         .maybeSingle();
