@@ -50,7 +50,7 @@ export default function NewEvaluation(){
    setTypeId((ty??[])[0]?.id??"");
   }catch(e){setError(e instanceof Error?e.message:"Impossible de charger le formulaire.");}finally{setLoading(false)}
  }
- const options=useMemo(()=>assignments.map(a=>{const cs=classSubjects.find(x=>x.id===a.class_subject_id);const s=subjects.find(x=>x.id===cs?.subject_id);return cs&&cl&&s?{a,cs,cl,s}:null}).filter(Boolean) as {a:Assignment;cs:CS;cl:ClassRow;s:Subject}[],[assignments,classSubjects,classes,subjects]);
+ const options=useMemo(()=>assignments.map(a=>{const cs=classSubjects.find(x=>x.id===a.class_subject_id);const s=subjects.find(x=>x.id===cs?.subject_id);const cl=classes.find(x=>x.id===cs.class_id);return cs&&cl&&s?{a,cs,cl,s}:null}).filter(Boolean) as {a:Assignment;cs:CS;cl:ClassRow;s:Subject}[],[assignments,classSubjects,classes,subjects]);
  async function loadProgram(option:{cs:CS;cl:ClassRow;s:Subject}|null){
   setProgram(null);setVersion(null);setUnits([]);setUnitIds([]);
   if(!option)return;
@@ -107,13 +107,13 @@ export default function NewEvaluation(){
    setTimeout(()=>router.push("/enseignant/evaluations"),900);
   }catch(e){setError(e instanceof Error?e.message:"Création impossible.");}finally{setWorking(false)}
  }
- if(loading)return <main className="min-h-screen bg-[#F7F8FC] p-8 text-sm text-slate-500">Chargement…</main>;
- return <main className="min-h-screen bg-[#F7F8FC] p-6 lg:p-8"><div className="mx-auto max-w-5xl space-y-6">
+ if(loading)return <main className="min-h-screen bg-[#F6F7FB] p-8 text-sm text-slate-500">Chargement…</main>;
+ return <main className="min-h-screen bg-[#F6F7FB] p-6 lg:p-8"><div className="mx-auto max-w-5xl space-y-6">
   <button onClick={()=>router.push("/enseignant/evaluations")} className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500"><ArrowLeft className="h-4 w-4"/> Mes évaluations</button>
-  <header><p className="text-sm font-semibold text-violet-700">Nouveau sujet</p><h1 className="mt-1 text-2xl font-bold text-slate-950">Créer une évaluation</h1><p className="mt-2 text-sm text-slate-500">Les classes et matières proposées viennent exclusivement de vos affectations officielles.</p></header>
-  {error&&<div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
-  {message&&<div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">{message}</div>}
-  <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-5">
+  <header><p className="text-sm font-semibold text-slate-700">Nouveau sujet</p><h1 className="mt-1 text-2xl font-bold text-slate-950">Créer une évaluation</h1><p className="mt-2 text-sm text-slate-500">Les classes et matières proposées viennent exclusivement de vos affectations officielles.</p></header>
+  {error&&<div className="rounded-[18px] border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+  {message&&<div className="rounded-[18px] border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">{message}</div>}
+  <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-[0_18px_50px_rgba(15,23,42,0.06)] space-y-5">
    <div className="grid gap-5 md:grid-cols-2">
     <Field label="Classe · matière"><select value={classSubjectId} onChange={e=>{setClassSubjectId(e.target.value);const o=options.find(x=>x.cs.id===e.target.value);void loadProgram(o??null)}} className="input"><option value="">Sélectionner</option>{options.map(x=><option key={x.cs.id} value={x.cs.id}>{x.cl.name} · {x.s.name}</option>)}</select></Field>
     <Field label="Type d'évaluation"><select value={typeId} onChange={e=>setTypeId(e.target.value)} className="input"><option value="">Sélectionner</option>{types.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select></Field>
@@ -123,14 +123,14 @@ export default function NewEvaluation(){
     <Field label="Coefficient"><input type="number" min="1" value={coefficient} onChange={e=>setCoefficient(e.target.value)} className="input"/></Field>
     <Field label="Durée (minutes)"><input type="number" min="1" value={duration} onChange={e=>setDuration(e.target.value)} className="input" placeholder="Ex. 120"/></Field>
    </div>
-   {program&&<div className="rounded-xl bg-violet-50 p-4"><p className="text-sm font-semibold text-violet-900">Programme utilisé : {program.name} · {version?.name}</p><p className="mt-1 text-xs text-violet-700">Sélectionnez les unités réellement enseignées qui doivent servir de base au sujet.</p></div>}
-   {units.length>0&&<div className="space-y-2"><p className="text-sm font-semibold text-slate-800">Unités du programme</p>{units.map(u=><label key={u.id} className="flex items-center gap-3 rounded-xl border border-slate-100 p-3"><input type="checkbox" checked={unitIds.includes(u.id)} onChange={e=>setUnitIds(v=>e.target.checked?[...v,u.id]:v.filter(id=>id!==u.id))}/><span><span className="block text-[10px] font-bold uppercase text-violet-600">{u.unit_type}</span><span className="text-sm text-slate-700">{u.title}</span></span></label>)}</div>}
+   {program&&<div className="rounded-[18px] bg-slate-100 p-4"><p className="text-sm font-semibold text-slate-900">Programme utilisé : {program.name} · {version?.name}</p><p className="mt-1 text-xs text-slate-700">Sélectionnez les unités réellement enseignées qui doivent servir de base au sujet.</p></div>}
+   {units.length>0&&<div className="space-y-2"><p className="text-sm font-semibold text-slate-800">Unités du programme</p>{units.map(u=><label key={u.id} className="flex items-center gap-3 rounded-[18px] border border-slate-100 p-3"><input type="checkbox" checked={unitIds.includes(u.id)} onChange={e=>setUnitIds(v=>e.target.checked?[...v,u.id]:v.filter(id=>id!==u.id))}/><span><span className="block text-[10px] font-bold uppercase text-slate-700">{u.unit_type}</span><span className="text-sm text-slate-700">{u.title}</span></span></label>)}</div>}
    <div className="grid gap-3 md:grid-cols-2">
-    <button type="button" onClick={()=>setMode("ai")} className={`rounded-2xl border p-5 text-left ${mode==="ai"?"border-violet-500 bg-violet-50":"border-slate-200"}`}><Bot className="h-5 w-5 text-violet-600"/><p className="mt-2 font-semibold text-slate-900">Générer avec EduSoft IA</p><p className="mt-1 text-sm text-slate-500">Crée plusieurs variantes équivalentes avec corrigés séparés.</p></button>
-    <button type="button" onClick={()=>setMode("pdf")} className={`rounded-2xl border p-5 text-left ${mode==="pdf"?"border-violet-500 bg-violet-50":"border-slate-200"}`}><FileUp className="h-5 w-5 text-violet-600"/><p className="mt-2 font-semibold text-slate-900">Importer un PDF</p><p className="mt-1 text-sm text-slate-500">Le PDF original est conservé comme sujet importé.</p></button>
+    <button type="button" onClick={()=>setMode("ai")} className={`rounded-[24px] border p-5 text-left ${mode==="ai"?"border-slate-700 bg-slate-100":"border-slate-200"}`}><Bot className="h-5 w-5 text-slate-700"/><p className="mt-2 font-semibold text-slate-900">Générer avec EduSoft IA</p><p className="mt-1 text-sm text-slate-500">Crée plusieurs variantes équivalentes avec corrigés séparés.</p></button>
+    <button type="button" onClick={()=>setMode("pdf")} className={`rounded-[24px] border p-5 text-left ${mode==="pdf"?"border-slate-700 bg-slate-100":"border-slate-200"}`}><FileUp className="h-5 w-5 text-slate-700"/><p className="mt-2 font-semibold text-slate-900">Importer un PDF</p><p className="mt-1 text-sm text-slate-500">Le PDF original est conservé comme sujet importé.</p></button>
    </div>
-   {mode==="ai"?<Field label="Nombre de variantes"><select value={variantCount} onChange={e=>setVariantCount(e.target.value)} className="input">{[2,3,4,5,6,8,10].map(n=><option key={n}>{n}</option>)}</select></Field>:<Field label="Sujet PDF"><input type="file" accept="application/pdf" onChange={e=>setFile(e.target.files?.[0]??null)} className="block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"/></Field>}
-   <div className="flex justify-end pt-2"><button disabled={working} onClick={()=>void createAssessment()} className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{working?<Loader2 className="h-4 w-4 animate-spin"/>:<Sparkles className="h-4 w-4"/>}{working?"Création…":mode==="ai"?"Générer les sujets":"Importer le sujet"}</button></div>
+   {mode==="ai"?<Field label="Nombre de variantes"><select value={variantCount} onChange={e=>setVariantCount(e.target.value)} className="input">{[2,3,4,5,6,8,10].map(n=><option key={n}>{n}</option>)}</select></Field>:<Field label="Sujet PDF"><input type="file" accept="application/pdf" onChange={e=>setFile(e.target.files?.[0]??null)} className="block w-full rounded-[18px] border border-slate-200 px-3 py-2 text-sm"/></Field>}
+   <div className="flex justify-end pt-2"><button disabled={working} onClick={()=>void createAssessment()} className="inline-flex items-center gap-2 rounded-[18px] bg-slate-900 px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">{working?<Loader2 className="h-4 w-4 animate-spin"/>:<Sparkles className="h-4 w-4"/>}{working?"Création…":mode==="ai"?"Générer les sujets":"Importer le sujet"}</button></div>
   </section>
  </div></main>
 }
