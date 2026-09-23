@@ -66,6 +66,53 @@ export async function updateSession(request: NextRequest) {
 
     const home = getHomePathForRole(role);
 
+    // First-login enforcement is authoritative in public.users, not in
+    // client-editable Auth user metadata.
+    let mustChangePassword = false;
+    try {
+      const { data: profile } = await supabase
+        .from("users")
+        .select("must_change_password, is_active")
+        .eq("auth_user_id", user.id)
+        .maybeSingle();
+
+      if (profile?.is_active === false) {
+        if (isApiRoute) {
+          return NextResponse.json(
+            { success: false, error: "Compte désactivé." },
+            { status: 403 }
+          );
+        }
+        const url = request.nextUrl.clone();
+        url.pathname = "/";
+        return NextResponse.redirect(url);
+      }
+
+      mustChangePassword = profile?.must_change_password === true;
+    } catch {
+      // Keep existing routing behavior if the optional column is not yet
+      // available while the migration is being deployed.
+      mustChangePassword = false;
+    }
+
+    if (mustChangePassword && pathname !== "/change-password") {
+      if (isApiRoute) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Changement de mot de passe requis.",
+            code: "PASSWORD_CHANGE_REQUIRED",
+          },
+          { status: 403 }
+        );
+      }
+
+      const url = request.nextUrl.clone();
+      url.pathname = "/change-password";
+      url.searchParams.set("next", getHomePathForRole(role));
+      return NextResponse.redirect(url);
+    }
+
     if (pathname === "/") {
       const url = request.nextUrl.clone();
       url.pathname = home;
