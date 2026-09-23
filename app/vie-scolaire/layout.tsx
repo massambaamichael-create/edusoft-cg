@@ -1,10 +1,12 @@
 "use client";
 
-import { LayoutDashboard } from "lucide-react";
+import { CalendarCheck2, LayoutDashboard, ShieldAlert } from "lucide-react";
 import RoleSpaceShell from "@/components/RoleSpaceShell";
 
 const NAV = [
   { label: "Tableau de bord", href: "/vie-scolaire", icon: LayoutDashboard },
+  { label: "Présences & absences", href: "/vie-scolaire/presences", icon: CalendarCheck2 },
+  { label: "Discipline", href: "/vie-scolaire/discipline", icon: ShieldAlert },
 ];
 
 export default function VieScolaireLayout({
