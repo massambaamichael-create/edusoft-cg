@@ -18,7 +18,6 @@ import { useCurrentUser } from "@/lib/auth";
 export default function PedagogiePage() {
   const router = useRouter();
   const { schoolId, loading: userLoading } = useCurrentUser();
-  const [academicYearId, setAcademicYearId] = useState<string | null>(null);
   const [classCount, setClassCount] = useState(0);
   const [teacherCount, setTeacherCount] = useState(0);
   const [assessmentCount, setAssessmentCount] = useState(0);
