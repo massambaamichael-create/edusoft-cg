@@ -46,16 +46,36 @@ export default function ChangePasswordPage() {
 
     setSaving(true);
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setSaving(false);
+      router.replace("/");
+      return;
+    }
+
     const { error: updateError } = await supabase.auth.updateUser({
       password,
-      data: {
-        must_change_password: false,
-      },
     });
 
     if (updateError) {
       setSaving(false);
       setError("Impossible de mettre à jour le mot de passe.");
+      return;
+    }
+
+    const { error: profileError } = await supabase
+      .from("users")
+      .update({ must_change_password: false })
+      .eq("auth_user_id", user.id);
+
+    if (profileError) {
+      setSaving(false);
+      setError(
+        "Mot de passe modifié, mais la finalisation de votre accès a échoué. Réessayez."
+      );
       return;
     }
 
