@@ -16,7 +16,6 @@ import {
   Download,
   FileSpreadsheet,
   GraduationCap,
-  LayoutDashboard,
   Mail,
   Menu,
   MoreHorizontal,
@@ -182,60 +181,6 @@ type ImportRow = {
 /* =========================================================
    CONSTANTES
 ========================================================= */
-
-const NAVIGATION = [
-  {
-    label: "Tableau de bord",
-    icon: LayoutDashboard,
-  },
-  {
-    label: "Administration",
-    icon: ShieldCheck,
-  },
-  {
-    label: "Pédagogie",
-    icon: BookOpen,
-    expandable: true,
-    children: [
-      "Classes",
-      "Matières",
-      "Emploi du temps",
-      "Notes & Bulletins",
-    ],
-  },
-  {
-    label: "Enseignants",
-    icon: UsersRound,
-  },
-  {
-    label: "RH",
-    icon: UserRound,
-  },
-  {
-    label: "Communication",
-    icon: Mail,
-  },
-  {
-    label: "Discipline",
-    icon: ShieldCheck,
-  },
-  {
-    label: "Examens",
-    icon: GraduationCap,
-  },
-  {
-    label: "Santé",
-    icon: Activity,
-  },
-  {
-    label: "Archives",
-    icon: FileSpreadsheet,
-  },
-  {
-    label: "Paramètres",
-    icon: Settings,
-  },
-];
 
 /* =========================================================
    PAGE
