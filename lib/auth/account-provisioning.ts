@@ -40,7 +40,7 @@ export async function provisionAuthAccount(params: {
     user_metadata: {
       school_id: params.schoolId,
       role_name: params.roleName,
-      must_change_password: true,
+      identity_provisioned: true,
     },
   });
 
