@@ -14,6 +14,7 @@ export type UserProfile = {
   email: string | null;
   phone?: string | null;
   is_active?: boolean | null;
+  must_change_password?: boolean | null;
 };
 
 export type School = {
