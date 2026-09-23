@@ -23,6 +23,23 @@ async function authorize(request: Request) {
   return {profile:{id:profile.id,school_id:profile.school_id,roleName}};
 }
 
+export async function GET(request: Request) {
+  try {
+    const auth=await authorize(request); if("error" in auth) return auth.error;
+    const {data:rows,error}=await supabaseAdmin.from("users")
+      .select("id,auth_user_id,first_name,last_name,email,login_identifier,phone,is_active,must_change_password,created_at,roles(name)")
+      .eq("school_id",auth.profile.school_id).order("created_at",{ascending:false});
+    if(error) return NextResponse.json({success:false,error:error.message},{status:500});
+    const accounts=(rows??[]).map((row:any)=>{
+      const role=Array.isArray(row.roles)?row.roles[0]:row.roles;
+      return {id:row.id,first_name:row.first_name,last_name:row.last_name,email:row.email,login_identifier:row.login_identifier,phone:row.phone,is_active:row.is_active!==false,must_change_password:row.must_change_password===true,created_at:row.created_at,role:role?.name??"—"};
+    });
+    return NextResponse.json({success:true,accounts});
+  } catch {
+    return NextResponse.json({success:false,error:"Erreur serveur lors du chargement des comptes."},{status:500});
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const auth=await authorize(request); if("error" in auth) return auth.error;
