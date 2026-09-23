@@ -5,7 +5,6 @@ import {
   Users,
   UserRound,
   ClipboardList,
-  FileText,
 } from "lucide-react";
 import RoleSpaceShell from "@/components/RoleSpaceShell";
 
