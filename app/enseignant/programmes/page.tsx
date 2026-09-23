@@ -23,6 +23,9 @@ type SchoolClass = {
   id: string;
   name: string;
   academic_year_id: string;
+  cycle_id: string;
+  level_id: string;
+  series_id: string | null;
 };
 
 type Subject = {
@@ -129,7 +132,7 @@ export default function EnseignantProgrammesPage() {
         await Promise.all([
           supabase
             .from("classes")
-            .select("id,name,academic_year_id")
+            .select("id,name,academic_year_id,cycle_id,level_id,series_id")
             .in("id", classIds),
           supabase
             .from("subjects")
@@ -159,7 +162,13 @@ export default function EnseignantProgrammesPage() {
         if (!classRow || !subject) return [];
 
         const program =
-          programRows.find((item) => item.subject_id === subject.id) ?? null;
+          programRows.find(
+            (item) =>
+              item.subject_id === subject.id &&
+              item.cycle_id === classRow.cycle_id &&
+              item.level_id === classRow.level_id &&
+              (item.series_id ?? null) === (classRow.series_id ?? null)
+          ) ?? null;
 
         return [
           {
