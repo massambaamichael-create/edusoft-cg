@@ -17,6 +17,15 @@ export default function Home() {
     try {
       const role = await fetchMyRole(supabase);
       const path = getHomePathForRole(role);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user?.user_metadata?.must_change_password === true) {
+        window.location.href = `/change-password?next=${encodeURIComponent(path)}`;
+        return;
+      }
+
       window.location.href = path;
     } catch {
       window.location.href = "/dashboard";
