@@ -9,6 +9,7 @@ import {
   Plus,
   Search,
   ShieldCheck,
+  Upload,
   X,
   XCircle,
 } from "lucide-react";
@@ -56,6 +57,31 @@ const DOC_TYPES = [
   "Autre",
 ];
 
+const ALLOWED_MIME = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+
+const MAX_FILE_BYTES = 15 * 1024 * 1024;
+
+function sanitizeFileName(name: string) {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "_")
+    .replace(/_+/g, "_")
+    .slice(0, 120);
+}
+
+function isStoragePath(fileUrl: string | null) {
+  if (!fileUrl) return false;
+  return !fileUrl.startsWith("http://") && !fileUrl.startsWith("https://");
+}
+
 export default function DocumentsPage() {
   const { profile, school, schoolId, role, hasPermission, loading: authLoading } =
     useCurrentUser();
@@ -69,11 +95,11 @@ export default function DocumentsPage() {
   const [openCreate, setOpenCreate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [form, setForm] = useState({
     title: "",
     document_type: "Certificat de scolarité",
     student_id: "",
-    file_url: "",
   });
 
   const canRead =
@@ -193,6 +219,26 @@ export default function DocumentsPage() {
     setBusy(null);
   }
 
+  async function openFile(doc: Doc) {
+    if (!doc.file_url) return;
+    if (!isStoragePath(doc.file_url)) {
+      window.open(doc.file_url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    setBusy(doc.id);
+    setMessage("");
+    const supabase = createClient();
+    const { data, error } = await supabase.storage
+      .from("documents")
+      .createSignedUrl(doc.file_url, 120);
+    setBusy(null);
+    if (error || !data?.signedUrl) {
+      setMessage(error?.message || "Impossible d’ouvrir le fichier.");
+      return;
+    }
+    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+  }
+
   async function handleCreate() {
     setFormError("");
     if (!schoolId || !profile?.id) {
@@ -207,38 +253,83 @@ export default function DocumentsPage() {
       setFormError("Le type de document est obligatoire.");
       return;
     }
+    if (file) {
+      if (!ALLOWED_MIME.includes(file.type)) {
+        setFormError(
+          "Format non autorisé. PDF, images ou Word uniquement."
+        );
+        return;
+      }
+      if (file.size > MAX_FILE_BYTES) {
+        setFormError("Fichier trop volumineux (max 15 Mo).");
+        return;
+      }
+    }
 
     setSaving(true);
     const supabase = createClient();
-    const verificationCode = crypto.randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase();
+    const verificationCode = crypto
+      .randomUUID()
+      .replace(/-/g, "")
+      .slice(0, 10)
+      .toUpperCase();
+
+    let storagePath: string | null = null;
+
+    if (file) {
+      const objectId = crypto.randomUUID();
+      const safeName = sanitizeFileName(file.name) || "document.pdf";
+      storagePath = `${schoolId}/${objectId}/${safeName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("documents")
+        .upload(storagePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type,
+        });
+
+      if (uploadError) {
+        setSaving(false);
+        setFormError(uploadError.message);
+        return;
+      }
+    }
 
     const { error } = await supabase.from("documents").insert({
       school_id: schoolId,
       title: form.title.trim(),
       document_type: form.document_type.trim(),
       student_id: form.student_id || null,
-      file_url: form.file_url.trim() || null,
+      file_url: storagePath,
       uploaded_by: profile.id,
       status: "draft",
       verification_code: verificationCode,
       stamp_applied: false,
     });
 
-    setSaving(false);
-
     if (error) {
+      if (storagePath) {
+        await supabase.storage.from("documents").remove([storagePath]);
+      }
+      setSaving(false);
       setFormError(error.message);
       return;
     }
 
+    setSaving(false);
     setOpenCreate(false);
+    setFile(null);
     setForm({
       title: "",
       document_type: "Certificat de scolarité",
       student_id: "",
-      file_url: "",
     });
-    setMessage("Document créé en brouillon.");
+    setMessage(
+      storagePath
+        ? "Document créé en brouillon avec fichier."
+        : "Document créé en brouillon."
+    );
     await load();
   }
 
@@ -261,7 +352,8 @@ export default function DocumentsPage() {
             Documents
           </h1>
           <p className="mt-2 text-sm text-slate-500">
-            {school?.name || "EduSoft CG"} · {role || profile?.first_name || "Utilisateur"}
+            {school?.name || "EduSoft CG"} ·{" "}
+            {role || profile?.first_name || "Utilisateur"}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -276,6 +368,7 @@ export default function DocumentsPage() {
               type="button"
               onClick={() => {
                 setFormError("");
+                setFile(null);
                 setOpenCreate(true);
               }}
               className="inline-flex h-11 items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow"
@@ -298,7 +391,10 @@ export default function DocumentsPage() {
               { label: "Total", value: stats.total },
               { label: "Brouillons", value: stats.draft },
               { label: "À valider", value: stats.submitted },
-              { label: "Validés / archivés", value: stats.validated + stats.archived },
+              {
+                label: "Validés / archivés",
+                value: stats.validated + stats.archived,
+              },
             ].map((item) => (
               <div
                 key={item.label}
@@ -359,13 +455,19 @@ export default function DocumentsPage() {
                 <tbody className="divide-y divide-slate-100">
                   {loading ? (
                     <tr>
-                      <td colSpan={5} className="px-5 py-12 text-center text-slate-400">
+                      <td
+                        colSpan={5}
+                        className="px-5 py-12 text-center text-slate-400"
+                      >
                         Chargement…
                       </td>
                     </tr>
                   ) : filtered.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-5 py-12 text-center text-slate-400">
+                      <td
+                        colSpan={5}
+                        className="px-5 py-12 text-center text-slate-400"
+                      >
                         Aucun document.{" "}
                         {canSubmit
                           ? "Créez un brouillon pour démarrer le workflow."
@@ -394,6 +496,7 @@ export default function DocumentsPage() {
                                   {d.verification_code
                                     ? ` · ${d.verification_code}`
                                     : ""}
+                                  {d.file_url ? " · Fichier" : ""}
                                 </p>
                               </div>
                             </div>
@@ -419,26 +522,30 @@ export default function DocumentsPage() {
                           </td>
                           <td className="px-5 py-4 text-xs text-slate-500">
                             {d.created_at
-                              ? new Date(d.created_at).toLocaleDateString("fr-FR")
+                              ? new Date(d.created_at).toLocaleDateString(
+                                  "fr-FR"
+                                )
                               : "—"}
                           </td>
                           <td className="px-5 py-4">
                             <div className="flex justify-end gap-2">
                               {d.file_url && (
-                                <a
-                                  href={d.file_url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                                <button
+                                  type="button"
+                                  disabled={busy === d.id}
+                                  onClick={() => void openFile(d)}
+                                  className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                                 >
                                   Ouvrir
-                                </a>
+                                </button>
                               )}
                               {(st === "draft" || st === "rejected") &&
                                 canSubmit && (
                                   <button
                                     disabled={busy === d.id}
-                                    onClick={() => void transition(d.id, "submitted")}
+                                    onClick={() =>
+                                      void transition(d.id, "submitted")
+                                    }
                                     className="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
                                   >
                                     Soumettre
@@ -447,7 +554,9 @@ export default function DocumentsPage() {
                               {st === "validated" && canValidate && (
                                 <button
                                   disabled={busy === d.id}
-                                  onClick={() => void transition(d.id, "archived")}
+                                  onClick={() =>
+                                    void transition(d.id, "archived")
+                                  }
                                   className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
                                 >
                                   <Archive className="h-3.5 w-3.5" />
@@ -458,14 +567,18 @@ export default function DocumentsPage() {
                                 <>
                                   <button
                                     disabled={busy === d.id}
-                                    onClick={() => void transition(d.id, "validated")}
+                                    onClick={() =>
+                                      void transition(d.id, "validated")
+                                    }
                                     className="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
                                   >
                                     Valider
                                   </button>
                                   <button
                                     disabled={busy === d.id}
-                                    onClick={() => void transition(d.id, "rejected")}
+                                    onClick={() =>
+                                      void transition(d.id, "rejected")
+                                    }
                                     className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-700 disabled:opacity-50"
                                   >
                                     Rejeter
@@ -564,19 +677,38 @@ export default function DocumentsPage() {
                 </select>
               </label>
 
-              <label className="block text-sm">
+              <div className="block text-sm">
                 <span className="mb-1 block font-medium text-slate-700">
-                  Lien fichier (URL)
+                  Fichier (optionnel)
                 </span>
-                <input
-                  value={form.file_url}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, file_url: e.target.value }))
-                  }
-                  placeholder="https://… (optionnel pour le moment)"
-                  className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 outline-none focus:border-slate-400 focus:bg-white"
-                />
-              </label>
+                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center transition hover:border-slate-300 hover:bg-white">
+                  <Upload className="h-5 w-5 text-slate-400" />
+                  <span className="text-sm font-medium text-slate-700">
+                    {file ? file.name : "Choisir un fichier"}
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    PDF, images ou Word · max 15 Mo
+                  </span>
+                  <input
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,application/pdf,image/*,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    className="hidden"
+                    onChange={(e) => {
+                      const next = e.target.files?.[0] ?? null;
+                      setFile(next);
+                    }}
+                  />
+                </label>
+                {file && (
+                  <button
+                    type="button"
+                    onClick={() => setFile(null)}
+                    className="mt-2 text-xs font-semibold text-slate-500 hover:text-slate-800"
+                  >
+                    Retirer le fichier
+                  </button>
+                )}
+              </div>
             </div>
 
             {formError && (
