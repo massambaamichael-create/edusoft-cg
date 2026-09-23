@@ -2,8 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import {
+  Activity,
   ArrowRight,
   ClipboardList,
+  FileText,
   ShieldCheck,
   UserRound,
   Users,
@@ -43,6 +45,36 @@ export default function AdministrationHomePage() {
       enabled:
         hasPermission("enrollments.read") ||
         hasPermission("enrollments.manage"),
+    },
+    {
+      title: "Documents",
+      desc: "Registre, validation, archivage — une source, un workflow.",
+      meta: "Documents & workflows",
+      icon: FileText,
+      href: "/administration/documents",
+      enabled:
+        hasPermission("documents.read") ||
+        hasPermission("documents.upload") ||
+        hasPermission("documents.validate"),
+    },
+    {
+      title: "Journal d’audit",
+      desc: "Traçabilité des opérations critiques de l’établissement.",
+      meta: "Contrôle",
+      icon: Activity,
+      href: "/administration/audit",
+      enabled: hasPermission("audit.read"),
+    },
+    {
+      title: "Accès & comptes",
+      desc: "Identités, rôles et activation des comptes utilisateurs.",
+      meta: "Identity & Access",
+      icon: ShieldCheck,
+      href: "/administration/acces",
+      enabled:
+        hasPermission("users.read") ||
+        hasPermission("users.manage") ||
+        hasPermission("identity.manage"),
     },
   ];
 
@@ -96,7 +128,7 @@ export default function AdministrationHomePage() {
             </p>
           </div>
 
-          <div className="mt-7 grid gap-4 lg:grid-cols-3">
+          <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {cards.map((card) => {
               const Icon = card.icon;
               return (
