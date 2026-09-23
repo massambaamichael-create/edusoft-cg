@@ -51,17 +51,20 @@ Cette règle s'applique notamment aux espaces Enseignant, Parent/Tuteur, Élève
 
 ## 4. État actuel dans le code
 
-- Rôle principal géré : **Directeur** (`is_director()`)
-- Création d’enseignants avec un `role_id` hardcodé
-- Pas encore de gestion fine des autres rôles côté application
-- RLS principalement orientée « même école + Directeur »
+- RBAC opérationnel pour **Directeur**, **Directeur des Études**, **Administrateur**, **Secrétaire**, **Comptable**, **RH**, **Infirmerie**, **Surveillant**, **Enseignant**, **Parent** et **Élève**.
+- Le rôle **Directeur des Études** est présent dans `public.roles` et dispose d’un socle de permissions dédié à la pédagogie : classes, matières, planification, affectations, évaluations, notes, bulletins, examens et autorisations d’examens.
+- Les espaces sont séparés : `/dashboard` pour la Direction, `/pedagogie` pour le Directeur des Études, `/enseignant` pour l’Enseignant, ainsi que les espaces métier dédiés aux autres rôles.
+- Le provisioning d'identités reste centralisé : `auth.users` pour l'authentification, `public.users` pour l'identité/école/rôle, et les tables métier pour les profils opérationnels.
+- Les comptes Parent/Élève disposent d’identifiants de connexion dédiés et de règles RLS limitant l’accès aux dossiers autorisés.
 
-## 5. Objectif de migration
+## 5. Règles de migration et de sécurité
 
-1. Introduire tous les rôles ci-dessus dans la table `roles`
-2. Étendre les helpers RLS (`is_teacher()`, `is_secretary()`, etc.)
-3. Affiner les policies selon le rôle + les affectations
-4. Adapter l’interface (Sidebar + pages) selon le rôle de l’utilisateur connecté
+1. Les rôles et permissions sont définis par nom/code, sans hardcoder de UUID métier dans l’application.
+2. Chaque espace vérifie le rôle autorisé et les opérations sensibles doivent également vérifier les permissions côté serveur/RLS.
+3. Les données restent isolées par **école + année scolaire + contexte pédagogique** selon le domaine concerné.
+4. Un rôle métier ne doit recevoir que les permissions nécessaires à ses responsabilités.
+5. Les mots de passe ne sont jamais stockés dans les tables métier ; les mots de passe temporaires ne sont affichés qu’au moment de leur génération/réinitialisation.
+6. Les prochaines évolutions doivent compléter la matrice de permissions et les policies RLS sans contourner le modèle centralisé.
 
 ## 6. Règle d’or pour les enseignants
 
