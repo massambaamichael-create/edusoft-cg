@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       return NextResponse.json({success:false,error:"Action ou compte invalide."},{status:400});
 
     const {data:target,error:targetError}=await supabaseAdmin.from("users")
-      .select("id,auth_user_id,school_id,first_name,last_name,email,login_identifier,is_active,roles(name)")
+      .select("id,auth_user_id,school_id,first_name,last_name,email,login_identifier,is_active,must_change_password,roles(name)")
       .eq("id",userId).eq("school_id",auth.profile.school_id).single();
     if(targetError||!target?.auth_user_id) return NextResponse.json({success:false,error:"Compte introuvable dans votre établissement."},{status:404});
 
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
       schoolId: auth.profile.school_id,
       targetId: target.id,
       action: "identity.password_reset",
-      oldData: { must_change_password: false },
+      oldData: { must_change_password: target.must_change_password === true },
       newData: { must_change_password: true },
       notificationTitle: "Accès EduSoft réinitialisé",
       notificationMessage: "Votre mot de passe temporaire a été renouvelé. Un changement est obligatoire à votre prochaine connexion.",
