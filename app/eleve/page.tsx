@@ -72,9 +72,9 @@ export default function ÉlèvePortalPage() {
         <section className="rounded-[28px] bg-slate-900 p-7 text-white shadow-xl">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/45">Portail famille</p>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/45">Mon espace scolaire</p>
               <h2 className="mt-2 text-3xl font-bold">Bonjour {data.profile.first_name || "Élève"}.</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/65">Retrouvez vos informations scolaires depuis un seul espace sécurisé.</p>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/65">Retrouvez votre parcours, vos résultats et vos informations scolaires depuis un seul espace sécurisé.</p>
             </div>
             <div className="flex items-center gap-2 text-xs text-white/65"><ShieldCheck className="h-4 w-4" /> Données limitées à votre dossier</div>
           </div>
