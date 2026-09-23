@@ -53,14 +53,33 @@ export default function Home() {
 
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        identifier: email,
+        password,
+      }),
     });
 
-    if (error) {
+    const result = await response.json().catch(() => null);
+
+    if (!response.ok || !result?.success || !result?.session) {
       setLoading(false);
-      setError("Email ou mot de passe incorrect.");
+      setError(result?.error || "Identifiant ou mot de passe incorrect.");
+      return;
+    }
+
+    const { error: sessionError } = await supabase.auth.setSession({
+      access_token: result.session.access_token,
+      refresh_token: result.session.refresh_token,
+    });
+
+    if (sessionError) {
+      setLoading(false);
+      setError("La session n'a pas pu être initialisée.");
       return;
     }
 
@@ -125,14 +144,14 @@ export default function Home() {
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Adresse email
+                Email ou identifiant de connexion
               </label>
 
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="directeur@ecole.cg"
+                placeholder="directeur@ecole.cg ou EDCG-ELV-001"
                 className="w-full h-14 px-4 rounded-xl border border-gray-200 bg-gray-50 outline-none transition focus:border-[#6C2BD9] focus:ring-4 focus:ring-[#6C2BD9]/10"
               />
             </div>
