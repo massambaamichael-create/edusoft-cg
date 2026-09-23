@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { LogOut, Menu, UserRound, X } from "lucide-react";
+import { Bell, LogOut, Menu, UserRound, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -163,6 +163,27 @@ export default function RoleSpaceShell({
               );
             })}
           </div>
+
+          <button
+            type="button"
+            onClick={() => router.push("/notifications")}
+            className={`mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition ${
+              pathname === "/notifications"
+                ? "bg-white/[0.10] font-semibold text-white shadow-sm"
+                : "text-white/55 hover:bg-white/[0.05] hover:text-white"
+            }`}
+          >
+            <span
+              className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+                pathname === "/notifications"
+                  ? "bg-violet-500/15 text-violet-300"
+                  : "bg-white/[0.035] text-white/35 group-hover:text-white/70"
+              }`}
+            >
+              <Bell className="h-[17px] w-[17px]" />
+            </span>
+            <span>Notifications</span>
+          </button>
         </nav>
 
         <div className="border-t border-white/[0.07] p-4">
