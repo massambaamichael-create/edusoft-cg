@@ -9,7 +9,7 @@ Référence PRD : §43–46, §77, Release 7.
 ```
 Document
  ↓
-Création / dépôt
+Création / dépôt (draft)
  ↓
 Soumission (submitted)
  ↓
@@ -53,13 +53,17 @@ Archivage transversal (référence table + record, `archived_by`, `archived_at`)
 
 Fonction RPC serveur : `transition_document_workflow(p_document_id, p_to_status, p_comment)`.
 
-Transitions autorisées côté UI Administration :
-
 | Statut actuel | Action | Permission |
 |---------------|--------|------------|
-| `draft` | Soumettre | `documents.upload` |
+| — | Créer brouillon | `documents.upload` |
+| `draft` / `rejected` | Soumettre | `documents.upload` |
 | `submitted` | Valider / Rejeter | `documents.validate` |
 | `validated` | Archiver | `documents.validate` |
+
+**RLS** (migration `documents_rls_school_scope_and_create`) :
+- SELECT / INSERT / UPDATE isolés par `school_id = get_my_school_id()`
+- `student_id` optionnel ; s’il est renseigné, il doit appartenir à la même école
+- DELETE limité aux `draft` / `rejected` + `documents.upload`
 
 Règles respectées (PRD §87) :
 - Une seule source de vérité (`documents`)
@@ -70,10 +74,13 @@ Règles respectées (PRD §87) :
 ## 4. UI métier
 
 - **Administration → Documents** (`/administration/documents`)
+  - Cartes stats (total, brouillons, à valider, validés/archivés)
+  - **Nouveau document** (modal) : titre, type PRD, élève optionnel, URL fichier optionnelle → statut `draft` + `verification_code`
   - Registre filtrable (recherche, statut)
-  - Ouverture fichier, soumission, validation, rejet, archivage
+  - Actions : ouvrir, soumettre, valider, rejeter, archiver
+  - Design aligné Admin (slate, cards arrondies, modal)
   - Permissions : `documents.read` / `documents.upload` / `documents.validate`
-- Notifications sur transitions de workflow (service transversal Notifications)
+- Notifications sur transitions de workflow
 
 ## 5. Signatures, cachets, QR (état)
 
@@ -82,17 +89,18 @@ Règles respectées (PRD §87) :
 | Zones signature / cachet (champs) | ✅ Colonnes présentes |
 | Signature électronique complète | 🟡 Préparé, pas encore flux UI complet |
 | Cachet électronique | 🟡 Préparé (`stamp_applied`) |
-| QR / code de vérification | 🟡 `verification_code` + `qr_code` (generated) |
+| QR / code de vérification | 🟡 `verification_code` généré à la création |
 | Mode papier (print → scan → réimport) | 🟠 À finaliser |
 | Vérification publique minimale | 🟠 À finaliser |
 
 ## 6. Ce qui reste (aligné PRD Release 7)
 
-1. Génération PDF depuis `document_templates` → `generated_documents`
-2. Workflow multi-niveaux configurable (Secrétaire → Censeur → Directeur)
-3. Signature / cachet numériques + QR public de vérification
-4. Réimport scan (mode papier) et liaison archives
-5. Types documentaires riches (bulletins, reçus, convocations) branchés sur les modules métier sans 2ᵉ source de vérité
+1. Upload fichier Storage (au-delà de l’URL manuelle)
+2. Génération PDF depuis `document_templates` → `generated_documents`
+3. Workflow multi-niveaux configurable (Secrétaire → Censeur → Directeur)
+4. Signature / cachet numériques + QR public de vérification
+5. Réimport scan (mode papier) et liaison archives
+6. Types documentaires branchés sur les modules métier sans 2ᵉ source de vérité
 
 ## 7. Règle de conception
 
