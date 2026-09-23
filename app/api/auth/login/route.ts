@@ -18,12 +18,27 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: profile, error: profileError } = await supabaseAdmin
+    const { data: byIdentifier, error: identifierError } = await supabaseAdmin
       .from("users")
       .select("auth_user_id, email, login_identifier, is_active")
-      .or(`login_identifier.ilike.${identifier},email.ilike.${identifier}`)
+      .ilike("login_identifier", identifier)
       .limit(1)
       .maybeSingle();
+
+    let profile = byIdentifier;
+    let profileError = identifierError;
+
+    if (!profile && !identifierError) {
+      const byEmail = await supabaseAdmin
+        .from("users")
+        .select("auth_user_id, email, login_identifier, is_active")
+        .ilike("email", identifier)
+        .limit(1)
+        .maybeSingle();
+
+      profile = byEmail.data;
+      profileError = byEmail.error;
+    }
 
     if (profileError || !profile?.auth_user_id || !profile.email) {
       return NextResponse.json(
