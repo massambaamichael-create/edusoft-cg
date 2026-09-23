@@ -1,6 +1,6 @@
 # PROJECT_STATE.md — EduSoft CG
 
-Dernière mise à jour : 23 septembre 2026
+Dernière mise à jour : 23 septembre 2026 (après consolidation Documents / Audit / Identity)
 
 ## 1. Vue d’ensemble
 
@@ -9,9 +9,10 @@ Dernière mise à jour : 23 septembre 2026
 | Produit | EduSoft CG |
 | Version PRD de référence | 2.0 |
 | Stack | Next.js 16 + React 19 + TypeScript + Supabase + Tailwind 4 |
-| Repo | `massambaamichael-create/edusoft-cg` (privé) |
+| Repo | `massambaamichael-create/edusoft-cg` |
+| Supabase | Projet **EduSoft CG** (`vnnjbjzecnuvslppclfi`) |
 | Phase actuelle | **Consolidation des espaces métiers → parcours opérationnels** |
-| Stratégie | Migration progressive (jamais repartir de zéro) |
+| Stratégie | Migration progressive (jamais repartir de zéro) — PRD §84 |
 
 ## 2. Documentation de référence (Phase 0)
 
@@ -24,136 +25,125 @@ Dernière mise à jour : 23 septembre 2026
 | docs/ROLES_PERMISSIONS.md | ✅ |
 | docs/PROJECT_STATE.md | ✅ (ce fichier) |
 | docs/ROADMAP.md | ✅ |
-| docs/CHANGELOG.md | ✅ |
+| docs/CHANGELOG.md | ✅ à jour 23/09 |
 | docs/BUSINESS_RULES.md | ✅ |
 | docs/MODULES.md | ✅ |
 | docs/PEDAGOGY.md | ✅ |
 | docs/EVALUATIONS.md | ✅ |
 | docs/PAYMENTS.md | ✅ |
-| docs/DOCUMENTS.md | ✅ |
-| docs/WORKFLOWS.md | ✅ |
+| docs/DOCUMENTS.md | ✅ aligné code + Supabase |
+| docs/WORKFLOWS.md | ✅ aligné 23/09 |
 | docs/AI.md | ✅ |
+| docs/IDENTITY_ACCESS.md | ✅ |
 
-## 3. Ce qui existe et fonctionne (audit code 19/09/2026)
+## 3. Ce qui existe et fonctionne
 
 ### Authentification & Identity
-- Supabase Auth (email/password)
+- Supabase Auth (email / password + `login_identifier`)
 - Table `users` liée à `auth.users` via `auth_user_id`
-- Table `roles`
-- Création d’enseignant avec compte Auth + profil `users` + profil `teachers` + email temporaire (Resend)
-- Rôle détecté côté UI avec espaces dédiés (`Directeur`, `Enseignant`, `Secrétaire`, `Administrateur`, `Comptable`, `Surveillant`, `RH`, `Infirmerie`, `Directeur des Études`)
+- `must_change_password` **serveur-authoritative** (middleware)
+- Rôles : Directeur, Directeur des Études, Enseignant, Secrétaire, Comptable, Surveillant, RH, Infirmerie, Parent, Élève, etc.
+- Provisioning enseignant + Parent/Élève (mot de passe temporaire, pas stocké en clair métier)
+- Espaces dédiés par rôle (pas d’interface universelle surchargée — PRD §73)
 
 ### Multi-tenant & RLS
-- Colonne `school_id` sur les tables principales
-- Helpers : `get_my_school_id()`, `get_my_role_name()`, `is_director()`
-- Policies RLS activées
-- Policies sur `assessments` / `report_cards` encore trop ouvertes (SELECT true)
+- `school_id` sur les tables métier
+- Helpers : `get_my_school_id()`, `get_my_role_name()`, `is_director()` (+ extensions en cours)
+- RLS activé sur le catalogue public
+- Vigilance : certaines policies historiques (`assessments` / `report_cards`) à re-vérifier
 
-### Structure pédagogique (détail observé dans le code)
+### Structure pédagogique
+- `cycles`, `levels`, `series`, `academic_years`, `classes` (workflow pending/approved/rejected)
+- Catalogue `subjects` vs `class_subjects` (coefficient côté classe) vs `teacher_assignments` (source de vérité affectations)
+- Legacy : `teacher_classes`, `teacher_subjects` (conservés jusqu’à migration complète)
+- Séparation Lycée général / Lycée technique
+- Emplois du temps : calendrier, salles, contraintes, scoring, génération
 
-**cycles** — `school_id`, `name`
+### Administration
+- Élèves, Parents/Tuteurs, Inscriptions
+- **Documents** : registre + workflow + archivage (`/administration/documents`)
+- **Audit** : journal (`/administration/audit`, `audit.read`)
+- Accès / Identity admin
 
-**levels** — `school_id`, `cycle_id`, `name`, `display_order`, `is_state_exam`
+### Pédagogie / Enseignant
+- Classes, matières, affectations, emplois du temps
+- Évaluations : création, sujets, variantes, correction, workflow notes
+- Programmes & progression (espace enseignant)
+- Responsabilités matières
 
-**series** — `school_id`, `cycle_id`, `name`, `description`, `category`
+### Finance
+- Tables + vues frais / paiements / reçus (Payment Engine encore partiel)
 
-**academic_years** — `school_id`, `name`, `start_date`, `end_date`, `is_active`
+### Portails
+- `/parent` et `/eleve` : premiers espaces connectés aux données réelles (API filtrée par identité)
 
-**classes** — `school_id`, `cycle_id`, `level_id`, `series_id`, `academic_year_id`, `name`, `status` (`pending` | `approved` | `rejected`), `principal_teacher_id`, `created_by`, `validated_by`, `validated_at`
-
-**subjects** (catalogue) — `school_id`, `name`, `coefficient`
-
-**class_subjects** — `class_id`, `subject_id`, `academic_year_id`, `coefficient`
-
-**teacher_subjects** — `teacher_id`, `subject_id`, `class_id`, `academic_year_id`
-
-**Autres** : `student_enrollments`, `student_attendance`, `assessments`, `report_cards`
-
-### Points particulièrement conformes
-- Année scolaire liée aux classes et aux liaisons matières/affectations
-- Distinction catalogue (`subjects`) vs matière-classe (`class_subjects`)
-- Gestion explicite de **Lycée général** et **Lycée technique** dans la page Classes
-- Workflow de validation de classe (`pending` / `approved` / `rejected`)
-- Enseignant principal par classe
-- Coefficients sur `class_subjects`
-
-### Interface
-- Dashboard
-- Administration → Élèves, Parents / tuteurs, Inscriptions
-- Pédagogie → Classes, Matières, Emplois du temps, Évaluations / Corrections, Programmes, Responsabilités
-- Finance → Frais, Paiements, Reçus
-- Vie scolaire → Présences, Discipline
-- RH → Personnel
-- Santé → Dossiers de santé protégés
-- Page Enseignants (liste + création)
-- Shells métier séparés par rôle/espace ; aucune sidebar globale ne mélange les domaines
-- Les vues opérationnelles récentes privilégient les données réelles existantes, avec recherche / filtres lorsque le parcours le justifie
+### Services transversaux
+| Service | État |
+|---------|------|
+| Identity & Access | ✅ Avancé |
+| Documents & Workflows | 🟡 Socle livré (registre, transitions, archivage, notifs) |
+| Notifications | 🟡 Centre personnel + notifs workflow |
+| Audit | 🟡 Journal admin + table `audit_logs` |
+| Payment Engine | 🟠 Partiel |
 
 ## 4. Écarts majeurs par rapport au PRD v2.0
 
 | Domaine PRD | État actuel | Priorité |
 |-------------|-------------|----------|
-| Une seule source de vérité | Partiellement respecté | Critique |
-| Contextualisation année scolaire partout | Bien avancée sur classes / class_subjects / teacher_subjects | Haute |
-| Distinction Catalogue / Matière-classe / Affectation | Bon début (3 tables présentes) | Haute (formaliser + nettoyer coefficient sur subjects) |
-| Rôles complets | Très limité (surtout Directeur + Enseignant) | Haute |
-| Parents / Tuteurs | Présent (`parents`, `student_parents`) | En cours de consolidation |
-| Inscriptions complètes + historique | Partiel (`student_enrollments`) | Haute |
-| Notes → Moyennes → Bulletins (source unique) | Très partiel | Haute |
-| Emplois du temps | Présent : calendrier, disponibilités, salles, génération | Haute |
-| Finance + Payment Engine | Vues opérationnelles frais / paiements / reçus en consolidation | Haute |
-| Programmes + Progression | Présent et versionné | Haute |
-| Évaluations avancées | Présent : workflow, variantes, correction directe | Haute |
-| Documents & Workflows | Absent côté UI métier | Moyenne |
-| Portails Parent / Élève | Absent | Moyenne |
-| Audit Engine complet | Minimal | Haute |
-| Interfaces adaptées par rôle | Présent : RoleSpaceShell + espaces dédiés (Administration, Pédagogie, Finance, Vie scolaire, RH, Santé) | Critique |
+| Une seule source de vérité | Bien respecté (règle rappelée partout) | Critique — maintenir |
+| Contextualisation année scolaire | Avancée (classes, class_subjects, affectations, programmes) | Haute |
+| Catalogue / Matière-classe / Affectation | Présent ; nettoyer coefficient sur `subjects` + fin legacy | Haute |
+| Rôles complets + RBAC | Fortement enrichi (Directeur des Études, Parent, Élève…) | Haute — continuer RLS |
+| Parents / Tuteurs / Inscriptions | Présents ; données de test encore faibles | Haute |
+| Notes → Moyennes → Bulletins | Partiel | Haute |
+| Emplois du temps | Structure riche | Haute — parcours opérateur |
+| Finance + Payment Engine | Vues + tables ; Mobile Money / rapprochement incomplets | **Haute** |
+| Programmes + Progression | Présent (tables + UI enseignant) | Haute |
+| Évaluations avancées | Workflow, variantes, correction ; banque + IA limités | Haute |
+| Documents & Workflows | **Socle présent** (plus « absent ») ; PDF/QR/signature multi-niveaux à finaliser | Moyenne |
+| Portails Parent / Élève | Premiers espaces ; parcours complets à enrichir | Moyenne |
+| Audit / Notifications | Journal + centre notifs ; couverture événements à élargir | Haute |
+| Interfaces par rôle | RoleSpaceShell + espaces dédiés | Critique — maintenir |
 
 ## 5. Points de vigilance techniques
 
-- La clé `service_role` contourne le RLS (utilisée volontairement dans `/api/teachers`).
-- Coefficient présent à la fois sur `subjects` et sur `class_subjects` → risque de confusion.
-- Policies `assessments` / `report_cards` trop permissives.
-- Pas de table `parents` / `guardians`.
-- Pas de helpers RLS pour les autres rôles (`is_teacher()`, etc.).
-- Table `schools` non visible dans le code frontend (à confirmer côté Supabase).
+- `service_role` contourne le RLS (usage volontaire APIs sensibles — à documenter et limiter).
+- Coefficient encore présent sur `subjects` **et** `class_subjects` → risque de confusion (source de vérité = `class_subjects`).
+- Policies `assessments` / `report_cards` : re-audit RLS.
+- Tables legacy `teacher_classes` / `teacher_subjects` : ne plus écrire dedans ; migrer les lectures restantes vers `teacher_assignments`.
+- Peu de données métier de test (0 élèves/parents au moment de l’audit) → valider les parcours bout-en-bout avec jeux de données contrôlés.
 
-## 6. Décision de migration
-
-Conformément au PRD §84 :
+## 6. Décision de migration (PRD §84)
 
 > Améliorer et migrer progressivement, pas repartir de zéro.
 
-On conserve et on fait évoluer :
-- Toute la stack
-- L’Auth et la création d’enseignants
-- Le modèle classes / cycles / levels / series / academic_years
-- Les tables `subjects` + `class_subjects` + `teacher_subjects`
-- Le workflow de validation des classes
-- Les pages existantes comme base
+On conserve et on fait évoluer : stack, Auth, modèle pédagogique, tables documents/audit/notifications, shells par rôle, pages existantes.
 
-## 7. Prochaine étape
+## 7. Prochaine étape (ordre recommandé)
 
-**Consolidation fonctionnelle avant validation technique** :
+1. **Finaliser les parcours opérationnels** déjà ouverts (Administration documents/audit, Enseignant évaluations/programmes) — zéro lien mort.
+2. **Jeux de données de test** (école, année, classes, 1–2 enseignants, élèves, parents) pour valider RLS et workflows.
+3. **Durcir RLS** (enseignants, assessments, report_cards, documents) selon rôle + école + année + affectation.
+4. **Payment Engine** (échéances, confirmation prestataire, reçus, rapprochement, audit financier) — Release 3.
+5. Enrichir portails Parent/Élève (finances, bulletins, absences) sans 2ᵉ source de vérité.
+6. Compléter Documents Release 7 (templates → PDF, QR public, workflows multi-niveaux).
+7. Ensuite seulement : lint → typecheck/build → stabilisation release.
 
-1. Finaliser les parcours opérationnels des espaces existants, en priorité Administration et les opérations encore en lecture seule.
-2. Vérifier que chaque action / lien de navigation pointe vers une route réellement implémentée.
-3. Connecter les tableaux de bord et indicateurs aux tables existantes sans inventer de données.
-4. Affiner les permissions et le RLS par rôle, école, année et affectation, notamment pour les écritures métier.
-5. Ajouter progressivement les briques transversales encore absentes (Documents & Workflows, Audit/Notifications complet) sans créer de seconde source de vérité.
-6. Ensuite seulement : lint → typecheck/build → corrections de release.
+Règle de travail : aucune nouvelle page ne doit recréer une donnée déjà portée par une autre source de vérité (PRD §71, §87.13).
 
-Règle de travail : aucune nouvelle page ne doit recréer une donnée déjà portée par une autre source de vérité.
+## Identity & Access — rappel état
 
+- `users.must_change_password` serveur-authoritative
+- `users.login_identifier` central
+- Rôles Parent / Élève en base ; `parents.user_id` / `students.user_id`
+- API sécurisée d’accès temporaire
+- Middleware bloque l’accès métier tant que le MDP temporaire n’est pas changé
+- `/parent` et `/eleve` : premier espace métier réel
 
-## Identity & Access — état actuel
+## Documents — rappel état (23/09)
 
-- \`users.must_change_password\` est maintenant serveur-authoritative.
-- \`users.login_identifier\` centralise l'identifiant de connexion.
-- Les rôles \`Parent\` et \`Élève\` sont présents en base.
-- \`parents.user_id\` et \`students.user_id\` relient les profils métier à l'identité centrale.
-- Une API sécurisée génère les accès Parent/Élève avec mot de passe temporaire.
-- Les profils sans email peuvent recevoir un identifiant établissement généré.
-- La connexion accepte email ou identifiant.
-- Le middleware bloque l'accès aux espaces métier tant que le changement du mot de passe temporaire n'est pas finalisé.
-- \`/parent\` et \`/eleve\` disposent maintenant d'un premier espace métier connecté aux données réelles via une API serveur filtrée par identité.
+- Tables : `documents`, `document_templates`, `generated_documents`, `archives`
+- RPC : `transition_document_workflow`
+- UI registre + validation + archivage
+- Notifications de transition
+- Signature/cachet/QR : colonnes prêtes ; flux complets à finaliser
