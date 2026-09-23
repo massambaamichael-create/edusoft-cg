@@ -222,6 +222,7 @@ export async function POST(request: Request) {
         email: normalizedEmail,
         phone: phone?.trim() || null,
         is_active: true,
+        must_change_password: true,
       })
       .select("*")
       .single();
