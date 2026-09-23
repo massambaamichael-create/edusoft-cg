@@ -1,11 +1,29 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { UsersRound, ShieldCheck, FileText } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import { useCurrentUser } from "@/lib/auth";
 
 export default function RHHomePage() {
   const { profile, school, role } = useCurrentUser();
   const firstName = profile?.first_name || "Collègue";
+  const [personnelAccounts, setPersonnelAccounts] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      if (!school?.id) return;
+      const { count } = await supabase
+        .from("users")
+        .select("*", { count: "exact", head: true })
+        .eq("school_id", school.id)
+        .eq("is_active", true);
+      setPersonnelAccounts(count ?? 0);
+      setLoading(false);
+    };
+    void load();
+  }, [school?.id]);
 
   return (
     <main className="min-h-full bg-[#F7F8FC] p-6 lg:p-8">
@@ -15,7 +33,8 @@ export default function RHHomePage() {
         <p className="mt-2 text-sm text-slate-500">{school?.name || "EduSoft CG"} · {role} · Bonjour {firstName}</p>
       </header>
 
-      <section className="grid gap-5 md:grid-cols-3">
+      <section className="grid gap-5 md:grid-cols-4">
+        <Metric title="Comptes actifs" value={loading ? "…" : personnelAccounts} />
         <Info icon={UsersRound} title="Personnel" text="Référentiel du personnel de l’établissement." />
         <Info icon={ShieldCheck} title="Accès" text="Les données RH sont séparées des espaces pédagogiques et financiers." />
         <Info icon={FileText} title="Documents" text="Les documents RH restent rattachés au personnel concerné." />
@@ -41,4 +60,8 @@ function Info({ icon: Icon, title, text }: { icon: typeof UsersRound; title: str
       <p className="mt-1 text-sm leading-5 text-slate-500">{text}</p>
     </div>
   );
+}
+
+function Metric({ title, value }: { title: string; value: number | string }) {
+  return <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-sm text-slate-500">{title}</p><p className="mt-2 text-3xl font-bold text-slate-950">{value}</p><p className="mt-1 text-xs text-slate-400">Référentiel des utilisateurs</p></div>;
 }
