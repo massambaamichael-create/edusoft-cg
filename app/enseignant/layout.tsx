@@ -5,7 +5,7 @@ import RoleSpaceShell from "@/components/RoleSpaceShell";
 
 const NAV = [
   { label: "Tableau de bord", href: "/enseignant", icon: LayoutDashboard },
-  { label: "Mes matières & classes", href: "/enseignant/matieres", icon: BookOpen },
+  { label: "Mes classes & matières", href: "/enseignant/classes", icon: BookOpen },
   { label: "Programmes & progression", href: "/enseignant/programmes", icon: ClipboardList },
   { label: "Évaluations & sujets", href: "/enseignant/evaluations", icon: ClipboardList },
   { label: "Mes corrections", href: "/enseignant/corrections", icon: ClipboardList },
