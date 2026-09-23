@@ -1,12 +1,13 @@
 "use client";
 
-import { CreditCard, LayoutDashboard, ReceiptText } from "lucide-react";
+import { CreditCard, FileText, LayoutDashboard, ReceiptText } from "lucide-react";
 import RoleSpaceShell from "@/components/RoleSpaceShell";
 
 const NAV = [
   { label: "Tableau de bord", href: "/finance", icon: LayoutDashboard },
   { label: "Paiements", href: "/finance/paiements", icon: CreditCard },
   { label: "Frais scolaires", href: "/finance/frais", icon: ReceiptText },
+  { label: "Reçus", href: "/finance/recus", icon: FileText },
 ];
 
 export default function FinanceLayout({
