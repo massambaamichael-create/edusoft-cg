@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Link2, Plus, Search, ShieldCheck, Users, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useCurrentUser } from "@/lib/auth";
 import {
@@ -159,7 +160,7 @@ export default function AdministrationParentsPage() {
 
   if (!userLoading && !canRead) {
     return (
-      <main className="px-6 py-8 lg:px-10">
+      <main className="min-h-full bg-[#F6F7FB] px-5 py-7 lg:px-10 lg:py-9">
         <h1 className="text-2xl font-bold text-slate-900">Parents</h1>
         <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           Permission <code>parents.read</code> requise.
@@ -170,28 +171,28 @@ export default function AdministrationParentsPage() {
 
   return (
     <main className="px-6 py-8 lg:px-10">
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <header className="mb-7 flex flex-wrap items-end justify-between gap-5">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Parents / tuteurs</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <div className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400"><Users className="h-4 w-4" /> Administration · Référentiel</div><h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">Parents & tuteurs</h1>
+          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-slate-500">
             Un parent, plusieurs enfants via{" "}
             <code className="text-slate-700">student_parents</code>
             {school?.name ? ` · ${school.name}` : ""}.
           </p>
         </div>
         {canManage && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setOpenLink(true)}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+              className="inline-flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 hover:shadow"
             >
               Lier parent ↔ élève
             </button>
             <button
               type="button"
               onClick={() => setOpenCreate(true)}
-              className="rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700"
+              className="inline-flex h-11 items-center gap-2 rounded-xl bg-slate-900 px-4 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-800 hover:shadow"
             >
               Nouveau parent
             </button>
@@ -199,14 +200,15 @@ export default function AdministrationParentsPage() {
         )}
       </header>
 
-      <div className="mb-4">
-        <input
+      <section className="mb-6 grid gap-4 sm:grid-cols-3"><div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm"><p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Parents enregistrés</p><p className="mt-2 text-2xl font-bold text-slate-950">{parents.length}</p></div><div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm"><p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Enfants liés</p><p className="mt-2 text-2xl font-bold text-slate-950">{Object.values(linkCounts).reduce((sum, count) => sum + count, 0)}</p></div><div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm"><p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">Avec contact</p><p className="mt-2 text-2xl font-bold text-slate-950">{parents.filter((p) => Boolean(p.phone || p.email)).length}</p></div></section>
+
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-slate-200/80 bg-white px-5 py-4 shadow-sm"><div><p className="text-sm font-bold text-slate-900">Répertoire des responsables</p><p className="mt-0.5 text-xs text-slate-400">Source : parents + student_parents</p></div><div className="relative w-full sm:w-[320px]"><Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" /><input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Rechercher (nom, téléphone, email…)"
-          className="h-11 w-full max-w-md rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-slate-400"
+          placeholder="Rechercher un parent…"
+          className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50/70 pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:bg-white"
         />
-      </div>
+      </div></div>
 
       {loading && (
         <p className="text-sm text-slate-500">Chargement des parents…</p>
@@ -225,11 +227,11 @@ export default function AdministrationParentsPage() {
       )}
 
       {!loading && filtered.length > 0 && (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_12px_40px_-24px_rgba(15,23,42,0.35)]">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-slate-100 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
-                <th className="px-4 py-3 font-semibold">Parent</th>
+                <th className="px-6 py-3.5 font-bold">Parent</th>
                 <th className="px-4 py-3 font-semibold">Contact</th>
                 <th className="px-4 py-3 font-semibold">Enfants liés</th>
               </tr>
@@ -238,9 +240,9 @@ export default function AdministrationParentsPage() {
               {filtered.map((p) => (
                 <tr
                   key={p.id}
-                  className="border-b border-slate-50 last:border-0 hover:bg-slate-50/80"
+                  className="group border-b border-slate-50 last:border-0 transition hover:bg-slate-50/70"
                 >
-                  <td className="px-4 py-3 font-medium text-slate-900">
+                  <td className="px-6 py-4 font-medium text-slate-900">
                     {parentDisplayName(p)}
                   </td>
                   <td className="px-4 py-3 text-slate-600">
@@ -384,8 +386,8 @@ function Modal({
   children: React.ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-[2px]">
+      <div className="w-full max-w-lg rounded-[24px] border border-slate-200 bg-white p-6 shadow-2xl">
         <div className="mb-2 flex items-start justify-between gap-4">
           <h2 className="text-lg font-bold text-slate-900">{title}</h2>
           <button
