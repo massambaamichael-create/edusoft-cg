@@ -6,12 +6,13 @@
 - Socle workflow documentaire (`draft` → `submitted` → `validated`/`rejected` → `archived`)
 - RPC `transition_document_workflow`
 - Registre documentaire dans Administration (`/administration/documents`)
-- **Dépôt / création de brouillon** (modal, types PRD, élève optionnel, code de vérification)
-- Stats registre + design aligné Admin (cartes, modal, boutons slate)
-- **RLS corrigée** : isolation par `school_id` (plus d’obligation d’avoir un `student_id` pour lire)
-- Archivage depuis le registre (sans suppression silencieuse)
-- Notifications sur transitions de workflow
-- Migrations : `documents_workflow_foundation`, `document_archive_audit_completion`, `document_workflow_notifications`, `documents_rls_school_scope_and_create`
+- Dépôt / création de brouillon (modal, types PRD, élève optionnel, code de vérification)
+- **Upload Storage** : bucket privé `documents`, chemin `{school_id}/{uuid}/fichier`, signed URL à l’ouverture
+- Formats : PDF, images, Word · max 15 Mo · isolation RLS par école
+- Stats registre + design aligné Admin
+- RLS corrigée : isolation par `school_id` (student_id optionnel)
+- Archivage + notifications sur transitions
+- Migrations : `documents_workflow_foundation`, `document_archive_audit_completion`, `document_workflow_notifications`, `documents_rls_school_scope_and_create`, `documents_storage_bucket`
 
 ### Audit & Notifications
 - Journal d’audit administratif (`/administration/audit`, permission `audit.read`)
@@ -21,37 +22,27 @@
 ### Identity & Access
 - Fiabilisation du statut `must_change_password` (serveur-authoritative)
 - Rôle **Directeur des Études** (RBAC + filtres comptes)
-- Baseline rôles opérationnels + accès Parent/Élève (migrations identity)
+- Baseline rôles opérationnels + accès Parent/Élève
 
 ### Pédagogie / Enseignant
-- Espace Programmes & Progression côté enseignant
-- Rattachement programme au contexte pédagogique exact
-- Sécurisation création d’évaluations et correction des notes
-- Durcissement workflow correction (RLS / permissions)
-- Alignement navigation enseignant sur les routes réelles
+- Espace Programmes & Progression
+- Sécurisation évaluations / corrections
+- Alignement navigation enseignant
 
 ### Administration UI
-- Tableau de bord : cartes Documents, Audit, Accès & comptes
-- Accès comptes aligné sur rôles réels (pas de permissions inventées)
+- Tableau de bord : Documents, Audit, Accès & comptes
 
 ### Documentation
-- `docs/DOCUMENTS.md`, `docs/WORKFLOWS.md`, `docs/PROJECT_STATE.md`, `docs/ROADMAP.md` alignés
+- DOCUMENTS, WORKFLOWS, PROJECT_STATE, ROADMAP alignés
 
 ---
 
 ## [2026-09-20] — Administration : création + liaison PRD
 
-- **Nouvel élève** (`students.create`) → insert unique dans `students` + `school_id`
-- **Nouveau parent** (`parents.manage`) → insert unique dans `parents`
-- **Lier parent ↔ élève** → `student_parents` (un parent, plusieurs enfants)
-- Pas de double fiche, permissions respectées
+- Élèves / Parents / student_parents sans double fiche
 
 ## [2026-09-20] — Listes Administration
 
-Élèves / Parents / Inscriptions (lecture + filtre année)
-
 ## [2026-09-20] — Multi-espaces + auth
-
-Espaces par rôle, `lib/auth`, Mes classes enseignant
 
 ## [2026-09-19] — Phase 0 docs
