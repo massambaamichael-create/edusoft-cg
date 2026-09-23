@@ -1,11 +1,28 @@
 "use client";
 
 import { HeartPulse, LockKeyhole, FileHeart } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { useCurrentUser } from "@/lib/auth";
 
 export default function SanteHomePage() {
   const { profile, school, role } = useCurrentUser();
   const firstName = profile?.first_name || "Collègue";
+  const [healthRecords, setHealthRecords] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      if (!school?.id) return;
+      const { count } = await supabase
+        .from("health_records")
+        .select("*", { count: "exact", head: true })
+        .in("student_id", (await supabase.from("students").select("id").eq("school_id", school.id)).data?.map((student) => student.id) ?? []);
+      setHealthRecords(count ?? 0);
+      setLoading(false);
+    };
+    void load();
+  }, [school?.id]);
 
   return (
     <main className="min-h-full bg-[#F7F8FC] p-6 lg:p-8">
@@ -15,7 +32,8 @@ export default function SanteHomePage() {
         <p className="mt-2 text-sm text-slate-500">{school?.name || "EduSoft CG"} · {role} · Bonjour {firstName}</p>
       </header>
 
-      <section className="grid gap-5 md:grid-cols-3">
+      <section className="grid gap-5 md:grid-cols-4">
+        <Metric title="Dossiers santé" value={loading ? "…" : healthRecords} />
         <Info icon={HeartPulse} title="Suivi santé" text="Les informations de santé sont isolées des autres espaces métier." />
         <Info icon={LockKeyhole} title="Accès restreint" text="Les données sont visibles uniquement selon les permissions prévues." />
         <Info icon={FileHeart} title="Dossiers élèves" text="Les informations sont rattachées à l’élève sans recréer une fiche ailleurs." />
@@ -41,4 +59,8 @@ function Info({ icon: Icon, title, text }: { icon: typeof HeartPulse; title: str
       <p className="mt-1 text-sm leading-5 text-slate-500">{text}</p>
     </div>
   );
+}
+
+function Metric({ title, value }: { title: string; value: number | string }) {
+  return <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-sm text-slate-500">{title}</p><p className="mt-2 text-3xl font-bold text-slate-950">{value}</p><p className="mt-1 text-xs text-slate-400">Données de l’établissement</p></div>;
 }
