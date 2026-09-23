@@ -37,11 +37,11 @@ export default function EvaluationsPage(){
  }
  const label=(s:string)=>({draft:"Brouillon",submitted:"Soumis",in_review:"En vérification",changes_requested:"Correction demandée",rejected:"Rejeté",approved:"Validé",scheduled:"Programmé",published:"Publié",completed:"Terminé",archived:"Archivé"} as Record<string,string>)[s]||s;
  const filtered=items.filter(x=>filter==="all"||x.status===filter);
- return <main className="min-h-screen bg-[#F7F8FC] p-6 lg:p-8"><div className="mx-auto max-w-7xl space-y-6">
+ return <main className="min-h-full bg-[#F6F7FB] px-5 py-7 lg:px-10 lg:py-9"><div className="mx-auto max-w-7xl space-y-6">
   <header><p className="text-sm font-semibold text-violet-700">Pédagogie</p><h1 className="mt-1 text-2xl font-bold text-slate-950">Évaluations & examens</h1><p className="mt-2 text-sm text-slate-500">Suivi des devoirs, contrôles, compositions et examens avec validation pédagogique avant utilisation.</p></header>
   <div className="flex flex-wrap gap-2">{["all","draft","submitted","in_review","changes_requested","rejected","approved","scheduled","published"].map(s=><button key={s} onClick={()=>setFilter(s)} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${filter===s?"bg-violet-600 text-white":"bg-white text-slate-600 border"}`}>{s==="all"?"Tous":label(s)}</button>)}</div>
   {message&&<div className="rounded-xl border bg-white p-4 text-sm text-slate-700">{message}</div>}
-  <section className="overflow-hidden rounded-2xl border bg-white shadow-sm"><div className="divide-y divide-slate-100">
+  <section className="overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]"><div className="divide-y divide-slate-100">
    {loading?<div className="p-10 text-center text-sm text-slate-400">Chargement…</div>:!filtered.length?<div className="p-10 text-center text-sm text-slate-400">Aucune évaluation dans ce statut.</div>:filtered.map(a=><div key={a.id} className="flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between">
     <div className="flex gap-3"><FileText className="mt-1 h-5 w-5 text-violet-600"/><div><p className="font-semibold text-slate-900">{a.title}</p><p className="mt-1 text-sm text-slate-500">{className(a.class_id)} · {typeName(a.assessment_type_id)} · /{a.max_score??20} · coef. {a.coefficient??1}</p><p className="mt-1 text-xs text-slate-400">{a.assessment_date||"Date non définie"}</p></div></div>
     <div className="flex items-center gap-3"><span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold">{label(a.status)}</span><button onClick={()=>setSelected(a)} className="rounded-xl border px-4 py-2 text-sm font-semibold">Ouvrir</button></div>
