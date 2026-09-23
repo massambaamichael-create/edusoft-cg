@@ -583,7 +583,7 @@ export default function MatieresPage() {
   ========================================================= */
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
 <main className="min-h-screen">
         <div className="px-8 py-8">
           {/* HEADER */}
@@ -594,11 +594,11 @@ export default function MatieresPage() {
                 Gestion pédagogique
               </p>
 
-              <h1 className="mt-1 text-3xl font-bold text-gray-900">
+              <h1 className="mt-1 text-3xl font-bold text-slate-950">
                 Matières
               </h1>
 
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-slate-500">
                 Configurez les matières et leurs coefficients
                 pour chaque classe.
               </p>
@@ -608,7 +608,7 @@ export default function MatieresPage() {
               type="button"
               onClick={loadData}
               disabled={loading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)] transition hover:bg-slate-50 disabled:opacity-50"
             >
               <RefreshCw
                 className={`h-4 w-4 ${
@@ -635,10 +635,10 @@ export default function MatieresPage() {
 
           {/* FILTRES */}
 
-          <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+          <div className="mb-6 rounded-[24px] border border-slate-200/80 bg-white p-4 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
             <div className="flex flex-col gap-3 lg:flex-row">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
                 <input
                   type="text"
@@ -647,7 +647,7 @@ export default function MatieresPage() {
                     setSearch(event.target.value)
                   }
                   placeholder="Rechercher une classe..."
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-indigo-400 focus:bg-white"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-indigo-400 focus:bg-white"
                 />
               </div>
 
@@ -657,7 +657,7 @@ export default function MatieresPage() {
                   onChange={(event) =>
                     setSelectedCycle(event.target.value)
                   }
-                  className="w-full appearance-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-10 text-sm outline-none transition focus:border-indigo-400"
+                  className="w-full appearance-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-10 text-sm outline-none transition focus:border-indigo-400"
                 >
                   <option value="all">
                     Tous les cycles
@@ -673,7 +673,7 @@ export default function MatieresPage() {
                   ))}
                 </select>
 
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               </div>
             </div>
           </div>
@@ -681,22 +681,22 @@ export default function MatieresPage() {
           {/* CONTENU */}
 
           {loading ? (
-            <div className="rounded-2xl border border-gray-100 bg-white py-16 text-center shadow-sm">
+            <div className="rounded-[24px] border border-slate-200/80 bg-white py-16 text-center shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
               <RefreshCw className="mx-auto h-7 w-7 animate-spin text-indigo-500" />
 
-              <p className="mt-3 text-sm text-gray-500">
+              <p className="mt-3 text-sm text-slate-500">
                 Chargement des matières...
               </p>
             </div>
           ) : filteredClasses.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-16 text-center">
+            <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-16 text-center">
               <BookOpen className="mx-auto h-10 w-10 text-gray-300" />
 
-              <h2 className="mt-4 text-base font-bold text-gray-800">
+              <h2 className="mt-4 text-base font-bold text-slate-900">
                 Aucune classe trouvée
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-slate-500">
                 Créez d'abord vos classes dans la page
                 Classes.
               </p>
@@ -714,7 +714,7 @@ export default function MatieresPage() {
                 return (
                   <div
                     key={schoolClass.id}
-                    className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
+                    className="overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]"
                   >
                     {/* CLASSE */}
 
@@ -732,18 +732,18 @@ export default function MatieresPage() {
 
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
-                            <h2 className="text-base font-bold text-gray-900">
+                            <h2 className="text-base font-bold text-slate-950">
                               {schoolClass.name}
                             </h2>
 
-                            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-gray-500">
+                            <span className="rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">
                               {getCycleName(
                                 schoolClass.cycle_id
                               )}
                             </span>
                           </div>
 
-                          <p className="mt-1 text-xs text-gray-400">
+                          <p className="mt-1 text-xs text-slate-400">
                             {getLevelName(
                               schoolClass.level_id
                             ) || "Niveau non défini"}{" "}
@@ -756,9 +756,9 @@ export default function MatieresPage() {
                         </div>
 
                         {isExpanded ? (
-                          <ChevronDown className="ml-auto h-5 w-5 shrink-0 text-gray-400" />
+                          <ChevronDown className="ml-auto h-5 w-5 shrink-0 text-slate-400" />
                         ) : (
-                          <ChevronDown className="ml-auto h-5 w-5 shrink-0 -rotate-90 text-gray-400" />
+                          <ChevronDown className="ml-auto h-5 w-5 shrink-0 -rotate-90 text-slate-400" />
                         )}
                       </button>
 
@@ -777,16 +777,16 @@ export default function MatieresPage() {
                     {/* MATIÈRES */}
 
                     {isExpanded && (
-                      <div className="border-t border-gray-100 px-5 py-5">
+                      <div className="border-t border-slate-100 px-5 py-5">
                         {assignedSubjects.length === 0 ? (
-                          <div className="rounded-xl border border-dashed border-gray-200 px-5 py-10 text-center">
+                          <div className="rounded-xl border border-dashed border-slate-200 px-5 py-10 text-center">
                             <BookOpen className="mx-auto h-6 w-6 text-gray-300" />
 
-                            <p className="mt-2 text-sm font-medium text-gray-500">
+                            <p className="mt-2 text-sm font-medium text-slate-500">
                               Aucune matière configurée
                             </p>
 
-                            <p className="mt-1 text-xs text-gray-400">
+                            <p className="mt-1 text-xs text-slate-400">
                               Ajoutez les matières de cette
                               classe.
                             </p>
@@ -803,20 +803,20 @@ export default function MatieresPage() {
                                 return (
                                   <div
                                     key={assignment.id}
-                                    className="group rounded-xl border border-gray-100 bg-gray-50 p-4 transition hover:border-indigo-100 hover:bg-white hover:shadow-sm"
+                                    className="group rounded-xl border border-slate-100 bg-slate-50 p-4 transition hover:border-indigo-100 hover:bg-white hover:shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]"
                                   >
                                     <div className="flex items-start justify-between gap-3">
                                       <div className="flex min-w-0 items-center gap-3">
-                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-indigo-600 shadow-sm">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-indigo-600 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
                                           <BookOpen className="h-4 w-4" />
                                         </div>
 
                                         <div className="min-w-0">
-                                          <p className="truncate text-sm font-bold text-gray-800">
+                                          <p className="truncate text-sm font-bold text-slate-900">
                                             {subject.name}
                                           </p>
 
-                                          <p className="mt-1 text-xs text-gray-400">
+                                          <p className="mt-1 text-xs text-slate-400">
                                             Coefficient{" "}
                                             {
                                               assignment.coefficient
@@ -834,7 +834,7 @@ export default function MatieresPage() {
                                               subject
                                             )
                                           }
-                                          className="rounded-lg p-2 text-gray-400 transition hover:bg-indigo-50 hover:text-indigo-600"
+                                          className="rounded-lg p-2 text-slate-400 transition hover:bg-indigo-50 hover:text-indigo-600"
                                           title="Modifier"
                                         >
                                           <Pencil className="h-4 w-4" />
@@ -849,7 +849,7 @@ export default function MatieresPage() {
                                               subject
                                             )
                                           }
-                                          className="rounded-lg p-2 text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+                                          className="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600"
                                           title="Retirer"
                                         >
                                           <Trash2 className="h-4 w-4" />
@@ -878,16 +878,16 @@ export default function MatieresPage() {
 
       {showModal && selectedClass && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+          <div className="w-full max-w-lg rounded-[26px] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">
+                <h2 className="text-lg font-bold text-slate-950">
                   {editingSubject
                     ? "Modifier la matière"
                     : "Ajouter une matière"}
                 </h2>
 
-                <p className="mt-1 text-xs text-gray-400">
+                <p className="mt-1 text-xs text-slate-400">
                   Classe : {selectedClass.name}
                 </p>
               </div>
@@ -895,7 +895,7 @@ export default function MatieresPage() {
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                className="rounded-lg p-2 text-slate-400 hover:bg-gray-100 hover:text-slate-700"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -915,7 +915,7 @@ export default function MatieresPage() {
               )}
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Nom de la matière
                 </label>
 
@@ -926,13 +926,13 @@ export default function MatieresPage() {
                     setSubjectName(event.target.value)
                   }
                   placeholder="Ex. Français"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-indigo-400"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-indigo-400"
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-gray-700">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Coefficient
                 </label>
 
@@ -948,7 +948,7 @@ export default function MatieresPage() {
                       )
                     )
                   }
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition focus:border-indigo-400"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-indigo-400"
                 />
               </div>
 
@@ -963,12 +963,12 @@ export default function MatieresPage() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 border-t border-gray-100 px-6 py-4">
+            <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-4">
               <button
                 type="button"
                 onClick={closeModal}
                 disabled={saving}
-                className="rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
               >
                 Annuler
               </button>
