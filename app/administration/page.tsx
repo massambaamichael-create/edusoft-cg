@@ -16,6 +16,9 @@ export default function AdministrationHomePage() {
   const router = useRouter();
   const { profile, school, hasPermission, role } = useCurrentUser();
   const firstName = profile?.first_name || "Collègue";
+  const canManageAccounts = ["Directeur", "Administrateur", "Secrétaire"].includes(
+    role || ""
+  );
 
   const cards = [
     {
@@ -71,10 +74,7 @@ export default function AdministrationHomePage() {
       meta: "Identity & Access",
       icon: ShieldCheck,
       href: "/administration/acces",
-      enabled:
-        hasPermission("users.read") ||
-        hasPermission("users.manage") ||
-        hasPermission("identity.manage"),
+      enabled: canManageAccounts,
     },
   ];
 
