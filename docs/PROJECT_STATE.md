@@ -1,6 +1,6 @@
 # PROJECT_STATE.md — EduSoft CG
 
-Dernière mise à jour : 19 septembre 2026
+Dernière mise à jour : 23 septembre 2026
 
 ## 1. Vue d’ensemble
 
@@ -10,7 +10,7 @@ Dernière mise à jour : 19 septembre 2026
 | Version PRD de référence | 2.0 |
 | Stack | Next.js 16 + React 19 + TypeScript + Supabase + Tailwind 4 |
 | Repo | `massambaamichael-create/edusoft-cg` (privé) |
-| Phase actuelle | **Phase 0 terminée** → prêt pour Release 1 — Core |
+| Phase actuelle | **Fondations Core en place → consolidation des espaces métiers** |
 | Stratégie | Migration progressive (jamais repartir de zéro) |
 
 ## 2. Documentation de référence (Phase 0)
@@ -41,7 +41,7 @@ Dernière mise à jour : 19 septembre 2026
 - Table `users` liée à `auth.users` via `auth_user_id`
 - Table `roles`
 - Création d’enseignant avec compte Auth + profil `users` + profil `teachers` + email temporaire (Resend)
-- Rôle détecté côté UI (`Directeur`, `Enseignant`)
+- Rôle détecté côté UI avec espaces dédiés (`Directeur`, `Enseignant`, `Secrétaire`, `Administrateur`, `Comptable`, `Surveillant`, `RH`, `Infirmerie`, `Directeur des Études`)
 
 ### Multi-tenant & RLS
 - Colonne `school_id` sur les tables principales
@@ -82,7 +82,7 @@ Dernière mise à jour : 19 septembre 2026
 - Page Enseignants (liste + création)
 - Pédagogie → Classes (riche : création, validation, équipe pédagogique, import)
 - Pédagogie → Matières
-- Sidebar anticipant les futurs modules
+- Shells métier séparés par rôle/espace ; aucune sidebar globale ne mélange les domaines
 
 ## 4. Écarts majeurs par rapport au PRD v2.0
 
@@ -92,17 +92,17 @@ Dernière mise à jour : 19 septembre 2026
 | Contextualisation année scolaire partout | Bien avancée sur classes / class_subjects / teacher_subjects | Haute |
 | Distinction Catalogue / Matière-classe / Affectation | Bon début (3 tables présentes) | Haute (formaliser + nettoyer coefficient sur subjects) |
 | Rôles complets | Très limité (surtout Directeur + Enseignant) | Haute |
-| Parents / Tuteurs | Absent | Haute |
+| Parents / Tuteurs | Présent (`parents`, `student_parents`) | Haute |
 | Inscriptions complètes + historique | Partiel (`student_enrollments`) | Haute |
 | Notes → Moyennes → Bulletins (source unique) | Très partiel | Haute |
-| Emplois du temps | Absent | Moyenne |
-| Finance + Payment Engine | Absent | Haute (après Core) |
-| Programmes + Progression | Absent | Moyenne |
-| Évaluations avancées | Absent | Basse |
+| Emplois du temps | Présent : calendrier, disponibilités, salles, génération | Haute |
+| Finance + Payment Engine | Tables de base présentes ; UI métier en consolidation | Haute |
+| Programmes + Progression | Présent et versionné | Haute |
+| Évaluations avancées | Présent : workflow, variantes, correction directe | Haute |
 | Documents & Workflows | Absent | Moyenne |
 | Portails Parent / Élève | Absent | Moyenne |
 | Audit Engine complet | Minimal | Haute |
-| Interfaces adaptées par rôle | Non (sidebar unique) | Haute |
+| Interfaces adaptées par rôle | Présent : RoleSpaceShell + espaces dédiés | Critique |
 
 ## 5. Points de vigilance techniques
 
@@ -129,6 +129,12 @@ On conserve et on fait évoluer :
 
 ## 7. Prochaine étape
 
-**Release 1 — Core** (fondations de données et de sécurité, pas encore l’interface) :
+**Consolidation fonctionnelle avant validation technique** :
 
-École → Année scolaire → Utilisateurs / Rôles → Élèves / Parents → Inscriptions → Classes → Matières → Affectations → RLS affinés
+1. Finaliser les espaces métier sans navigation croisée.
+2. Vérifier que chaque action pointe vers une route réellement implémentée.
+3. Connecter les tableaux de bord aux tables existantes sans inventer de données.
+4. Affiner les permissions et RLS par rôle et contexte.
+5. Ensuite seulement : lint → typecheck/build → corrections de release.
+
+Règle de travail : aucune nouvelle page ne doit recréer une donnée déjà portée par une autre source de vérité.
