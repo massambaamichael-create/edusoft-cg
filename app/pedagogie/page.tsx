@@ -10,8 +10,6 @@ import {
   Users,
   ArrowRight,
   CheckCircle2,
-  Clock3,
-  AlertCircle,
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
@@ -296,86 +294,27 @@ function QuickAction({
   icon,
   title,
   description,
+  onClick,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
+  onClick: () => void;
 }) {
   return (
-    <button className="group flex items-center gap-4 rounded-xl border border-gray-100 p-4 text-left transition hover:border-violet-200 hover:bg-violet-50/50">
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex items-center gap-4 rounded-xl border border-gray-100 p-4 text-left transition hover:border-violet-200 hover:bg-violet-50/50"
+    >
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-600 transition group-hover:bg-violet-600 group-hover:text-white">
         {icon}
       </div>
-
       <div className="min-w-0">
         <p className="text-sm font-semibold text-gray-900">{title}</p>
-
         <p className="mt-1 text-xs text-gray-500">{description}</p>
       </div>
     </button>
   );
 }
 
-function StatusRow({
-  className,
-  progress,
-  status,
-  type,
-}: {
-  className: string;
-  progress: number;
-  status: string;
-  type: "success" | "progress" | "waiting";
-}) {
-  const statusStyles = {
-    success: "bg-emerald-50 text-emerald-700",
-    progress: "bg-amber-50 text-amber-700",
-    waiting: "bg-gray-100 text-gray-600",
-  };
-
-  const icons = {
-    success: <CheckCircle2 className="h-4 w-4" />,
-    progress: <Clock3 className="h-4 w-4" />,
-    waiting: <AlertCircle className="h-4 w-4" />,
-  };
-
-  return (
-    <tr className="border-b border-gray-50">
-      <td className="px-6 py-4">
-        <span className="text-sm font-semibold text-gray-900">
-          {className}
-        </span>
-      </td>
-
-      <td className="px-6 py-4">
-        <div className="flex items-center gap-3">
-          <div className="h-2 w-32 overflow-hidden rounded-full bg-gray-100">
-            <div
-              className="h-full rounded-full bg-violet-600"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-
-          <span className="text-xs font-medium text-gray-500">
-            {progress}%
-          </span>
-        </div>
-      </td>
-
-      <td className="px-6 py-4">
-        <span
-          className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${statusStyles[type]}`}
-        >
-          {icons[type]}
-          {status}
-        </span>
-      </td>
-
-      <td className="px-6 py-4 text-right">
-        <button className="text-sm font-semibold text-violet-600 hover:text-violet-700">
-          Ouvrir
-        </button>
-      </td>
-    </tr>
-  );
-}
