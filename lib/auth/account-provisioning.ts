@@ -22,8 +22,10 @@ export async function provisionAuthAccount(params: {
   email: string;
   schoolId: string;
   roleName: string;
+  loginIdentifier?: string;
 }) : Promise<ProvisionedAuthAccount> {
-  const loginIdentifier = params.email.trim().toLowerCase();
+  const authEmail = params.email.trim().toLowerCase();
+  const loginIdentifier = (params.loginIdentifier ?? authEmail).trim().toLowerCase();
 
   if (!loginIdentifier) {
     throw new Error("Un identifiant de connexion est requis.");
@@ -32,7 +34,7 @@ export async function provisionAuthAccount(params: {
   const temporaryPassword = crypto.randomBytes(12).toString("base64url");
 
   const { data, error } = await supabaseAdmin.auth.admin.createUser({
-    email: loginIdentifier,
+    email: authEmail,
     password: temporaryPassword,
     email_confirm: true,
     user_metadata: {
