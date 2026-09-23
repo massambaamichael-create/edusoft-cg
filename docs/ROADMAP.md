@@ -1,85 +1,89 @@
 # ROADMAP.md — EduSoft CG
 
 Alignée sur le PRD v2.0 (§82 et §83) et adaptée à l’existant.
+Dernière mise à jour : 23 septembre 2026.
 
 ## Phase 0 — Documentation ✅ TERMINÉE (19 septembre 2026)
 
-- [x] AGENTS.md
-- [x] docs/PROJECT_STATE.md
-- [x] docs/ARCHITECTURE.md
-- [x] docs/DATABASE.md
-- [x] docs/SECURITY.md
-- [x] docs/ROLES_PERMISSIONS.md
-- [x] docs/ROADMAP.md
-- [x] docs/CHANGELOG.md
-- [x] docs/BUSINESS_RULES.md
-- [x] docs/MODULES.md
-- [x] docs/PEDAGOGY.md
-- [x] docs/EVALUATIONS.md
-- [x] docs/PAYMENTS.md
-- [x] docs/DOCUMENTS.md
-- [x] docs/WORKFLOWS.md
-- [x] docs/AI.md
+- [x] AGENTS.md + docs/* (ARCHITECTURE, DATABASE, SECURITY, ROLES, ROADMAP, CHANGELOG, BUSINESS_RULES, MODULES, PEDAGOGY, EVALUATIONS, PAYMENTS, DOCUMENTS, WORKFLOWS, AI, IDENTITY_ACCESS, PROJECT_STATE)
+- [x] Resynchronisation docs Documents / Workflows / Project State / Changelog (23/09)
 
-## Release 1 — Core (prochaine priorité)
+## Release 1 — Core 🟡 QUASI TERMINÉE
 
-Objectif : fondations solides multi-tenant + année scolaire + identité + administration de base.
+Objectif : fondations multi-tenant + année scolaire + identité + administration de base.
 
-Ordre recommandé (données & sécurité d’abord) :
+| Item | Statut |
+|------|--------|
+| École | ✅ |
+| Année scolaire (contextualisation) | ✅ bien avancée |
+| Utilisateurs / Rôles / RBAC | ✅ (Directeur des Études, Parent, Élève…) |
+| Élèves / Parents / Tuteurs | ✅ UI + tables |
+| Inscriptions | ✅ |
+| Classes | ✅ + workflow validation |
+| Matières (3 concepts) | 🟡 catalogue + class_subjects + assignments |
+| Affectations | 🟡 `teacher_assignments` source de vérité ; legacy à purger |
+| RLS affinés | 🟡 en cours (enseignants, assessments…) |
+| Import & Migration Engine | 🟠 documenté, non prioritaire immédiat |
 
-1. École
-2. Année scolaire (contextualisation partout)
-3. Utilisateurs / Rôles (helpers RLS étendus)
-4. Élèves / Parents / Tuteurs
-5. Inscriptions
-6. Classes (déjà bien avancées)
-7. Matières (formalisation des 3 concepts)
-8. Affectations
-9. RLS affinés (surtout enseignants)
-10. Import & Migration Engine (Excel/CSV, mapping, validation, dédoublonnage, identités, imports par métier et journalisation)
+**Priorité immédiate R1 restante** : jeux de données de test + durcissement RLS.
 
-## Release 2 — Pédagogie fondamentale
+## Release 2 — Pédagogie fondamentale 🟡 EN COURS
 
-- Matières + affectations stabilisées
-- Emplois du temps (détection de conflits)
-- Notes → Moyennes → Bulletins (source unique)
+- [x] Matières + affectations (base)
+- [x] Emplois du temps (structure riche : contraintes, scoring, génération)
+- [ ] Notes → Moyennes → Bulletins (source unique) — encore partiel
 
-## Release 3 — Finance
+## Release 3 — Finance 🟠 À RENFORCER
 
-- Frais + échéanciers
-- Payment Engine (Mobile Money MTN / Airtel, banque, espèces)
-- Reçus + rapprochement + audit financier
+- [x] Tables / vues frais, paiements, reçus
+- [ ] Échéanciers complets
+- [ ] Payment Engine (Mobile Money MTN / Airtel, banque, espèces)
+- [ ] Confirmation prestataire + rapprochement + audit financier
 
-## Release 4 — Portails
+## Release 4 — Portails 🟡 DÉMARRÉE
 
-- Portail parent
-- Portail élève
-- Notifications de base
+- [x] Identity Parent / Élève + premiers espaces `/parent`, `/eleve`
+- [x] Centre de notifications personnel
+- [ ] Parcours complets (finances, bulletins, absences, documents)
 
-## Release 5 — Programme & Progression
+## Release 5 — Programme & Progression 🟡 PRÉSENTE
 
-- Référentiels de programmes versionnés
-- Progression pédagogique (prévu / enseigné / évalué / maîtrisé)
+- [x] Référentiels versionnés (tables)
+- [x] Espace enseignant Programmes & Progression
+- [ ] Couverture complète prévu / enseigné / évalué / maîtrisé en production
 
-## Release 6 — Évaluations avancées
+## Release 6 — Évaluations avancées 🟡 PRÉSENTE
 
-- Banque de questions
-- Génération de sujets + corrigés
-- Variantes A/B/C anti-triche
-- Examens complets
+- [x] Types d’évaluation, workflow, correction, variantes
+- [ ] Banque de questions complète
+- [ ] Génération sujets + corrigés IA sous contrôle humain
+- [ ] Examens complets (salles, surveillants, PV)
 
-## Release 7 — Documents & Workflows
+## Release 7 — Documents & Workflows 🟡 SOCLE LIVRÉ (23/09)
 
-- Templates + génération PDF
-- Validation + signature + cachet + QR de vérification
-- Archivage
+- [x] Registre documentaire + workflow `draft/submitted/validated/rejected/archived`
+- [x] RPC `transition_document_workflow`
+- [x] Archivage + notifications de transition
+- [x] Colonnes signature / cachet / verification_code / qr_code
+- [ ] Templates → génération PDF
+- [ ] Workflows multi-niveaux configurables
+- [ ] Signature / cachet numériques + QR public de vérification
+- [ ] Mode papier (print → scan → réimport)
 
-## Release 8 — Intelligence
+## Release 8 — Intelligence 🟠 SOCLE
 
-- EduSoft AI (génération, analyse, assistance, recommandations)
-- Toujours sous contrôle humain pour les opérations critiques
+- [x] Gouvernance IA documentée (PRD §64)
+- [ ] Génération / analyse / recommandations opérationnelles sous contrôle humain
+
+## Ordre de travail recommandé (prochaines sessions)
+
+1. Consolider R1 restante (données test + RLS)
+2. Stabiliser parcours Admin Documents / Audit et Enseignant Évaluations / Programmes
+3. Avancer Release 3 (Payment Engine) si usage réel finance prioritaire
+4. Enrichir portails (R4) et finaliser Documents (R7) en parallèle contrôlée
+5. Notes → Bulletins (R2) avant IA lourde (R8)
 
 ## Règle de progression
 
-On ne passe à la release suivante que lorsque la précédente est stable et documentée.
-Chaque fonctionnalité doit respecter la Definition of Done (PRD §86).
+On ne déclare une release « terminée » que lorsqu’elle est stable, documentée et conforme à la Definition of Done (PRD §86).
+Aucune fonctionnalité ne crée une deuxième source de vérité (PRD §71, §87.13).
