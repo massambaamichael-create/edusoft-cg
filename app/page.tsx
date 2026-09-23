@@ -47,7 +47,7 @@ export default function Home() {
     setError("");
 
     if (!email || !password) {
-      setError("Veuillez renseigner votre email et votre mot de passe.");
+      setError("Veuillez renseigner votre email ou identifiant de connexion, ainsi que votre mot de passe.");
       return;
     }
 
@@ -148,7 +148,8 @@ export default function Home() {
               </label>
 
               <input
-                type="email"
+                type="text"
+                autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="directeur@ecole.cg ou EDCG-ELV-001"
