@@ -10,7 +10,7 @@ Dernière mise à jour : 23 septembre 2026
 | Version PRD de référence | 2.0 |
 | Stack | Next.js 16 + React 19 + TypeScript + Supabase + Tailwind 4 |
 | Repo | `massambaamichael-create/edusoft-cg` (privé) |
-| Phase actuelle | **Fondations Core en place → consolidation des espaces métiers** |
+| Phase actuelle | **Consolidation des espaces métiers → parcours opérationnels** |
 | Stratégie | Migration progressive (jamais repartir de zéro) |
 
 ## 2. Documentation de référence (Phase 0)
@@ -79,10 +79,15 @@ Dernière mise à jour : 23 septembre 2026
 
 ### Interface
 - Dashboard
+- Administration → Élèves, Parents / tuteurs, Inscriptions
+- Pédagogie → Classes, Matières, Emplois du temps, Évaluations / Corrections, Programmes, Responsabilités
+- Finance → Frais, Paiements, Reçus
+- Vie scolaire → Présences, Discipline
+- RH → Personnel
+- Santé → Dossiers de santé protégés
 - Page Enseignants (liste + création)
-- Pédagogie → Classes (riche : création, validation, équipe pédagogique, import)
-- Pédagogie → Matières
 - Shells métier séparés par rôle/espace ; aucune sidebar globale ne mélange les domaines
+- Les vues opérationnelles récentes privilégient les données réelles existantes, avec recherche / filtres lorsque le parcours le justifie
 
 ## 4. Écarts majeurs par rapport au PRD v2.0
 
@@ -92,17 +97,17 @@ Dernière mise à jour : 23 septembre 2026
 | Contextualisation année scolaire partout | Bien avancée sur classes / class_subjects / teacher_subjects | Haute |
 | Distinction Catalogue / Matière-classe / Affectation | Bon début (3 tables présentes) | Haute (formaliser + nettoyer coefficient sur subjects) |
 | Rôles complets | Très limité (surtout Directeur + Enseignant) | Haute |
-| Parents / Tuteurs | Présent (`parents`, `student_parents`) | Haute |
+| Parents / Tuteurs | Présent (`parents`, `student_parents`) | En cours de consolidation |
 | Inscriptions complètes + historique | Partiel (`student_enrollments`) | Haute |
 | Notes → Moyennes → Bulletins (source unique) | Très partiel | Haute |
 | Emplois du temps | Présent : calendrier, disponibilités, salles, génération | Haute |
-| Finance + Payment Engine | Tables de base présentes ; UI métier en consolidation | Haute |
+| Finance + Payment Engine | Vues opérationnelles frais / paiements / reçus en consolidation | Haute |
 | Programmes + Progression | Présent et versionné | Haute |
 | Évaluations avancées | Présent : workflow, variantes, correction directe | Haute |
-| Documents & Workflows | Absent | Moyenne |
+| Documents & Workflows | Absent côté UI métier | Moyenne |
 | Portails Parent / Élève | Absent | Moyenne |
 | Audit Engine complet | Minimal | Haute |
-| Interfaces adaptées par rôle | Présent : RoleSpaceShell + espaces dédiés | Critique |
+| Interfaces adaptées par rôle | Présent : RoleSpaceShell + espaces dédiés (Administration, Pédagogie, Finance, Vie scolaire, RH, Santé) | Critique |
 
 ## 5. Points de vigilance techniques
 
@@ -131,10 +136,11 @@ On conserve et on fait évoluer :
 
 **Consolidation fonctionnelle avant validation technique** :
 
-1. Finaliser les espaces métier sans navigation croisée.
-2. Vérifier que chaque action pointe vers une route réellement implémentée.
-3. Connecter les tableaux de bord aux tables existantes sans inventer de données.
-4. Affiner les permissions et RLS par rôle et contexte.
-5. Ensuite seulement : lint → typecheck/build → corrections de release.
+1. Finaliser les parcours opérationnels des espaces existants, en priorité Administration et les opérations encore en lecture seule.
+2. Vérifier que chaque action / lien de navigation pointe vers une route réellement implémentée.
+3. Connecter les tableaux de bord et indicateurs aux tables existantes sans inventer de données.
+4. Affiner les permissions et le RLS par rôle, école, année et affectation, notamment pour les écritures métier.
+5. Ajouter progressivement les briques transversales encore absentes (Documents & Workflows, Audit/Notifications complet) sans créer de seconde source de vérité.
+6. Ensuite seulement : lint → typecheck/build → corrections de release.
 
 Règle de travail : aucune nouvelle page ne doit recréer une donnée déjà portée par une autre source de vérité.
