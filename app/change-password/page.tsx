@@ -47,34 +47,30 @@ export default function ChangePasswordPage() {
     setSaving(true);
 
     const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      data: { session },
+    } = await supabase.auth.getSession();
 
-    if (!user) {
+    if (!session?.access_token) {
       setSaving(false);
       router.replace("/");
       return;
     }
 
-    const { error: updateError } = await supabase.auth.updateUser({
-      password,
+    const response = await fetch("/api/auth/complete-first-login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ password }),
     });
 
-    if (updateError) {
-      setSaving(false);
-      setError("Impossible de mettre à jour le mot de passe.");
-      return;
-    }
+    const result = await response.json().catch(() => null);
 
-    const { error: profileError } = await supabase
-      .from("users")
-      .update({ must_change_password: false })
-      .eq("auth_user_id", user.id);
-
-    if (profileError) {
+    if (!response.ok || !result?.success) {
       setSaving(false);
       setError(
-        "Mot de passe modifié, mais la finalisation de votre accès a échoué. Réessayez."
+        result?.error || "Impossible de mettre à jour le mot de passe."
       );
       return;
     }
