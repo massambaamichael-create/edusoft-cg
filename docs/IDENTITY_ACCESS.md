@@ -79,6 +79,8 @@ Identity & Access devra couvrir :
 ## État d'implémentation
 
 - Le provisioning Auth centralisé est maintenant disponible comme primitive réutilisable.
-- Le provisioning enseignant existant doit l'utiliser.
+- Le provisioning enseignant l'utilise et marque le profil `users.must_change_password = true`.
+- Le middleware impose ce changement côté serveur avant l'accès à un espace métier ; le client ne peut plus contourner cette règle via `user_metadata`.
+- La page de changement de mot de passe met à jour Auth puis réinitialise le drapeau serveur.
 - Les autres profils métier seront raccordés progressivement, après vérification de leurs tables, permissions et RLS.
 - Aucun lint/build n'est lancé à cette étape.
