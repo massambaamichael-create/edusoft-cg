@@ -289,7 +289,7 @@ const AVAILABILITY_SOURCE_LABELS: Record<AvailabilitySource, string> = {
 };
 
 const FIELD =
-  "w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 disabled:bg-slate-50";
+  "w-full rounded-[18px] border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-700 outline-none transition focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 disabled:bg-slate-50";
 
 const TABS = [
   { id: "timetables" as TimetableTab, label: "Emplois du temps", icon: CalendarDays },
@@ -2072,10 +2072,10 @@ export default function TimetablePage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
-      <div className="min-h-screen">
+    <div className="min-h-full bg-[#F6F7FB] text-slate-900">
+      <div className="min-h-full">
         <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-          <div className="flex min-h-[76px] items-center justify-between gap-4 px-6 lg:px-8">
+          <div className="flex min-h-[76px] items-center justify-between gap-4 px-5 lg:px-10">
             <div>
               <div className="flex items-center gap-1.5 text-xs text-slate-400">
                 <span>Pédagogie</span>
@@ -2093,7 +2093,7 @@ export default function TimetablePage() {
             <button
               type="button"
               onClick={() => loadData(true)}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+              className="inline-flex items-center gap-2 rounded-[18px] border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
             >
               <RefreshCw
                 className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
@@ -2105,7 +2105,7 @@ export default function TimetablePage() {
 
         <main className="px-6 py-7 lg:px-8 lg:py-8">
           <section className="mb-7 border-b border-slate-100 pb-7">
-            <span className="text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">
+            <span className="text-xs font-bold uppercase tracking-[0.16em] text-slate-700">
               Organisation pédagogique
             </span>
 
@@ -2121,7 +2121,7 @@ export default function TimetablePage() {
 
           {notice && (
             <div
-              className={`mb-6 flex items-center gap-3 rounded-xl border px-4 py-3 text-sm ${
+              className={`mb-6 flex items-center gap-3 rounded-[18px] border px-4 py-3 text-sm ${
                 notice.type === "success"
                   ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                   : "border-red-200 bg-red-50 text-red-700"
@@ -2180,7 +2180,7 @@ export default function TimetablePage() {
           </section>
 
           <section className="mb-6 overflow-x-auto">
-            <div className="flex min-w-max gap-2 rounded-2xl border border-slate-200 bg-white p-2">
+            <div className="flex min-w-max gap-2 rounded-[24px] border border-slate-200 bg-white p-2">
               {TABS.map((tab) => {
                 const Icon = tab.icon;
                 const active = activeTab === tab.id;
@@ -2190,9 +2190,9 @@ export default function TimetablePage() {
                     key={tab.id}
                     type="button"
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+                    className={`flex items-center gap-2 rounded-[18px] px-4 py-2.5 text-sm font-semibold transition ${
                       active
-                        ? "bg-indigo-600 text-white"
+                        ? "bg-slate-900 text-white"
                         : "text-slate-600 hover:bg-slate-50"
                     }`}
                   >
@@ -2206,14 +2206,14 @@ export default function TimetablePage() {
 
           {activeTab === "timetables" && (
             <div className="space-y-6">
-              <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-white">
                 <SectionHeader title="Emploi du temps des classes" subtitle="Sélectionnez une année, un brouillon et une classe pour construire sa grille hebdomadaire." action={
   canManage ? (
     <button
       type="button"
       disabled={saving || !selectedYearId}
       onClick={createDraftTimetable}
-      className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+      className="inline-flex items-center gap-2 rounded-[18px] bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
     >
       <Plus className="h-4 w-4" />
       Nouveau brouillon
@@ -2230,7 +2230,7 @@ export default function TimetablePage() {
                   <div className="flex flex-col gap-4 border-b border-slate-100 px-5 py-4">
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                       <div>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-indigo-600">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-700">
                           Classe sélectionnée
                         </p>
 
@@ -2245,7 +2245,7 @@ export default function TimetablePage() {
                       </div>
 
                       {selectedTimetable && (
-                        <div className="rounded-xl bg-slate-50 px-4 py-3">
+                        <div className="rounded-[18px] bg-slate-50 px-4 py-3">
                           <p className="text-[10px] font-semibold uppercase text-slate-400">
                             État
                           </p>
@@ -2267,7 +2267,7 @@ export default function TimetablePage() {
                               type="button"
                               disabled={saving}
                               onClick={controlTimetable}
-                              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                              className="rounded-[18px] border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
                             >
                               Contrôler
                             </button>
@@ -2278,7 +2278,7 @@ export default function TimetablePage() {
                               onClick={() =>
                                 updateTimetableWorkflow("review")
                               }
-                              className="rounded-xl bg-indigo-50 px-3.5 py-2 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"
+                              className="rounded-[18px] bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800 hover:bg-slate-100 disabled:opacity-50"
                             >
                               Passer en révision
                             </button>
@@ -2291,7 +2291,7 @@ export default function TimetablePage() {
                               type="button"
                               disabled={saving}
                               onClick={controlTimetable}
-                              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                              className="rounded-[18px] border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
                             >
                               Contrôler
                             </button>
@@ -2302,7 +2302,7 @@ export default function TimetablePage() {
                               onClick={() =>
                                 updateTimetableWorkflow("validated")
                               }
-                              className="rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                              className="rounded-[18px] bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
                             >
                               Valider
                             </button>
@@ -2316,7 +2316,7 @@ export default function TimetablePage() {
                             onClick={() =>
                               updateTimetableWorkflow("published")
                             }
-                            className="rounded-xl bg-indigo-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                            className="rounded-[18px] bg-slate-900 px-3.5 py-2 text-xs font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
                           >
                             Publier
                           </button>
@@ -2336,7 +2336,7 @@ export default function TimetablePage() {
                               onClick={() =>
                                 updateTimetableWorkflow("archived")
                               }
-                              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                              className="rounded-[18px] border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-50 disabled:opacity-50"
                             >
                               Archiver
                             </button>
@@ -2347,7 +2347,7 @@ export default function TimetablePage() {
                     {selectedTimetable &&
                       !timetableIsEditable &&
                       selectedTimetable.status !== "archived" && (
-                        <div className="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3">
+                        <div className="rounded-[18px] border border-amber-100 bg-amber-50 px-4 py-3">
                           <p className="text-xs font-semibold text-amber-700">
                             Grille verrouillée
                           </p>
@@ -2359,16 +2359,16 @@ export default function TimetablePage() {
                         </div>
                       )}
                   </div>
-                  <div className="overflow-x-auto p-5"><table className="w-full min-w-[980px] border-separate border-spacing-0"><thead><tr><th className="sticky left-0 z-20 w-[150px] border-b border-r border-slate-200 bg-white px-3 py-3 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">Créneau</th>{activeSchoolDays.map((d)=><th key={d.id} className="min-w-[165px] border-b border-slate-200 px-3 py-3 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500">{d.name}</th>)}</tr></thead><tbody>{activeTimeSlots.map((s)=><tr key={s.id}><td className="sticky left-0 z-10 border-b border-r border-slate-100 bg-white px-3 py-3"><p className="text-xs font-semibold text-slate-700">{s.name}</p><p className="mt-1 text-[10px] text-slate-400">{shortTime(s.start_time)}–{shortTime(s.end_time)}</p></td>{activeSchoolDays.map((d)=>{const e=selectedClassEntries.find((x)=>x.school_day_id===d.id&&x.time_slot_id===s.id)??null;return <td key={`${d.id}-${s.id}`} className="border-b border-slate-100 p-2 align-top">{e?<button type="button" onClick={()=>openEditEntry(e)} className="min-h-[96px] w-full rounded-xl border border-indigo-100 bg-indigo-50 p-3 text-left"><p className="text-xs font-bold text-indigo-800">{getSubjectName(e.class_subject_id)}</p><p className="mt-1 text-[10px] font-medium text-slate-600">{getTeacherNameFromAssignment(e.teacher_assignment_id)}</p>{e.room_id&&<p className="mt-2 text-[10px] text-slate-400">{getRoomName(e.room_id)}</p>}</button>:canManage?<button type="button" onClick={()=>openCreateEntry(d.id,s.id)} className="flex min-h-[96px] w-full items-center justify-center rounded-xl border border-dashed border-slate-200 text-xs font-semibold text-slate-300 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-600"><Plus className="mr-1.5 h-4 w-4"/>Ajouter</button>:<div className="min-h-[96px] rounded-xl border border-dashed border-slate-100"/>}</td>})}</tr>)}</tbody></table></div>
+                  <div className="overflow-x-auto p-5"><table className="w-full min-w-[980px] border-separate border-spacing-0"><thead><tr><th className="sticky left-0 z-20 w-[150px] border-b border-r border-slate-200 bg-white px-3 py-3 text-left text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400">Créneau</th>{activeSchoolDays.map((d)=><th key={d.id} className="min-w-[165px] border-b border-slate-200 px-3 py-3 text-center text-[10px] font-bold uppercase tracking-[0.08em] text-slate-500">{d.name}</th>)}</tr></thead><tbody>{activeTimeSlots.map((s)=><tr key={s.id}><td className="sticky left-0 z-10 border-b border-r border-slate-100 bg-white px-3 py-3"><p className="text-xs font-semibold text-slate-700">{s.name}</p><p className="mt-1 text-[10px] text-slate-400">{shortTime(s.start_time)}–{shortTime(s.end_time)}</p></td>{activeSchoolDays.map((d)=>{const e=selectedClassEntries.find((x)=>x.school_day_id===d.id&&x.time_slot_id===s.id)??null;return <td key={`${d.id}-${s.id}`} className="border-b border-slate-100 p-2 align-top">{e?<button type="button" onClick={()=>openEditEntry(e)} className="min-h-[96px] w-full rounded-[18px] border border-slate-200 bg-slate-50 p-3 text-left"><p className="text-xs font-bold text-slate-900">{getSubjectName(e.class_subject_id)}</p><p className="mt-1 text-[10px] font-medium text-slate-600">{getTeacherNameFromAssignment(e.teacher_assignment_id)}</p>{e.room_id&&<p className="mt-2 text-[10px] text-slate-400">{getRoomName(e.room_id)}</p>}</button>:canManage?<button type="button" onClick={()=>openCreateEntry(d.id,s.id)} className="flex min-h-[96px] w-full items-center justify-center rounded-[18px] border border-dashed border-slate-200 text-xs font-semibold text-slate-300 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-700"><Plus className="mr-1.5 h-4 w-4"/>Ajouter</button>:<div className="min-h-[96px] rounded-[18px] border border-dashed border-slate-100"/>}</td>})}</tr>)}</tbody></table></div>
                 </>)}
               </section>
-              {selectedClass&&selectedClassSubjects.length>0&&<section className="overflow-hidden rounded-2xl border border-slate-200 bg-white"><SectionHeader title="Progression des volumes horaires" subtitle="Comparaison entre le volume hebdomadaire configuré et les créneaux planifiés." action={null}/><div className="divide-y divide-slate-100">{selectedClassSubjects.map((cs)=>{const subj=subjects.find((x)=>x.id===cs.subject_id);const planned=plannedHoursForClassSubject(cs.id);const target=cs.hours_per_week;const progress=target&&target>0?Math.min(100,Math.round(planned/target*100)):0;const a=getAssignmentForClassSubject(cs.id);return <div key={cs.id} className="grid gap-4 px-5 py-4 lg:grid-cols-[1.4fr_1fr_180px]"><div><p className="text-sm font-bold text-slate-800">{subj?.name??"Matière"}</p><p className="mt-1 text-xs text-slate-400">{a?getTeacherNameFromAssignment(a.id):"Aucun enseignant affecté"}</p></div><div><div className="flex items-center justify-between text-xs"><span className="text-slate-400">Planifié</span><span className="font-bold text-slate-700">{planned.toLocaleString("fr-FR")} h{target!=null?` / ${Number(target).toLocaleString("fr-FR")} h`:""}</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-indigo-500" style={{width:`${progress}%`}}/></div></div><div className="text-right">{target==null?<span className="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700">Volume non défini</span>:planned<target?<span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-600">Reste {(target-planned).toLocaleString("fr-FR")} h</span>:planned===target?<span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700">Complet</span>:<span className="rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-700">Dépassement</span>}</div></div>})}</div></section>}
+              {selectedClass&&selectedClassSubjects.length>0&&<section className="overflow-hidden rounded-[24px] border border-slate-200 bg-white"><SectionHeader title="Progression des volumes horaires" subtitle="Comparaison entre le volume hebdomadaire configuré et les créneaux planifiés." action={null}/><div className="divide-y divide-slate-100">{selectedClassSubjects.map((cs)=>{const subj=subjects.find((x)=>x.id===cs.subject_id);const planned=plannedHoursForClassSubject(cs.id);const target=cs.hours_per_week;const progress=target&&target>0?Math.min(100,Math.round(planned/target*100)):0;const a=getAssignmentForClassSubject(cs.id);return <div key={cs.id} className="grid gap-4 px-5 py-4 lg:grid-cols-[1.4fr_1fr_180px]"><div><p className="text-sm font-bold text-slate-800">{subj?.name??"Matière"}</p><p className="mt-1 text-xs text-slate-400">{a?getTeacherNameFromAssignment(a.id):"Aucun enseignant affecté"}</p></div><div><div className="flex items-center justify-between text-xs"><span className="text-slate-400">Planifié</span><span className="font-bold text-slate-700">{planned.toLocaleString("fr-FR")} h{target!=null?` / ${Number(target).toLocaleString("fr-FR")} h`:""}</span></div><div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-slate-700" style={{width:`${progress}%`}}/></div></div><div className="text-right">{target==null?<span className="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-bold text-amber-700">Volume non défini</span>:planned<target?<span className="rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-600">Reste {(target-planned).toLocaleString("fr-FR")} h</span>:planned===target?<span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700">Complet</span>:<span className="rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-700">Dépassement</span>}</div></div>})}</div></section>}
             </div>
           )}
 
           {activeTab === "configuration" && (
             <div className="space-y-6">
-              <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-white">
                 <SectionHeader
                   title="Jours scolaires"
                   subtitle="Définissez les jours pendant lesquels l'établissement organise des cours."
@@ -2377,7 +2377,7 @@ export default function TimetablePage() {
                       <button
                         type="button"
                         onClick={openCreateDay}
-                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+                        className="inline-flex items-center gap-2 rounded-[18px] bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
                       >
                         <Plus className="h-4 w-4" />
                         Ajouter un jour
@@ -2401,7 +2401,7 @@ export default function TimetablePage() {
                         key={day.id}
                         className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center"
                       >
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-[18px] bg-slate-50 text-slate-700">
                           <CalendarDays className="h-4 w-4" />
                         </div>
 
@@ -2432,7 +2432,7 @@ export default function TimetablePage() {
                               type="button"
                               disabled={saving}
                               onClick={() => toggleDay(day)}
-                              className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                              className="rounded-[18px] border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
                             >
                               {day.is_school_day
                                 ? "Désactiver"
@@ -2461,7 +2461,7 @@ export default function TimetablePage() {
                 )}
               </section>
 
-              <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-white">
                 <SectionHeader
                   title="Créneaux horaires"
                   subtitle="Définissez les périodes de cours utilisables dans la grille."
@@ -2470,7 +2470,7 @@ export default function TimetablePage() {
                       <button
                         type="button"
                         onClick={openCreateSlot}
-                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+                        className="inline-flex items-center gap-2 rounded-[18px] bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
                       >
                         <Plus className="h-4 w-4" />
                         Nouveau créneau
@@ -2569,7 +2569,7 @@ export default function TimetablePage() {
           )}
 
           {activeTab === "calendar" && (
-            <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-white">
               <SectionHeader
                 title="Calendrier scolaire"
                 subtitle="Centralisez jours fériés, vacances, fermetures, examens et autres exceptions de l'année."
@@ -2578,7 +2578,7 @@ export default function TimetablePage() {
                     <button
                       type="button"
                       onClick={openCreateCalendarException}
-                      className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+                      className="inline-flex items-center gap-2 rounded-[18px] bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
                     >
                       <Plus className="h-4 w-4" />
                       Ajouter une exception
@@ -2627,7 +2627,7 @@ export default function TimetablePage() {
                       key={item.id}
                       className="flex flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center"
                     >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[18px] bg-slate-50 text-slate-700">
                         <CalendarDays className="h-5 w-5" />
                       </div>
 
@@ -2688,7 +2688,7 @@ export default function TimetablePage() {
                             type="button"
                             disabled={saving}
                             onClick={() => toggleCalendarException(item)}
-                            className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+                            className="rounded-[18px] border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50"
                           >
                             {item.is_active ? "Désactiver" : "Activer"}
                           </button>
@@ -2750,7 +2750,7 @@ export default function TimetablePage() {
                 />
               </section>
 
-              <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-white">
                 <SectionHeader
                   title="Supervision des disponibilités"
                   subtitle="Les enseignants renseignent leurs disponibilités depuis leur espace. Cette vue permet au Directeur de suivre l'avancement."
@@ -2768,7 +2768,7 @@ export default function TimetablePage() {
                           setAvailabilitySearch(e.target.value)
                         }
                         placeholder="Rechercher un enseignant..."
-                        className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-50"
+                        className="w-full rounded-[18px] border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-50"
                       />
                     </div>
 
@@ -2813,9 +2813,9 @@ export default function TimetablePage() {
                             onClick={() =>
                               setSelectedTeacherId(item.teacher.id)
                             }
-                            className={`mb-1 w-full rounded-xl border px-4 py-3 text-left transition ${
+                            className={`mb-1 w-full rounded-[18px] border px-4 py-3 text-left transition ${
                               selectedTeacherId === item.teacher.id
-                                ? "border-indigo-200 bg-indigo-50"
+                                ? "border-indigo-200 bg-slate-50"
                                 : "border-transparent hover:bg-slate-50"
                             }`}
                           >
@@ -2847,7 +2847,7 @@ export default function TimetablePage() {
 
                             <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
                               <div
-                                className="h-full rounded-full bg-indigo-500"
+                                className="h-full rounded-full bg-slate-700"
                                 style={{
                                   width: `${item.completionRate}%`,
                                 }}
@@ -2878,7 +2878,7 @@ export default function TimetablePage() {
                           <div className="border-b border-slate-100 px-5 py-5">
                             <div className="flex flex-wrap items-center justify-between gap-4">
                               <div>
-                                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-indigo-600">
+                                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700">
                                   Disponibilités enseignant
                                 </p>
 
@@ -2892,7 +2892,7 @@ export default function TimetablePage() {
                                 </p>
                               </div>
 
-                              <div className="rounded-xl bg-slate-50 px-4 py-3 text-right">
+                              <div className="rounded-[18px] bg-slate-50 px-4 py-3 text-right">
                                 <p className="text-[10px] font-semibold uppercase text-slate-400">
                                   Complétude
                                 </p>
@@ -2949,11 +2949,11 @@ export default function TimetablePage() {
                                         >
                                           {entry ? (
                                             <div
-                                              className={`rounded-xl border px-2 py-2 ${
+                                              className={`rounded-[18px] border px-2 py-2 ${
                                                 entry.availability_status === "available"
                                                   ? "border-emerald-100 bg-emerald-50 text-emerald-700"
                                                   : entry.availability_status === "preferred"
-                                                  ? "border-indigo-100 bg-indigo-50 text-indigo-700"
+                                                  ? "border-slate-200 bg-slate-50 text-slate-800"
                                                   : entry.availability_status === "avoid"
                                                   ? "border-amber-100 bg-amber-50 text-amber-700"
                                                   : "border-red-100 bg-red-50 text-red-700"
@@ -2976,7 +2976,7 @@ export default function TimetablePage() {
                                               </p>
                                             </div>
                                           ) : (
-                                            <div className="rounded-xl border border-dashed border-slate-200 px-2 py-3 text-[10px] font-semibold text-slate-300">
+                                            <div className="rounded-[18px] border border-dashed border-slate-200 px-2 py-3 text-[10px] font-semibold text-slate-300">
                                               Non renseigné
                                             </div>
                                           )}
@@ -3038,7 +3038,7 @@ export default function TimetablePage() {
                 />
               </section>
 
-              <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+              <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-white">
                 <SectionHeader
                   title="Salles et espaces"
                   subtitle="Les salles actives pourront être associées aux cours dans la grille d'emploi du temps."
@@ -3047,7 +3047,7 @@ export default function TimetablePage() {
                       <button
                         type="button"
                         onClick={openCreateRoom}
-                        className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700"
+                        className="inline-flex items-center gap-2 rounded-[18px] bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800"
                       >
                         <Plus className="h-4 w-4" />
                         Nouvelle salle
@@ -3064,7 +3064,7 @@ export default function TimetablePage() {
                       value={roomSearch}
                       onChange={(e) => setRoomSearch(e.target.value)}
                       placeholder="Rechercher une salle ou un code..."
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-50"
+                      className="w-full rounded-[18px] border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-indigo-300 focus:bg-white focus:ring-4 focus:ring-indigo-50"
                     />
                   </div>
                 </div>
@@ -3109,7 +3109,7 @@ export default function TimetablePage() {
                           >
                             <td className="px-5 py-4">
                               <div className="flex items-center gap-3">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-[18px] bg-slate-50 text-slate-700">
                                   <DoorOpen className="h-4 w-4" />
                                 </div>
 
@@ -3188,12 +3188,12 @@ export default function TimetablePage() {
                 )}
               </section>
 
-              <div className="rounded-2xl border border-indigo-100 bg-indigo-50/50 px-5 py-4">
-                <p className="text-xs font-semibold text-indigo-700">
+              <div className="rounded-[24px] border border-slate-200 bg-slate-50/50 px-5 py-4">
+                <p className="text-xs font-semibold text-slate-800">
                   Utilisation dans le planning
                 </p>
 
-                <p className="mt-1 text-xs leading-5 text-indigo-600/80">
+                <p className="mt-1 text-xs leading-5 text-slate-700/80">
                   Lorsqu'une salle sera affectée à un cours, EduSoft
                   empêchera automatiquement son utilisation simultanée
                   dans deux classes grâce à la protection déjà présente
@@ -3280,7 +3280,7 @@ export default function TimetablePage() {
               />
             </Field>
 
-            <label className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
+            <label className="flex items-center justify-between rounded-[18px] border border-slate-200 px-4 py-3">
               <div>
                 <p className="text-sm font-semibold text-slate-700">
                   Jour scolaire actif
@@ -3376,7 +3376,7 @@ export default function TimetablePage() {
               />
             </Field>
 
-            <label className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
+            <label className="flex items-center justify-between rounded-[18px] border border-slate-200 px-4 py-3">
               <div>
                 <p className="text-sm font-semibold text-slate-700">
                   Créneau actif
@@ -3511,7 +3511,7 @@ export default function TimetablePage() {
             </Field>
 
             <div className="grid gap-3">
-              <label className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
+              <label className="flex items-center justify-between rounded-[18px] border border-slate-200 px-4 py-3">
                 <div>
                   <p className="text-sm font-semibold text-slate-700">
                     Bloque les cours
@@ -3533,7 +3533,7 @@ export default function TimetablePage() {
                 />
               </label>
 
-              <label className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
+              <label className="flex items-center justify-between rounded-[18px] border border-slate-200 px-4 py-3">
                 <div>
                   <p className="text-sm font-semibold text-slate-700">
                     Affecte aussi le personnel
@@ -3555,7 +3555,7 @@ export default function TimetablePage() {
                 />
               </label>
 
-              <label className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
+              <label className="flex items-center justify-between rounded-[18px] border border-slate-200 px-4 py-3">
                 <div>
                   <p className="text-sm font-semibold text-slate-700">
                     Événement actif
@@ -3611,11 +3611,11 @@ export default function TimetablePage() {
         <Modal title={entryForm.id ? "Modifier le cours" : "Ajouter un cours"} subtitle={`${selectedClass?.name ?? "Classe"} · ${activeSchoolDays.find((d)=>d.id===entryForm.schoolDayId)?.name ?? ""} · ${activeTimeSlots.find((s)=>s.id===entryForm.timeSlotId)?.name ?? ""}`} onClose={()=>!saving&&setEntryModalOpen(false)}>
           <div className="space-y-5">
             <Field label="Matière"><select value={entryForm.classSubjectId} onChange={(e)=>setEntryForm((p)=>({...p,classSubjectId:e.target.value}))} className={FIELD}><option value="">Sélectionner une matière</option>{selectedClassSubjects.map((cs)=>{const s=subjects.find((x)=>x.id===cs.subject_id);const a=getAssignmentForClassSubject(cs.id);return <option key={cs.id} value={cs.id} disabled={!a}>{s?.name??"Matière"}{!a?" — aucun enseignant affecté":""}</option>})}</select></Field>
-            {entryForm.classSubjectId&&<div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3"><p className="text-xs font-semibold text-slate-700">Enseignant</p><p className="mt-1 text-sm font-bold text-slate-900">{(()=>{const a=getAssignmentForClassSubject(entryForm.classSubjectId);return a?getTeacherNameFromAssignment(a.id):"Aucun enseignant affecté"})()}</p>{(()=>{const cs=selectedClassSubjects.find((x)=>x.id===entryForm.classSubjectId);if(!cs)return null;const p=plannedHoursForClassSubject(cs.id);return <p className="mt-1 text-xs text-slate-400">Volume déjà planifié : {p.toLocaleString("fr-FR")} h{cs.hours_per_week!=null?` / ${Number(cs.hours_per_week).toLocaleString("fr-FR")} h`:" · volume cible non défini"}</p>})()}</div>}
+            {entryForm.classSubjectId&&<div className="rounded-[18px] border border-slate-200 bg-slate-50/60 px-4 py-3"><p className="text-xs font-semibold text-slate-700">Enseignant</p><p className="mt-1 text-sm font-bold text-slate-900">{(()=>{const a=getAssignmentForClassSubject(entryForm.classSubjectId);return a?getTeacherNameFromAssignment(a.id):"Aucun enseignant affecté"})()}</p>{(()=>{const cs=selectedClassSubjects.find((x)=>x.id===entryForm.classSubjectId);if(!cs)return null;const p=plannedHoursForClassSubject(cs.id);return <p className="mt-1 text-xs text-slate-400">Volume déjà planifié : {p.toLocaleString("fr-FR")} h{cs.hours_per_week!=null?` / ${Number(cs.hours_per_week).toLocaleString("fr-FR")} h`:" · volume cible non défini"}</p>})()}</div>}
             <Field label="Salle (optionnelle)"><select value={entryForm.roomId} onChange={(e)=>setEntryForm((p)=>({...p,roomId:e.target.value}))} className={FIELD}><option value="">Aucune salle spécifique</option>{rooms.filter((r)=>r.is_active).map((r)=><option key={r.id} value={r.id}>{r.name}{r.capacity!=null?` · ${r.capacity} places`:""}</option>)}</select></Field>
             <Field label="Notes"><textarea rows={3} value={entryForm.notes} onChange={(e)=>setEntryForm((p)=>({...p,notes:e.target.value}))} className={FIELD}/></Field>
           </div>
-          <div className="mt-8 flex flex-wrap justify-between gap-3 border-t border-slate-100 pt-5"><div>{entryForm.id&&<button type="button" disabled={deletingId===entryForm.id} onClick={()=>{const e=timetableEntries.find((x)=>x.id===entryForm.id);if(e)deleteTimetableEntry(e);}} className="rounded-xl border border-red-100 bg-white px-4 py-2.5 text-sm font-semibold text-red-600">Retirer le cours</button>}</div><div className="flex gap-3"><button type="button" disabled={saving} onClick={()=>setEntryModalOpen(false)} className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600">Annuler</button><button type="button" disabled={saving||!entryForm.classSubjectId} onClick={saveTimetableEntry} className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50">{saving?"Enregistrement…":entryForm.id?"Enregistrer":"Ajouter le cours"}</button></div></div>
+          <div className="mt-8 flex flex-wrap justify-between gap-3 border-t border-slate-100 pt-5"><div>{entryForm.id&&<button type="button" disabled={deletingId===entryForm.id} onClick={()=>{const e=timetableEntries.find((x)=>x.id===entryForm.id);if(e)deleteTimetableEntry(e);}} className="rounded-[18px] border border-red-100 bg-white px-4 py-2.5 text-sm font-semibold text-red-600">Retirer le cours</button>}</div><div className="flex gap-3"><button type="button" disabled={saving} onClick={()=>setEntryModalOpen(false)} className="rounded-[18px] border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600">Annuler</button><button type="button" disabled={saving||!entryForm.classSubjectId} onClick={saveTimetableEntry} className="rounded-[18px] bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50">{saving?"Enregistrement…":entryForm.id?"Enregistrer":"Ajouter le cours"}</button></div></div>
         </Modal>
       )}
 
@@ -3670,7 +3670,7 @@ export default function TimetablePage() {
               />
             </Field>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3">
+            <div className="rounded-[18px] border border-slate-200 bg-slate-50/60 px-4 py-3">
               <p className="text-xs font-semibold text-slate-700">
                 Type actuel : Salle de classe
               </p>
@@ -3681,7 +3681,7 @@ export default function TimetablePage() {
               </p>
             </div>
 
-            <label className="flex items-center justify-between rounded-xl border border-slate-200 px-4 py-3">
+            <label className="flex items-center justify-between rounded-[18px] border border-slate-200 px-4 py-3">
               <div>
                 <p className="text-sm font-semibold text-slate-700">
                   Salle active
@@ -3731,7 +3731,7 @@ function Metric({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5">
+    <div className="rounded-[24px] border border-slate-200 bg-white p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold text-slate-400">{label}</p>
@@ -3740,7 +3740,7 @@ function Metric({
           </p>
           <p className="mt-1 text-[11px] text-slate-400">{detail}</p>
         </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+        <div className="flex h-10 w-10 items-center justify-center rounded-[18px] bg-slate-50 text-slate-700">
           {icon}
         </div>
       </div>
@@ -3824,7 +3824,7 @@ function Placeholder({
   text: string;
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-8">
+    <section className="rounded-[24px] border border-slate-200 bg-white p-8">
       <div className="mx-auto max-w-xl py-10 text-center">
         <div className="mx-auto w-fit text-indigo-500">{icon}</div>
         <h3 className="mt-4 text-lg font-bold text-slate-900">{title}</h3>
@@ -3847,7 +3847,7 @@ function Modal({
 }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm">
-      <div className="max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div className="max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-[24px] bg-white shadow-2xl">
         <div className="flex items-start justify-between border-b border-slate-100 px-6 py-5">
           <div>
             <h2 className="text-xl font-bold text-slate-950">{title}</h2>
@@ -3887,7 +3887,7 @@ function ModalFooter({
         type="button"
         disabled={saving}
         onClick={onCancel}
-        className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 disabled:opacity-50"
+        className="rounded-[18px] border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 disabled:opacity-50"
       >
         Annuler
       </button>
@@ -3896,7 +3896,7 @@ function ModalFooter({
         type="button"
         disabled={saving}
         onClick={onSave}
-        className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+        className="rounded-[18px] bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
       >
         {saving ? "Enregistrement…" : label}
       </button>
