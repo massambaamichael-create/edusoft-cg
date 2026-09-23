@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Plus, Search, UserRound, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useCurrentUser } from "@/lib/auth";
 import {
@@ -119,8 +120,8 @@ export default function AdministrationElevesPage() {
 
   if (!userLoading && !canRead) {
     return (
-      <main className="px-6 py-8 lg:px-10">
-        <h1 className="text-2xl font-bold text-slate-900">Élèves</h1>
+      <main className="min-h-full bg-[#F6F7FB] px-6 py-7 lg:px-10 lg:py-9">
+        <div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white"><Users className="h-5 w-5" /></div><div><p className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400">Administration</p><h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">Élèves</h1></div></div>
         <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           Permission <code>students.read</code> requise.
         </p>
@@ -130,7 +131,7 @@ export default function AdministrationElevesPage() {
 
   return (
     <main className="px-6 py-8 lg:px-10">
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <header className="mb-7 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Élèves</h1>
           <p className="mt-1 text-sm text-slate-500">
@@ -142,21 +143,24 @@ export default function AdministrationElevesPage() {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700"
+            className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800"
           >
             Nouvel élève
           </button>
         )}
       </header>
 
-      <div className="mb-4">
+      <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="relative max-w-xl">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Rechercher (nom, matricule, téléphone…)"
-          className="h-11 w-full max-w-md rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-slate-400"
+          className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-4 text-sm outline-none transition focus:border-slate-400 focus:bg-white"
         />
       </div>
+        </div>
 
       {loading && (
         <p className="text-sm text-slate-500">Chargement des élèves…</p>
@@ -219,8 +223,8 @@ export default function AdministrationElevesPage() {
       )}
 
       {open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-[2px]">
+          <div className="w-full max-w-lg rounded-[24px] border border-slate-200 bg-white p-6 shadow-2xl">
             <h2 className="text-lg font-bold text-slate-900">Nouvel élève</h2>
             <p className="mt-1 text-sm text-slate-500">
               Une seule fiche dans <code>students</code>, rattachée à l{"'"}école.
