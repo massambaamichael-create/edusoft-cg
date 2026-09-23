@@ -20,76 +20,52 @@ export default function PedagogiePage() {
   const [teacherCount, setTeacherCount] = useState(0);
   const [assessmentCount, setAssessmentCount] = useState(0);
   const [reportCardCount, setReportCardCount] = useState(0);
+  const [academicYearName, setAcademicYearName] = useState("Aucune année active");
   useEffect(() => {
-  const fetchClassCount = async () => {
-    const { count, error } = await supabase
-      .from("classes")
-      .select("*", { count: "exact", head: true });
+    const loadDashboard = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-    if (error) {
-      console.error("Erreur lors du chargement des classes :", error);
-      return;
-    }
+      const { data: userProfile, error: profileError } = await supabase
+        .from("users")
+        .select("school_id")
+        .eq("auth_user_id", session.user.id)
+        .single();
 
-    setClassCount(count ?? 0);
-  };
+      if (profileError || !userProfile?.school_id) return;
 
-  fetchClassCount();
-}, []);
-useEffect(() => {
-  const fetchTeacherCount = async () => {
-    const { count, error } = await supabase
-      .from("teachers")
-      .select("*", { count: "exact", head: true });
+      const { data: activeYear } = await supabase
+        .from("academic_years")
+        .select("id, name")
+        .eq("school_id", userProfile.school_id)
+        .eq("is_active", true)
+        .maybeSingle();
 
-    if (error) {
-      console.error("Erreur lors du chargement des enseignants :", error);
-      return;
-    }
+      setAcademicYearName(activeYear?.name ?? "Aucune année active");
 
-    setTeacherCount(count ?? 0);
-  };
+      const [classes, teachers, assessments, reportCards] = await Promise.all([
+        supabase.from("classes").select("*", { count: "exact", head: true })
+          .eq("school_id", userProfile.school_id)
+          .eq("academic_year_id", activeYear?.id ?? ""),
+        supabase.from("teachers").select("*", { count: "exact", head: true })
+          .eq("school_id", userProfile.school_id),
+        supabase.from("assessments").select("*", { count: "exact", head: true })
+          .eq("school_id", userProfile.school_id)
+          .eq("academic_year_id", activeYear?.id ?? ""),
+        supabase.from("report_cards").select("*", { count: "exact", head: true })
+          .eq("school_id", userProfile.school_id)
+          .eq("academic_year_id", activeYear?.id ?? ""),
+      ]);
 
-  fetchTeacherCount();
-}, []);
-useEffect(() => {
-  const fetchAssessmentCount = async () => {
-    const { count, error } = await supabase
-      .from("assessments")
-      .select("*", { count: "exact", head: true });
+      setClassCount(classes.count ?? 0);
+      setTeacherCount(teachers.count ?? 0);
+      setAssessmentCount(assessments.count ?? 0);
+      setReportCardCount(reportCards.count ?? 0);
+    };
 
-    if (error) {
-      console.error(
-        "Erreur lors du chargement des évaluations :",
-        error
-      );
-      return;
-    }
-
-    setAssessmentCount(count ?? 0);
-  };
-
-  fetchAssessmentCount();
-}, []);
-useEffect(() => {
-  const fetchReportCardCount = async () => {
-    const { count, error } = await supabase
-      .from("report_cards")
-      .select("*", { count: "exact", head: true });
-
-    if (error) {
-      console.error(
-        "Erreur lors du chargement des bulletins :",
-        error
-      );
-      return;
-    }
-
-    setReportCardCount(count ?? 0);
-  };
-
-  fetchReportCardCount();
-}, []);
+    void loadDashboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <main className="min-h-screen bg-[#F7F8FC] p-6 lg:p-8">
       {/* HEADER */}
@@ -106,9 +82,12 @@ useEffect(() => {
           <p className="mt-2 text-sm text-gray-500">
             Gérez les classes, matières, évaluations, notes et résultats.
           </p>
+          <div className="mt-3 inline-flex items-center rounded-full border border-violet-100 bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
+            Année active : {academicYearName}
+          </div>
         </div>
 
-        <button className="flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700">
+        <button type="button" onClick={() => router.push("/pedagogie/evaluations")} className="flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700">
           <Plus className="h-4 w-4" />
           Nouvelle évaluation
         </button>
