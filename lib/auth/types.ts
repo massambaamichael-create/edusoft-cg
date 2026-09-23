@@ -15,6 +15,7 @@ export type UserProfile = {
   phone?: string | null;
   is_active?: boolean | null;
   must_change_password?: boolean | null;
+  login_identifier?: string | null;
 };
 
 export type School = {
@@ -72,6 +73,8 @@ export type PermissionCode =
   | "financial_reports.read"
   | "grades.read"
   | "grades.write"
+  | "portal.parent.read"
+  | "portal.student.read"
   | "health.manage"
   | "health.read"
   | "hr.manage"
