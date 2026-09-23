@@ -40,8 +40,12 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
   const isApiRoute = pathname.startsWith("/api/");
+  const isFirstLoginCompletionRoute =
+    pathname === "/api/auth/complete-first-login";
   const isPublicRoute =
-    pathname === "/" || pathname.startsWith("/api/test-email");
+    pathname === "/" ||
+    pathname.startsWith("/api/test-email") ||
+    isFirstLoginCompletionRoute;
 
   if (!user && !isPublicRoute) {
     if (isApiRoute) {
