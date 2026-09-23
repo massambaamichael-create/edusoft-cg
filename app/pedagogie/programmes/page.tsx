@@ -185,7 +185,7 @@ export default function ProgrammesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F7F8FC] p-6 lg:p-8">
+    <main className="min-h-full bg-[#F6F7FB] px-5 py-7 lg:px-10 lg:py-9">
       <header className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-sm font-semibold text-violet-600">Référentiel pédagogique</p>
@@ -196,7 +196,7 @@ export default function ProgrammesPage() {
         </div>
         <button
           onClick={() => { setShowCreate(true); setError(null); }}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-violet-700"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)] hover:bg-violet-700"
         >
           <Plus className="h-4 w-4" />
           Nouveau programme
@@ -209,7 +209,7 @@ export default function ProgrammesPage() {
         <Metric icon={<ChevronRight className="h-5 w-5" />} label="Progressions" value="À construire" />
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <section className="rounded-[24px] border border-slate-200/80 bg-white shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
         <div className="flex flex-col gap-3 border-b border-slate-100 p-5 lg:flex-row lg:items-center">
           <div className="relative flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -286,7 +286,7 @@ export default function ProgrammesPage() {
 
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4">
-          <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+          <div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-[26px] bg-white shadow-2xl">
             <div className="flex items-start justify-between border-b border-slate-100 p-6">
               <div>
                 <h2 className="text-xl font-bold text-slate-950">Créer un programme</h2>
@@ -360,7 +360,7 @@ export default function ProgrammesPage() {
 
 function Metric({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-[24px] border border-slate-200/80 bg-white p-5 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-600">{icon}</div>
       <div className="mt-4 text-sm text-slate-500">{label}</div>
       <div className="mt-1 text-2xl font-bold text-slate-950">{value}</div>
