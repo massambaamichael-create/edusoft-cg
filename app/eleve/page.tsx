@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { BookOpen, CalendarDays, CreditCard, GraduationCap, LogOut, ShieldCheck, UserRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -116,6 +116,6 @@ export default function ÉlèvePortalPage() {
   );
 }
 
-function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function Stat({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm"><div className="flex items-center gap-2 text-slate-400">{icon}<span className="text-xs font-bold uppercase tracking-[0.12em]">{label}</span></div><p className="mt-3 text-2xl font-bold text-slate-950">{value}</p></div>;
 }
