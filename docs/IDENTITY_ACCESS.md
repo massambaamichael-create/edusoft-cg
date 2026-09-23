@@ -16,7 +16,9 @@ Personne
 public.users
   ├── auth_user_id → auth.users
   ├── school_id
-  └── role_id
+  ├── role_id
+  ├── login_identifier
+  └── must_change_password
         ↓
 Profil métier existant
 (teacher / student / parent / personnel...)
@@ -28,7 +30,9 @@ Il n'existe pas de seconde table de comptes par métier.
 
 ## Identifiant de connexion
 
-- L'identifiant de connexion actuel est l'email du compte Auth.
+- L'email reste l'identité de contact/Auth lorsque disponible.
+- `users.login_identifier` devient l'identifiant fonctionnel central de connexion.
+- Pour les profils sans email, EduSoft peut générer un identifiant établissement (ex. `EDCG-ELV-...`) tout en conservant un email Auth technique interne.
 - L'identifiant métier reste distinct : matricule enseignant, matricule élève, etc.
 - À terme, le PRD permet un identifiant métier de connexion configurable si le schéma et le flux Auth sont adaptés ; cette évolution ne doit pas créer une deuxième source de vérité.
 
