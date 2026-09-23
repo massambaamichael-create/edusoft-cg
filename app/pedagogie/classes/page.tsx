@@ -2597,7 +2597,7 @@ const handlePrincipalTeacherChange = async (
   ======================================================= */
 
   return (
-    <div className="min-h-screen bg-[#F5F7FB] text-gray-900">
+    <div className="min-h-full bg-[#F5F7FB] text-slate-950">
 {/* ===================================================
           SIDEBAR MOBILE
       =================================================== */}
@@ -2614,25 +2614,25 @@ const handlePrincipalTeacherChange = async (
       =================================================== */}
         {/* HEADER */}
 
-        <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur">
+        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
           <div className="flex min-h-[78px] items-center justify-between gap-4 px-5 lg:px-8">
             <div className="flex items-center gap-3">
               
 
               <div>
-                <div className="hidden items-center gap-1.5 text-xs text-gray-400 sm:flex">
+                <div className="hidden items-center gap-1.5 text-xs text-slate-400 sm:flex">
                   <span>
                     Pédagogie
                   </span>
 
                   <ChevronRight className="h-3 w-3" />
 
-                  <span className="font-medium text-gray-600">
+                  <span className="font-medium text-slate-600">
                     Classes
                   </span>
                 </div>
 
-                <h1 className="text-xl font-bold text-gray-900 lg:text-2xl">
+                <h1 className="text-xl font-bold text-slate-950 lg:text-2xl">
                   Classes
                 </h1>
               </div>
@@ -2650,7 +2650,7 @@ const handlePrincipalTeacherChange = async (
                     event.target.value
                   )
                 }
-                className="hidden rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 outline-none focus:border-[#6366F1] sm:block"
+                className="hidden rounded-[18px] border border-slate-200 bg-white px-3 py-2.5 text-sm font-medium text-slate-700 outline-none focus:border-[#6366F1] sm:block"
               >
                 {academicYears.map(
                   (year) => (
@@ -2675,7 +2675,7 @@ const handlePrincipalTeacherChange = async (
 
               <button
                 type="button"
-                className="relative hidden h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:bg-gray-50 sm:flex"
+                className="relative hidden h-10 w-10 items-center justify-center rounded-[18px] border border-slate-200 text-slate-500 transition hover:bg-[#F6F7FB] sm:flex"
               >
                 <Bell className="h-[18px] w-[18px]" />
 
@@ -2687,7 +2687,7 @@ const handlePrincipalTeacherChange = async (
 
               <button
                 type="button"
-                className="hidden h-10 w-10 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:bg-gray-50 sm:flex"
+                className="hidden h-10 w-10 items-center justify-center rounded-[18px] border border-slate-200 text-slate-500 transition hover:bg-[#F6F7FB] sm:flex"
               >
                 <Mail className="h-[18px] w-[18px]" />
               </button>
@@ -2700,7 +2700,7 @@ const handlePrincipalTeacherChange = async (
                 </div>
 
                 <div className="hidden xl:block">
-                  <p className="text-xs font-semibold text-gray-800">
+                  <p className="text-xs font-semibold text-slate-900">
                     {[
                       userProfile?.first_name,
                       userProfile?.last_name,
@@ -2710,7 +2710,7 @@ const handlePrincipalTeacherChange = async (
                       "Admin Directeur"}
                   </p>
 
-                  <p className="text-[10px] text-gray-400">
+                  <p className="text-[10px] text-slate-400">
                     {userRole ||
                       "Directeur"}
                   </p>
@@ -2731,11 +2731,11 @@ const handlePrincipalTeacherChange = async (
                 Gestion pédagogique
               </p>
 
-              <h2 className="mt-1 text-2xl font-bold tracking-tight text-gray-900">
+              <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
                 Organisation des classes
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-slate-500">
                 Gérez les classes, effectifs,
                 enseignants et cycles de votre établissement.
               </p>
@@ -2747,7 +2747,7 @@ const handlePrincipalTeacherChange = async (
                 onClick={() =>
                   loadData(true)
                 }
-                className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-50"
+                className="flex items-center gap-2 rounded-[18px] border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-[#F6F7FB]"
               >
                 <RefreshCw
                   className={`h-4 w-4 ${
@@ -2769,7 +2769,7 @@ const handlePrincipalTeacherChange = async (
                       true
                     )
                   }
-                  className="flex items-center gap-2 rounded-xl bg-[#6366F1] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700"
+                  className="flex items-center gap-2 rounded-[18px] bg-[#6366F1] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)] transition hover:bg-indigo-700"
                 >
                   <Plus className="h-4 w-4" />
                   Nouvelle classe
@@ -2783,7 +2783,7 @@ const handlePrincipalTeacherChange = async (
           ================================================= */}
 
           {successMessage && (
-            <div className="mb-5 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+            <div className="mb-5 flex items-center gap-3 rounded-[18px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
               <Check className="h-4 w-4 shrink-0" />
               <span>
                 {successMessage}
@@ -2805,7 +2805,7 @@ const handlePrincipalTeacherChange = async (
             !showCreateModal &&
             !showImportModal &&
             !showTeamModal && (
-              <div className="mb-5 flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <div className="mb-5 flex items-center gap-3 rounded-[18px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 <AlertCircle className="h-4 w-4 shrink-0" />
 
                 <span>
@@ -2903,10 +2903,10 @@ const handlePrincipalTeacherChange = async (
             <section className="min-w-0">
               {/* RECHERCHE */}
 
-              <div className="mb-5 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+              <div className="mb-5 rounded-[24px] border border-slate-100 bg-white p-4 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div className="relative w-full lg:max-w-md">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
 
                     <input
                       type="text"
@@ -2922,7 +2922,7 @@ const handlePrincipalTeacherChange = async (
                         )
                       }
                       placeholder="Rechercher une classe..."
-                      className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-100"
+                      className="w-full rounded-[18px] border border-slate-200 bg-[#F6F7FB] py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-indigo-300 focus:bg-white focus:ring-2 focus:ring-indigo-100"
                     />
                   </div>
 
@@ -2951,7 +2951,7 @@ const handlePrincipalTeacherChange = async (
                             cycleFilter ===
                             filter
                               ? "bg-[#6366F1] text-white"
-                              : "bg-gray-50 text-gray-500 hover:bg-gray-100"
+                              : "bg-[#F6F7FB] text-slate-500 hover:bg-slate-100"
                           }`}
                         >
                           {filter ===
@@ -2968,10 +2968,10 @@ const handlePrincipalTeacherChange = async (
               {/* SECTIONS CYCLES */}
 
               {loading ? (
-                <div className="rounded-2xl border border-gray-100 bg-white p-12 text-center shadow-sm">
+                <div className="rounded-[24px] border border-slate-100 bg-white p-12 text-center shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
                   <RefreshCw className="mx-auto h-6 w-6 animate-spin text-indigo-500" />
 
-                  <p className="mt-3 text-sm text-gray-500">
+                  <p className="mt-3 text-sm text-slate-500">
                     Chargement des classes...
                   </p>
                 </div>
@@ -3115,14 +3115,14 @@ const handlePrincipalTeacherChange = async (
             <aside className="space-y-5">
               {/* DONUT */}
 
-              <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+              <div className="rounded-[24px] border border-slate-100 bg-white p-5 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-gray-900">
+                    <h3 className="text-sm font-bold text-slate-950">
                       Répartition par cycle
                     </h3>
 
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-slate-400">
                       Classes validées
                     </p>
                   </div>
@@ -3208,14 +3208,14 @@ const handlePrincipalTeacherChange = async (
 
               {/* EN ATTENTE */}
 
-              <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+              <div className="rounded-[24px] border border-slate-100 bg-white p-5 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-bold text-gray-900">
+                    <h3 className="text-sm font-bold text-slate-950">
                       Classes en attente
                     </h3>
 
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-slate-400">
                       {pendingClasses.length} demande(s)
                     </p>
                   </div>
@@ -3227,10 +3227,10 @@ const handlePrincipalTeacherChange = async (
 
                 {pendingClasses.length ===
                 0 ? (
-                  <div className="rounded-xl bg-gray-50 px-4 py-6 text-center">
+                  <div className="rounded-[18px] bg-[#F6F7FB] px-4 py-6 text-center">
                     <Check className="mx-auto h-5 w-5 text-emerald-500" />
 
-                    <p className="mt-2 text-xs font-medium text-gray-500">
+                    <p className="mt-2 text-xs font-medium text-slate-500">
                       Aucune demande en attente
                     </p>
                   </div>
@@ -3252,20 +3252,20 @@ const handlePrincipalTeacherChange = async (
                                 item
                               )
                             }
-                            className="flex w-full items-center gap-3 rounded-xl border border-gray-100 px-3 py-3 text-left transition hover:border-orange-200 hover:bg-orange-50/50"
+                            className="flex w-full items-center gap-3 rounded-[18px] border border-slate-100 px-3 py-3 text-left transition hover:border-orange-200 hover:bg-orange-50/50"
                           >
                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-500">
                               <Clock3 className="h-4 w-4" />
                             </div>
 
                             <div className="min-w-0 flex-1">
-                              <p className="truncate text-xs font-semibold text-gray-800">
+                              <p className="truncate text-xs font-semibold text-slate-900">
                                 {
                                   item.name
                                 }
                               </p>
 
-                              <p className="truncate text-[11px] text-gray-400">
+                              <p className="truncate text-[11px] text-slate-400">
                                 {
                                   item.cycleName
                                 }{" "}
@@ -3286,13 +3286,13 @@ const handlePrincipalTeacherChange = async (
 
               {/* ACTIONS RAPIDES */}
 
-              <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+              <div className="rounded-[24px] border border-slate-100 bg-white p-5 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
                 <div className="mb-4">
-                  <h3 className="text-sm font-bold text-gray-900">
+                  <h3 className="text-sm font-bold text-slate-950">
                     Actions rapides
                   </h3>
 
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p className="mt-1 text-xs text-slate-400">
                     Outils de gestion
                   </p>
                 </div>
@@ -3340,14 +3340,14 @@ const handlePrincipalTeacherChange = async (
 
               {/* MOBILE PREVIEW */}
 
-              <div className="hidden rounded-2xl border border-gray-100 bg-[#F8FAFC] p-5 shadow-sm 2xl:block">
+              <div className="hidden rounded-[24px] border border-slate-100 bg-[#F8FAFC] p-5 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)] 2xl:block">
                 <div className="mb-3 flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-bold text-gray-800">
+                    <p className="text-xs font-bold text-slate-900">
                       Aperçu mobile
                     </p>
 
-                    <p className="text-[10px] text-gray-400">
+                    <p className="text-[10px] text-slate-400">
                       Version condensée
                     </p>
                   </div>
@@ -3368,7 +3368,7 @@ const handlePrincipalTeacherChange = async (
 
                   <div className="space-y-2 p-3">
                     <div className="rounded-lg bg-indigo-50 p-2">
-                      <p className="text-[8px] text-gray-400">
+                      <p className="text-[8px] text-slate-400">
                         Total classes
                       </p>
 
@@ -3389,15 +3389,15 @@ const handlePrincipalTeacherChange = async (
                             key={
                               item.id
                             }
-                            className="rounded-lg border border-gray-100 p-2"
+                            className="rounded-lg border border-slate-100 p-2"
                           >
-                            <p className="truncate text-[9px] font-bold text-gray-700">
+                            <p className="truncate text-[9px] font-bold text-slate-700">
                               {
                                 item.name
                               }
                             </p>
 
-                            <p className="mt-1 text-[8px] text-gray-400">
+                            <p className="mt-1 text-[8px] text-slate-400">
                               {
                                 item.levelName
                               }
@@ -3632,14 +3632,14 @@ const handlePrincipalTeacherChange = async (
             </FormField>
           </div>
 
-          <div className="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-5">
+          <div className="mt-6 flex justify-end gap-3 border-t border-slate-100 pt-5">
             <button
               type="button"
               onClick={
                 closeCreateModal
               }
               disabled={saving}
-              className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+              className="rounded-[18px] border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-[#F6F7FB] disabled:opacity-50"
             >
               Annuler
             </button>
@@ -3652,7 +3652,7 @@ const handlePrincipalTeacherChange = async (
               disabled={
                 saving
               }
-              className="rounded-xl bg-[#6366F1] px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+              className="rounded-[18px] bg-[#6366F1] px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
             >
               {saving
                 ? "Création..."
@@ -3700,16 +3700,16 @@ const handlePrincipalTeacherChange = async (
             />
           )}
 
-          <div className="rounded-2xl border border-dashed border-indigo-200 bg-indigo-50/50 p-6 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-sm">
+          <div className="rounded-[24px] border border-dashed border-indigo-200 bg-indigo-50/50 p-6 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[24px] bg-white text-indigo-600 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
               <FileSpreadsheet className="h-7 w-7" />
             </div>
 
-            <h3 className="mt-4 text-sm font-bold text-gray-800">
+            <h3 className="mt-4 text-sm font-bold text-slate-900">
               Importer un fichier Excel
             </h3>
 
-            <p className="mx-auto mt-1 max-w-md text-xs leading-5 text-gray-500">
+            <p className="mx-auto mt-1 max-w-md text-xs leading-5 text-slate-500">
               Colonnes attendues :
               <strong>
                 {" "}
@@ -3745,7 +3745,7 @@ const handlePrincipalTeacherChange = async (
               onClick={() =>
                 fileInputRef.current?.click()
               }
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#6366F1] px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+              className="mt-5 inline-flex items-center gap-2 rounded-[18px] bg-[#6366F1] px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
             >
               <Upload className="h-4 w-4" />
               Choisir un fichier
@@ -3763,11 +3763,11 @@ const handlePrincipalTeacherChange = async (
             <div className="mt-5">
               <div className="mb-3 flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-gray-900">
+                  <h3 className="text-sm font-bold text-slate-950">
                     Aperçu
                   </h3>
 
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-slate-400">
                     {
                       importRows.length
                     }{" "}
@@ -3783,9 +3783,9 @@ const handlePrincipalTeacherChange = async (
                 </span>
               </div>
 
-              <div className="max-h-64 overflow-auto rounded-xl border border-gray-100">
+              <div className="max-h-64 overflow-auto rounded-[18px] border border-slate-100">
                 <table className="w-full text-left text-xs">
-                  <thead className="sticky top-0 bg-gray-50 text-gray-500">
+                  <thead className="sticky top-0 bg-[#F6F7FB] text-slate-500">
                     <tr>
                       <th className="px-4 py-3">
                         Classe
@@ -3820,27 +3820,27 @@ const handlePrincipalTeacherChange = async (
                             key={
                               `${row.name}-${index}`
                             }
-                            className="border-t border-gray-100"
+                            className="border-t border-slate-100"
                           >
-                            <td className="px-4 py-3 font-semibold text-gray-700">
+                            <td className="px-4 py-3 font-semibold text-slate-700">
                               {
                                 row.name
                               }
                             </td>
 
-                            <td className="px-4 py-3 text-gray-500">
+                            <td className="px-4 py-3 text-slate-500">
                               {
                                 row.cycle
                               }
                             </td>
 
-                            <td className="px-4 py-3 text-gray-500">
+                            <td className="px-4 py-3 text-slate-500">
                               {
                                 row.level
                               }
                             </td>
 
-                            <td className="px-4 py-3 text-gray-500">
+                            <td className="px-4 py-3 text-slate-500">
                               {row.series ||
                                 "—"}
                             </td>
@@ -3894,7 +3894,7 @@ const handlePrincipalTeacherChange = async (
 
               {importLoading && (
                 <div className="mt-4">
-                  <div className="mb-2 flex justify-between text-xs text-gray-500">
+                  <div className="mb-2 flex justify-between text-xs text-slate-500">
                     <span>
                       Importation...
                     </span>
@@ -3907,7 +3907,7 @@ const handlePrincipalTeacherChange = async (
                     </span>
                   </div>
 
-                  <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+                  <div className="h-2 overflow-hidden rounded-full bg-slate-100">
                     <div
                       className="h-full rounded-full bg-[#6366F1] transition-all"
                       style={{
@@ -3918,7 +3918,7 @@ const handlePrincipalTeacherChange = async (
                 </div>
               )}
 
-              <div className="mt-5 flex justify-end gap-3 border-t border-gray-100 pt-5">
+              <div className="mt-5 flex justify-end gap-3 border-t border-slate-100 pt-5">
                 <button
                   type="button"
                   onClick={() =>
@@ -3929,7 +3929,7 @@ const handlePrincipalTeacherChange = async (
                   disabled={
                     importLoading
                   }
-                  className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                  className="rounded-[18px] border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:bg-[#F6F7FB] disabled:opacity-50"
                 >
                   Effacer
                 </button>
@@ -3942,7 +3942,7 @@ const handlePrincipalTeacherChange = async (
                   disabled={
                     importLoading
                   }
-                  className="flex items-center gap-2 rounded-xl bg-[#6366F1] px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-[18px] bg-[#6366F1] px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
                 >
                   <Upload className="h-4 w-4" />
                   Importer les classes
@@ -3980,7 +3980,7 @@ const handlePrincipalTeacherChange = async (
               <div className="py-12 text-center">
                 <RefreshCw className="mx-auto h-6 w-6 animate-spin text-indigo-500" />
 
-                <p className="mt-3 text-sm text-gray-500">
+                <p className="mt-3 text-sm text-slate-500">
                   Chargement...
                 </p>
               </div>
@@ -3995,13 +3995,13 @@ const handlePrincipalTeacherChange = async (
   getCycleName(selectedClassForTeam.cycle_id)
     .toLowerCase()
     .includes("primaire") ? (
-  <div className="rounded-xl border border-indigo-100 bg-indigo-50/50 p-5">
+  <div className="rounded-[18px] border border-indigo-100 bg-indigo-50/50 p-5">
     <div className="mb-3">
-      <h3 className="text-sm font-bold text-gray-900">
+      <h3 className="text-sm font-bold text-slate-950">
         Enseignant principal
       </h3>
 
-      <p className="mt-1 text-xs text-gray-500">
+      <p className="mt-1 text-xs text-slate-500">
         Pour le primaire, cet enseignant sera automatiquement
         responsable de toutes les matières de la classe.
       </p>
@@ -4085,7 +4085,7 @@ const handlePrincipalTeacherChange = async (
       teamSaving ||
       !selectedSubject
     }
-    className="flex items-center justify-center gap-2 rounded-xl bg-[#6366F1] px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+    className="flex items-center justify-center gap-2 rounded-[18px] bg-[#6366F1] px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
   >
     <Plus className="h-4 w-4" />
     Ajouter
@@ -4096,11 +4096,11 @@ const handlePrincipalTeacherChange = async (
 
                 <div>
                   <div className="mb-3 flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-gray-900">
+                    <h3 className="text-sm font-bold text-slate-950">
                       Matières de la classe
                     </h3>
 
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-slate-400">
                       {
                         classSubjects.length
                       }{" "}
@@ -4110,10 +4110,10 @@ const handlePrincipalTeacherChange = async (
 
                   {classSubjects.length ===
                   0 ? (
-                    <div className="rounded-xl border border-dashed border-gray-200 px-5 py-10 text-center">
+                    <div className="rounded-[18px] border border-dashed border-slate-200 px-5 py-10 text-center">
                       <BookOpen className="mx-auto h-6 w-6 text-gray-300" />
 
-                      <p className="mt-2 text-sm font-medium text-gray-500">
+                      <p className="mt-2 text-sm font-medium text-slate-500">
                         Aucune matière affectée
                       </p>
                     </div>
@@ -4150,28 +4150,28 @@ const handlePrincipalTeacherChange = async (
                               key={
                                 classSubject.id
                               }
-                              className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm"
+                              className="rounded-[18px] border border-slate-100 bg-white p-4 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]"
                             >
                               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                 <div className="flex items-center gap-3">
-                                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+                                  <div className="flex h-10 w-10 items-center justify-center rounded-[18px] bg-indigo-50 text-indigo-600">
                                     <BookOpen className="h-4 w-4" />
                                   </div>
 
                                   <div>
-                                    <p className="text-sm font-bold text-gray-800">
+                                    <p className="text-sm font-bold text-slate-900">
                                       {subject?.name ||
                                         "Matière inconnue"}
                                     </p>
 
-                                   <p className="text-xs text-gray-400">
+                                   <p className="text-xs text-slate-400">
   Coefficient {classSubject.coefficient}
 </p>
                                   </div>
                                 </div>
 
                                 <div className="min-w-[250px]">
-                                  <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                                  <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-wider text-slate-400">
                                     Enseignant
                                   </label>
                                   <select
@@ -4269,8 +4269,8 @@ const handlePrincipalTeacherChange = async (
               }
             />
 
-            <div className="flex items-center justify-between rounded-xl bg-orange-50 px-4 py-3">
-              <span className="text-sm font-medium text-gray-600">
+            <div className="flex items-center justify-between rounded-[18px] bg-orange-50 px-4 py-3">
+              <span className="text-sm font-medium text-slate-600">
                 Statut
               </span>
 
@@ -4280,7 +4280,7 @@ const handlePrincipalTeacherChange = async (
             </div>
 
             {isDirector && (
-              <div className="grid grid-cols-2 gap-3 border-t border-gray-100 pt-5">
+              <div className="grid grid-cols-2 gap-3 border-t border-slate-100 pt-5">
                 <button
                   type="button"
                   onClick={async () => {
@@ -4296,7 +4296,7 @@ const handlePrincipalTeacherChange = async (
                     processingId ===
                     selectedClass.id
                   }
-                  className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                  className="flex items-center justify-center gap-2 rounded-[18px] bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
                 >
                   <Check className="h-4 w-4" />
                   Valider
@@ -4317,7 +4317,7 @@ const handlePrincipalTeacherChange = async (
                     processingId ===
                     selectedClass.id
                   }
-                  className="flex items-center justify-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50"
+                  className="flex items-center justify-center gap-2 rounded-[18px] bg-red-50 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-100 disabled:opacity-50"
                 >
                   <XCircle className="h-4 w-4" />
                   Refuser
@@ -4349,24 +4349,24 @@ function StatCard({
   iconClass: string;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+    <div className="rounded-[24px] border border-slate-100 bg-white p-5 shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium text-gray-400">
+          <p className="text-xs font-medium text-slate-400">
             {title}
           </p>
 
-          <p className="mt-2 text-2xl font-bold tracking-tight text-gray-900">
+          <p className="mt-2 text-2xl font-bold tracking-tight text-slate-950">
             {value}
           </p>
 
-          <p className="mt-1 text-[11px] text-gray-400">
+          <p className="mt-1 text-[11px] text-slate-400">
             {subtitle}
           </p>
         </div>
 
         <div
-  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconClass}`}
+  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[18px] ${iconClass}`}
 >
   {icon}
 </div>
@@ -4426,24 +4426,24 @@ function CycleTable({
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+    <div className="overflow-hidden rounded-[24px] border border-slate-100 bg-white shadow-[0_14px_45px_-28px_rgba(15,23,42,0.35)]">
+      <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
         <div className="flex items-center gap-3">
           <div
             className={`h-2.5 w-2.5 rounded-full ${colors[color].dot}`}
           />
 
           <div>
-            <h3 className="text-sm font-bold text-gray-900">
+            <h3 className="text-sm font-bold text-slate-950">
               {title}
             </h3>
 
-            <p className="mt-0.5 text-[11px] text-gray-400">
+            <p className="mt-0.5 text-[11px] text-slate-400">
               Organisation pédagogique
             </p>
           </div>
 
-          <span className="rounded-full bg-gray-50 px-2.5 py-1 text-[10px] font-semibold text-gray-500">
+          <span className="rounded-full bg-[#F6F7FB] px-2.5 py-1 text-[10px] font-semibold text-slate-500">
             {total}
           </span>
         </div>
@@ -4460,7 +4460,7 @@ function CycleTable({
         <div className="px-5 py-10 text-center">
           <GraduationCap className="mx-auto h-6 w-6 text-gray-300" />
 
-          <p className="mt-2 text-xs font-medium text-gray-500">
+          <p className="mt-2 text-xs font-medium text-slate-500">
             Aucune classe
           </p>
         </div>
@@ -4470,8 +4470,8 @@ function CycleTable({
 
           <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-left">
-              <thead className="bg-gray-50/80">
-                <tr className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+              <thead className="bg-[#F6F7FB]/80">
+                <tr className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   <th className="px-5 py-3">
                     Classe
                   </th>
@@ -4548,17 +4548,17 @@ function CycleTable({
                 ) => (
                   <div
   key={schoolClass.id}
-  className="rounded-xl border border-gray-100 p-4"
+  className="rounded-[18px] border border-slate-100 p-4"
 >
   <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-bold text-gray-800">
+                        <p className="text-sm font-bold text-slate-900">
                           {
                             schoolClass.name
                           }
                         </p>
 
-                        <p className="mt-1 text-xs text-gray-400">
+                        <p className="mt-1 text-xs text-slate-400">
                           {
                             schoolClass.levelName
                           }
@@ -4576,24 +4576,24 @@ function CycleTable({
                     </div>
 
                     <div className="mt-4 grid grid-cols-2 gap-3">
-                      <div className="rounded-lg bg-gray-50 p-3">
-                        <p className="text-[10px] text-gray-400">
+                      <div className="rounded-lg bg-[#F6F7FB] p-3">
+                        <p className="text-[10px] text-slate-400">
                           Effectif
                         </p>
 
-                        <p className="mt-1 text-sm font-bold text-gray-700">
+                        <p className="mt-1 text-sm font-bold text-slate-700">
                           {
                             schoolClass.studentCount
                           }
                         </p>
                       </div>
 
-                      <div className="rounded-lg bg-gray-50 p-3">
-                        <p className="text-[10px] text-gray-400">
+                      <div className="rounded-lg bg-[#F6F7FB] p-3">
+                        <p className="text-[10px] text-slate-400">
                           Enseignant
                         </p>
 
-                        <p className="mt-1 truncate text-xs font-semibold text-gray-700">
+                        <p className="mt-1 truncate text-xs font-semibold text-slate-700">
                           {
                             schoolClass.principalTeacherName
                           }
@@ -4661,10 +4661,10 @@ function ClassTableRow({
     schoolClass.id;
 
   return (
-    <tr className="border-t border-gray-100 transition hover:bg-gray-50/60">
+    <tr className="border-t border-slate-100 transition hover:bg-[#F6F7FB]/60">
       <td className="px-5 py-4">
         <div>
-          <p className="text-sm font-semibold text-gray-800">
+          <p className="text-sm font-semibold text-slate-900">
             {schoolClass.name}
           </p>
 
@@ -4679,14 +4679,14 @@ function ClassTableRow({
         </div>
       </td>
 
-      <td className="px-4 py-4 text-xs font-medium text-gray-500">
+      <td className="px-4 py-4 text-xs font-medium text-slate-500">
         {
           schoolClass.levelName
         }
       </td>
 
       <td className="px-4 py-4">
-        <span className="text-xs font-semibold text-gray-600">
+        <span className="text-xs font-semibold text-slate-600">
           {
             schoolClass.studentCount
           }{" "}
@@ -4700,11 +4700,11 @@ function ClassTableRow({
 
       <td className="px-4 py-4">
         <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-gray-500">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500">
             <UserRound className="h-3.5 w-3.5" />
           </div>
 
-          <span className="max-w-[150px] truncate text-xs font-medium text-gray-600">
+          <span className="max-w-[150px] truncate text-xs font-medium text-slate-600">
             {
               schoolClass.principalTeacherName
             }
@@ -4728,19 +4728,19 @@ function ClassTableRow({
   onClick={() =>
     setMenuOpen((previous) => !previous)
   }
-  className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+  className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
 >
   <MoreHorizontal className="h-4 w-4" />
 </button>
             {menuOpen && (
-              <div className="absolute right-0 top-9 z-30 w-48 overflow-hidden rounded-xl border border-gray-100 bg-white p-1.5 shadow-xl">
+              <div className="absolute right-0 top-9 z-30 w-48 overflow-hidden rounded-[18px] border border-slate-100 bg-white p-1.5 shadow-xl">
                 <button
   type="button"
   onClick={() => {
     onTeam(schoolClass);
     setMenuOpen(false);
   }}
-  className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-xs font-medium text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
+  className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-xs font-medium text-slate-600 hover:bg-indigo-50 hover:text-indigo-600"
 >
   <UsersRound className="h-4 w-4" />
   Équipe pédagogique
@@ -4947,11 +4947,11 @@ function DonutChart({
       </svg>
 
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold text-gray-900">
+        <span className="text-2xl font-bold text-slate-950">
           {total}
         </span>
 
-        <span className="text-[10px] font-medium text-gray-400">
+        <span className="text-[10px] font-medium text-slate-400">
           Total classes
         </span>
       </div>
@@ -4980,15 +4980,15 @@ function CycleLegend({
         className={`h-2.5 w-2.5 rounded-full ${dotClass}`}
       />
 
-      <span className="flex-1 text-xs font-medium text-gray-600">
+      <span className="flex-1 text-xs font-medium text-slate-600">
         {label}
       </span>
 
-      <span className="text-xs font-bold text-gray-800">
+      <span className="text-xs font-bold text-slate-900">
         {value}
       </span>
 
-      <span className="w-10 text-right text-[10px] text-gray-400">
+      <span className="w-10 text-right text-[10px] text-slate-400">
         {percent}%
       </span>
     </div>
@@ -5016,7 +5016,7 @@ function QuickAction({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-xl border border-transparent p-2.5 text-left transition hover:border-gray-100 hover:bg-gray-50"
+      className="flex w-full items-center gap-3 rounded-[18px] border border-transparent p-2.5 text-left transition hover:border-slate-100 hover:bg-[#F6F7FB]"
     >
       <div
   className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${iconClass}`}
@@ -5025,11 +5025,11 @@ function QuickAction({
 </div>
 
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-semibold text-gray-700">
+        <p className="text-xs font-semibold text-slate-700">
           {label}
         </p>
 
-        <p className="mt-0.5 text-[10px] text-gray-400">
+        <p className="mt-0.5 text-[10px] text-slate-400">
           {description}
         </p>
       </div>
@@ -5059,16 +5059,16 @@ function Modal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
       <div
-        className={`max-h-[90vh] w-full overflow-hidden rounded-2xl bg-white shadow-2xl ${maxWidth}`}
+        className={`max-h-[90vh] w-full overflow-hidden rounded-[24px] bg-white shadow-2xl ${maxWidth}`}
       >
-        <div className="flex items-start justify-between border-b border-gray-100 px-6 py-5">
+        <div className="flex items-start justify-between border-b border-slate-100 px-6 py-5">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-slate-950">
               {title}
             </h2>
 
             {subtitle && (
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-slate-500">
                 {subtitle}
               </p>
             )}
@@ -5077,7 +5077,7 @@ function Modal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+            className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
           >
             <X className="h-5 w-5" />
           </button>
@@ -5104,7 +5104,7 @@ function FormField({
 }) {
   return (
     <div>
-      <label className="mb-2 block text-xs font-semibold text-gray-700">
+      <label className="mb-2 block text-xs font-semibold text-slate-700">
         {label}
       </label>
 
@@ -5126,7 +5126,7 @@ function AlertBox({
 }) {
   return (
     <div
-      className={`mb-5 rounded-xl border px-4 py-3 text-sm ${
+      className={`mb-5 rounded-[18px] border px-4 py-3 text-sm ${
         type === "error"
           ? "border-red-200 bg-red-50 text-red-700"
           : "border-emerald-200 bg-emerald-50 text-emerald-700"
@@ -5149,12 +5149,12 @@ function DetailRow({
   value: string;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3">
-      <span className="text-xs font-medium text-gray-400">
+    <div className="flex items-center justify-between rounded-[18px] bg-[#F6F7FB] px-4 py-3">
+      <span className="text-xs font-medium text-slate-400">
         {label}
       </span>
 
-      <span className="max-w-[60%] truncate text-right text-sm font-semibold text-gray-700">
+      <span className="max-w-[60%] truncate text-right text-sm font-semibold text-slate-700">
         {value}
       </span>
     </div>
